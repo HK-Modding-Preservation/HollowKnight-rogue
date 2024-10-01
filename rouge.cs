@@ -39,7 +39,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
 
     public override string GetVersion()
     {
-        return "1.0.0.0";
+        return "1.0.0.2";
     }
     public class actions : PlayerActionSet
     {
@@ -2427,7 +2427,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         menu.AddElement(b);
         menu.AddElement(d);
         menu.AddElement(c);
-        var text = new Satchel.BetterMenus.TextPanel("本mod为空洞肉鸽mod(丝之肉鸽？)，为国庆期间举办的水晶杯制作，当前为V1.0.0.0正式版。", width: 1500);
+        var text = new Satchel.BetterMenus.TextPanel("本mod为空洞肉鸽mod(丝之肉鸽？)，为国庆期间举办的水晶杯制作，当前为V" + GetVersion() + "正式版。", width: 1500);
 
         Menu giftBase = new("天赋库");
         int count = 0;
