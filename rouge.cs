@@ -1,8 +1,10 @@
 ﻿using System;
 using System.CodeDom;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Runtime.InteropServices;
 using System.Security.Policy;
 using HutongGames.PlayMaker;
@@ -15,10 +17,12 @@ using Modding;
 using Modding.Converters;
 using Mono.Cecil;
 using Mono.Math.Prime.Generator;
+using Newtonsoft.Json;
 using Satchel;
 using Satchel.BetterMenus;
 using Satchel.Futils;
 using Satchel.Futils.Serialiser;
+using Steamworks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.U2D;
@@ -105,7 +109,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         add_2_mask,
         add_1_vessel,
         add_3_notch,
-        add_4_naildamage,
+        nail_upgrade,
         get_fireball,
         get_scream,
         get_quake,
@@ -118,8 +122,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         get_cyclone,
         get_any_spell,
         get_any_nail_art,
-        get_any_weiyi,
-        get_an_big_gift,
+        get_any_shift,
+        get_a_big_gift,
         get_500_geo,
         get_power,
         get_saman,
@@ -131,22 +135,22 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         get_badeer_yingke_wuyou,
         get_zigong_bianzhizhe_chongge,
         get_any_2_charms,
-        get_one_die,
+        get_one_egg,
         get_xichong,
         get_birthright,
         warrior,
-        fashi,
-        youxia,
+        mage,
+        ranger,
         nail_master,
         shaman,
         hunter,
         uunn,
-        johny,
+        joni,
         guarder,
         moth,
         grey_prince,
         grimm,
-        tuke,
+        Tuk,
         defender,
         mantis,
         collector,
@@ -155,13 +159,13 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         shop_add_1_notch_2,
         shop_add_1_notch_3,
         shop_add_1_notch_4,
-        shop_add_4_nail_damage,
+        shop_nail_upgrade,
         shop_random_gift,
         shop_any_charm_1,
         shop_any_charm_2,
         shop_any_charm_3,
         shop_any_charm_4,
-        shop_relive,
+        shop_egg,
         shop_super_dash,
         shop_wall_jump,
         shop_dream_nail,
@@ -177,10 +181,6 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
 
     public Dictionary<string, string> name_and_desc = new Dictionary<string, string>
     {
-        {"物品描述","这是测试的第一个物品"},
-        {"物品名称","测试物品"},
-        {"物品价格","114514"},
-        {"",""},
     };
 
     Dictionary<giftname, (float, int)> charm_weight_and_price = new Dictionary<giftname, (float, int)>
@@ -319,10 +319,14 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         [NonSerialized]
         public giftname giftname;
 
+        [NonSerialized]
         public string name = "";
 
+        [NonSerialized]
         public string desc = "";
 
+
+        [NonSerialized]
         public float weight = 0;
 
         [NonSerialized]
@@ -357,6 +361,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
     public override void Initialize(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
     {
         base.Initialize(preloadedObjects);
+        Lang.init();
         shiny_item = UnityEngine.Object.Instantiate(preloadedObjects[item_scene][item]);
         shiny_item.LocateMyFSM("Shiny Control").ChangeTransition("PD Bool?", "COLLECTED", "Fling?");
         shiny_item.SetActive(false);
@@ -443,9 +448,6 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         On.BossSequenceController.SetupNewSequence += BeginScene;
         ModHooks.TakeHealthHook += new_relive;
         On.HeroController.Awake += OnSavegameLoad;
-
-        // ModHooks.DoAttackHook += DoAttackHook;
-
 
     }
 
@@ -550,22 +552,22 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             if (((PlayerData.instance.health + PlayerData.instance.healthBlue) <= damage) || (PlayerData.instance.equippedCharm_27 && (PlayerData.instance.healthBlue <= damage)))
             {
                 relive_num--;
-                if (role == giftname.tuke)
+                if (role == giftname.Tuk)
                 {
                     int r = UnityEngine.Random.Range(0, 2);
                     if (r == 0)
                     {
                         AddNailDamage();
-                        ShowConvo("+1骨钉");
+                        ShowConvo("nail_upgrade_name".Localize());
                     }
                     else
                     {
                         GiveMask();
                         GiveMask();
-                        ShowConvo("+2面具");
+                        ShowConvo("add_2_mask_name".Localize());
                     }
                 }
-                if (role == giftname.johny)
+                if (role == giftname.joni)
                 {
                 }
                 else
@@ -629,7 +631,6 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
 
     private void BeginScene(On.BossSequenceController.orig_SetupNewSequence orig, BossSequence sequence, BossSequenceController.ChallengeBindings bindings, string playerData)
     {
-        Log("begin!!!");
         orig(sequence, bindings, playerData);
     }
 
@@ -637,7 +638,6 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
     {
 
         if (inRogue) inRogue = false;
-        Log("Scene OVER");
         orig(self);
 
     }
@@ -647,7 +647,6 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         Log("RewardInit");
 
         smallRewards.Clear();
-
         smallRewards.Add(giftname.add_2_mask, new gift()
         {
             level = 1,
@@ -655,9 +654,9 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                     {
                         GiveMask();
                         GiveMask();
-                        Log("2 mask");
                     },
-            desc = "+2面具",
+            name = "add_2_mask_name".Localize(),
+            desc = "add_2_mask_name".Localize(),
             weight = 1f,
         });
         smallRewards.Add(giftname.add_1_vessel, new gift()
@@ -668,16 +667,18 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                         GiveVessel();
                         Log("1 vessel");
                     },
-            desc = "+1魂槽",
+            name = "add_1_vessel_name".Localize(),
+            desc = "add_1_vessel_name".Localize(),
             weight = 1.1f,
         });
-        smallRewards.Add(giftname.add_4_naildamage, new gift()
+        smallRewards.Add(giftname.nail_upgrade, new gift()
         {
             level = 1,
             reward = (giftname) =>
             {
                 AddNailDamage();
             },
+            name = "nail_upgrade_name".Localize(),
             desc = "+1骨钉",
             weight = 1f,
         });
@@ -690,6 +691,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 if (PlayerData.instance.charmSlots > 11)
                     PlayerData.instance.charmSlots = 11;
             },
+            name = "add_3_notch_name".Localize(),
             desc = "+3护符槽",
             weight = 1.1f,
         });
@@ -698,11 +700,11 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             level = 2,
             reward = (giftname) =>
             {
-                Log("spell");
                 PlayerData.instance.hasSpell = true;
                 if (PlayerData.instance.fireballLevel < 2)
                     PlayerData.instance.fireballLevel++;
             },
+            name = "get_fireball_name".Localize(),
             desc = "获得波法术",
             weight = 0.9f,
         });
@@ -711,11 +713,11 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             level = 2,
             reward = (giftname) =>
         {
-            Log("scream");
             PlayerData.instance.hasSpell = true;
             if (PlayerData.instance.screamLevel < 2)
                 PlayerData.instance.screamLevel++;
         },
+            name = "get_scream_name".Localize(),
             desc = "获得吼法术",
             weight = 0.9f,
         });
@@ -724,11 +726,11 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             level = 3,
             reward = (giftname) =>
                     {
-                        Log("quake");
                         PlayerData.instance.hasSpell = true;
                         if (PlayerData.instance.quakeLevel < 2)
                             PlayerData.instance.quakeLevel++;
                     },
+            name = "get_quake_name".Localize(),
             desc = "获得砸法术",
             weight = 0.8f,
         });
@@ -737,7 +739,6 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             level = 3,
             reward = (giftname) =>
         {
-            Log("chong");
             if (PlayerData.instance.hasDash)
             {
                 PlayerData.instance.hasShadowDash = true;
@@ -749,6 +750,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 PlayerData.instance.canDash = true;
             }
         },
+            name = "get_dash_name".Localize(),
             desc = "获得冲刺",
             weight = 0.8f,
         });
@@ -757,9 +759,9 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             level = 3,
             reward = (giftname) =>
         {
-            Log("Double jump");
             PlayerData.instance.hasDoubleJump = true;
         },
+            name = Language.Language.Get("INV_NAME_DOUBLEJUMP", "UI"),
             desc = "获得二段跳",
             weight = 0.8f,
         });
@@ -776,6 +778,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                         PlayerData.instance.canWallJump = true;
                         PlayerData.instance.canSuperDash = true;
                     },
+            name = Language.Language.Get("INV_NAME_WALLJUMP", "UI") + "\n" + Language.Language.Get("INV_NAME_SUPERDASH", "UI") + "\n" + Language.Language.Get("INV_NAME_ACIDARMOUR", "UI") + "\n" + Language.Language.Get("INV_NAME_DREAMNAIL_A", "UI"),
             desc = "获得螳螂爪/超冲/酸泪/梦钉",
             weight = 1f,
         });
@@ -788,11 +791,12 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             if (PlayerData.instance.fireballLevel == 1) gifts.Add(smallRewards[giftname.get_fireball]);
             if (PlayerData.instance.screamLevel == 1) gifts.Add(smallRewards[giftname.get_scream]);
             if (PlayerData.instance.quakeLevel == 1) gifts.Add(smallRewards[giftname.get_quake]);
-            if (PlayerData.instance.nailDamage < 21) gifts.Add(smallRewards[giftname.add_4_naildamage]);
+            if (PlayerData.instance.nailDamage < 21) gifts.Add(smallRewards[giftname.nail_upgrade]);
             if (PlayerData.instance.hasDash && (!PlayerData.instance.hasShadowDash)) gifts.Add(smallRewards[giftname.get_dash]);
             itemManager.rewardsStack.Push(new ItemManager.OneReward() { select = 1, mode = ItemManager.Mode.fix_select_small_gift, gifts = gifts });
 
         },
+            name = "get_one_skill_up_name".Localize(),
             desc = "选择一已有法术/冲刺/骨钉升级",
             weight = 0.8f,
         });
@@ -805,6 +809,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 PlayerData.instance.hasNailArt = true;
             }
             ,
+            name = Language.Language.Get("INV_NAME_ART_UPPER", "UI"),
             desc = "获得冲刺劈砍",
             weight = 1.1f,
         });
@@ -816,6 +821,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                         PlayerData.instance.hasDashSlash = true;
                         PlayerData.instance.hasNailArt = true;
                     },
+            name = Language.Language.Get("INV_NAME_ART_DASH", "UI"),
             desc = "获得强力劈砍",
             weight = 1.1f,
         });
@@ -827,6 +833,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                         PlayerData.instance.hasCyclone = true;
                         PlayerData.instance.hasNailArt = true;
                     },
+            name = Language.Language.Get("INV_NAME_ART_CYCLONE", "UI"),
             desc = "获得旋风劈砍",
             weight = 1f,
         });
@@ -839,11 +846,12 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             itemManager.rewardsStack.Push(new ItemManager.OneReward() { select = 1, mode = ItemManager.Mode.fix_select_small_gift, gifts = gifts });
 
         },
+            name = "get_any_spell_name".Localize(),
             desc = "获得任一法术",
             weight = 0f,
             active = false,
         });
-        smallRewards.Add(giftname.get_any_weiyi, new gift()
+        smallRewards.Add(giftname.get_any_shift, new gift()
         {
             level = 3,
             reward = (giftname) =>
@@ -852,6 +860,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             itemManager.rewardsStack.Push(new ItemManager.OneReward() { select = 1, mode = ItemManager.Mode.fix_select_small_gift, gifts = gifts });
 
         },
+            name = "get_any_shift_name".Localize(),
             desc = "获得任一位移",
             weight = 0f,
             active = false,
@@ -865,18 +874,20 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             itemManager.rewardsStack.Push(new ItemManager.OneReward() { select = 1, mode = ItemManager.Mode.fix_select_small_gift, gifts = gifts });
 
         },
+            name = "get_any_nail_art_name".Localize(),
             desc = "获得任一剑技",
             weight = 0f,
             active = false
         });
-        smallRewards.Add(giftname.get_an_big_gift, new gift()
+        smallRewards.Add(giftname.get_a_big_gift, new gift()
         {
             level = 4,
             reward = (giftname) =>
             {
                 itemManager.rewardsStack.Push(new ItemManager.OneReward() { select = 1, mode = ItemManager.Mode.one_big_gift });
-                smallRewards[giftname.get_an_big_gift].weight = 0;
+                smallRewards[giftname.get_a_big_gift].weight = 0;
             },
+            name = "get_a_big_gift_name".Localize(),
             desc = "随机一个大天赋",
             weight = 0.7f,
         });
@@ -888,6 +899,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 HeroController.instance.AddGeo(500);
                 smallRewards[giftname.get_500_geo].weight = 0;
             },
+            name = "get_500_geo_name".Localize(),
             desc = "获得500吉欧",
             weight = 1
         });
@@ -898,6 +910,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             {
                 PlayerData.instance.gotCharm_25 = true;
             },
+            name = Language.Language.Get("CHARM_NAME_25_G", "UI"),
             desc = "获得坚固力量",
             weight = 0.9f,
         });
@@ -908,6 +921,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                     {
                         PlayerData.instance.gotCharm_19 = true;
                     },
+            name = Language.Language.Get("CHARM_NAME_19", "UI"),
             desc = "获得萨满之石",
             weight = 0.8f,
         });
@@ -920,6 +934,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             PlayerData.instance.gotCharm_32 = true;
 
         },
+            name = Language.Language.Get("CHARM_NAME_14", "UI") + "\n" + Language.Language.Get("CHARM_NAME_32", "UI"),
             desc = "获得稳定之体&快速劈砍",
             weight = 0.9f,
         });
@@ -930,6 +945,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                     {
                         PlayerData.instance.gotCharm_13 = true;
                     },
+            name = Language.Language.Get("CHARM_NAME_13", "UI"),
             desc = "获得骄傲印记",
             weight = 1f,
         });
@@ -941,6 +957,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 PlayerData.instance.gotCharm_33 = true;
                 PlayerData.instance.gotCharm_20 = true;
             },
+            name = Language.Language.Get("CHARM_NAME_33", "UI") + "\n" + Language.Language.Get("CHARM_NAME_20", "UI"),
             desc = "获得法术扭曲者&灵魂捕手",
             weight = 0.9f,
         });
@@ -952,6 +969,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 PlayerData.instance.gotCharm_21 = true;
             }
             ,
+            name = Language.Language.Get("CHARM_NAME_21", "UI"),
             desc = "获得噬魂者",
             weight = 0.9f,
         });
@@ -964,6 +982,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 PlayerData.instance.gotCharm_34 = true;
                 PlayerData.instance.gotCharm_28 = true;
             },
+            name = Language.Language.Get("CHARM_NAME_7", "UI") + "&" + Language.Language.Get("CHARM_NAME_34", "UI") + "&" + Language.Language.Get("CHARM_NAME_28", "UI"),
             desc = "获得快速聚集&深度聚集&乌恩之形",
             weight = 1f,
             active = true,
@@ -978,6 +997,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 PlayerData.instance.gotCharm_4 = true;
                 PlayerData.instance.gotCharm_40 = true;
             },
+            name = Language.Language.Get("CHARM_NAME_5", "UI") + "&" + Language.Language.Get("CHARM_NAME_4", "UI") + "&" + Language.Language.Get("CHARM_NAME_40_N", "UI"),
             desc = "获得巴德尔纸壳&坚硬外壳&无忧旋律",
             weight = 1.1f,
         });
@@ -990,6 +1010,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 PlayerData.instance.gotCharm_39 = true;
                 PlayerData.instance.gotCharm_3 = true;
             },
+            name = Language.Language.Get("CHARM_NAME_22", "UI") + "&" + Language.Language.Get("CHARM_NAME_39", "UI") + "&" + Language.Language.Get("CHARM_NAME_3", "UI"),
             desc = "获得发光子宫&编织者之歌&幼虫之歌",
             weight = 1f,
         });
@@ -1001,16 +1022,18 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 getAnyCharm += 2;
                 smallRewards[giftname.get_any_2_charms].weight = 0;
             },
+            name = "get_any_2_charms_name".Localize(),
             desc = "自选任意两个护符",
             weight = 0.7f,
         });
-        smallRewards.Add(giftname.get_one_die, new gift()
+        smallRewards.Add(giftname.get_one_egg, new gift()
         {
             level = 1,
             reward = (giftname) =>
             {
                 relive_num++;
             },
+            name = Language.Language.Get("INV_NAME_RANCIDEGG", "UI"),
             desc = "腐臭蛋+1",
             weight = 1f,
         });
@@ -1021,6 +1044,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             {
                 PlayerData.instance.gotCharm_11 = true;
             },
+            name = Language.Language.Get("CHARM_NAME_11", "UI"),
             desc = "获得吸虫之巢",
             weight = 0.8f,
         });
@@ -1034,65 +1058,66 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 {
                     case giftname.nail_master:
                         PlayerData.instance.gotCharm_26 = true;
-                        ShowConvo("获得0槽骨钉大师的荣耀");
+                        ShowConvo("nail_master_get_birthright_prompt".Localize());
                         break;
                     case giftname.shaman:
                         if (PlayerData.instance.quakeLevel < 2)
                         {
                             PlayerData.instance.quakeLevel++;
                         }
-                        ShowConvo("获得砸法术");
+                        ShowConvo("shaman_get_birthright_prompt".Localize());
                         break;
                     case giftname.hunter:
                         PlayerData.instance.charmSlots += Math.Min(3, 11 - PlayerData.instance.charmSlots);
-                        ShowConvo("+3护符槽");
+                        ShowConvo("hunter_get_birthright_prompt".Localize());
                         break;
                     case giftname.moth:
                         getAnyCharm++;
-                        ShowConvo("自选护符+1");
+                        ShowConvo("moth_get_birthright_prompt".Localize());
                         break;
                     case giftname.grey_prince:
                         PlayerData.instance.gotCharm_24 = true;
-                        ShowConvo("获得坚固贪婪");
+                        ShowConvo("grey_prince_get_birthright_prompt".Localize());
                         break;
-                    case giftname.tuke:
+                    case giftname.Tuk:
                         relive_num += 2;
-                        ShowConvo("腐臭蛋+2");
+                        ShowConvo("Tuk_get_birthright_prompt".Localize());
                         break;
                     case giftname.defender:
                         PlayerData.instance.hasAcidArmour = true;
-                        ShowConvo("获得伊斯玛的眼泪");
+                        ShowConvo("defender_get_birthright_prompt".Localize());
                         break;
-                    case giftname.johny:
+                    case giftname.joni:
                         refresh_num++;
-                        ShowConvo("刷新次数+1");
+                        ShowConvo("joni_get_birthright_prompt".Localize());
                         break;
                     case giftname.test:
                         // PlayerData.instance.xunFlowerGiven = true;
-                        ShowConvo("能力变得更强");
+                        ShowConvo("test_get_birthright_prompt".Localize());
                         break;
                     case giftname.mantis:
                         if (PlayerData.instance.hasDash)
                         {
                             PlayerData.instance.hasShadowDash = true;
                             PlayerData.instance.canShadowDash = true;
-                            ShowConvo("获得暗影冲刺");
+                            ShowConvo(Language.Language.Get("INV_NAME_SHADOWDASH"));
                         }
                         else
                         {
                             PlayerData.instance.hasDash = true;
                             PlayerData.instance.canDash = true;
-                            ShowConvo("获得冲刺");
+                            ShowConvo(Language.Language.Get("INV_NAME_DASH"));
                         }
                         break;
                     case giftname.collector:
-                        ShowConvo("召唤物变得更强");
+                        ShowConvo("collector_get_birthright_prompt".Localize());
                         break;
                     default:
                         break;
 
                 }
             },
+            name = "birthright",
             desc = "长子权",
             weight = 0,
             active = false,
@@ -1155,10 +1180,11 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 AddNailDamage();
 
             },
+            name = "warrior_name".Localize(),
             desc = "面具+2&骨钉+1",
             weight = 1f,
         });
-        bigRewards.Add(giftname.fashi, new gift()
+        bigRewards.Add(giftname.mage, new gift()
         {
             level = 5,
             reward = (giftname) =>
@@ -1167,10 +1193,11 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 List<gift> gifts2 = new() { smallRewards[giftname.get_scream], smallRewards[giftname.get_fireball], smallRewards[giftname.get_quake] };
                 itemManager.rewardsStack.Push(new ItemManager.OneReward() { mode = ItemManager.Mode.fix_gift, gifts = gifts2 });
             },
+            name = "mage_name".Localize(),
             desc = "魂槽+1&法术+1",
             weight = 1f,
         });
-        bigRewards.Add(giftname.youxia, new gift()
+        bigRewards.Add(giftname.ranger, new gift()
         {
             level = 5,
             reward = (giftname) =>
@@ -1180,6 +1207,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 List<gift> gifts2 = new() { smallRewards[giftname.get_dash], smallRewards[giftname.get_zhua_lei_ding], smallRewards[giftname.get_double_jump] };
                 itemManager.rewardsStack.Push(new ItemManager.OneReward() { mode = ItemManager.Mode.fix_select_small_gift, select = 1, gifts = gifts2 });
             },
+            name = "ranger_name".Localize(),
             desc = "剑技+1&位移+1",
             weight = 1f,
         });
@@ -1213,10 +1241,10 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             reward = (giftname) =>
             {
                 role = giftname.test;
-                ShowDreamConvao("你准备好去点一份炒饭了");
+                ShowDreamConvo("test_dream".Localize());
             },
-            name = "作者小号",
-            desc = "·选择随机小天赋时可以额外选择一个\n\n\n——容器的能力真的是有极限的啊，在我短暂的虫生里学到，越是玩弄阴谋，就越会在意料之外的事态失足，要成为超越容器的存在啊\n——什么意思，你在说什么？\n——前辈，我不做容器啦！",
+            name = "test_name".Localize(),
+            desc = "test_desc".Localize(),
             weight = 0,
             active = false,
             force_active = true
@@ -1235,10 +1263,10 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 PlayerData.instance.hasDashSlash = true;
                 PlayerData.instance.hasUpwardSlash = true;
                 PlayerData.instance.hasNailArt = true;
-                ShowDreamConvao("你的骨钉闪闪发亮");
+                ShowDreamConvo("nail_master_dream".Localize());
             },
-            name = "骨钉大师",
-            desc = "·+2级骨钉\n·全剑技\n\n\n骨钉大师虽然技艺高超，可从不显山露水，即使你说他骨钉挥得像棒槌，他也只是会笑笑。\n\n不过如果你想试试他的技艺，或许可以试试少给几块吉欧。",
+            name = "nail_master_name".Localize(),
+            desc = "nail_master_desc".Localize(),
             active = false,
             weight = 0,
             sprite = AssemblyUtils.GetSpriteFromResources("B_Great_Nailsage_Sly.png")
@@ -1257,10 +1285,10 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 PlayerData.instance.gotCharm_19 = true;
                 PlayerData.instance.fireballLevel = 2;
                 refresh_num += 2;
-                ShowDreamConvao("你的灵魂肆意膨胀");
+                ShowDreamConvo("shaman_dream".Localize());
             },
-            name = "萨满",
-            desc = "·获得萨满之石\n·获得暗影之魂\n·+2刷新天赋机会\n·1.25倍法术倍率\n·0.8倍骨钉倍率\n\n\n蜗牛萨满从来都是一个群体，而非对某一只虫的特定称呼。\n\n不过不知道为什么，最近直接叫他萨满的倒是越来越多了。",
+            name = "shaman_name".Localize(),
+            desc = "shaman_desc".Localize(),
             active = false,
             weight = 0,
             sprite = AssemblyUtils.GetSpriteFromResources("Snail_Shaman.png")
@@ -1289,10 +1317,10 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 PlayerData.instance.gotCharm_32 = true;
                 PlayerData.instance.charmSlots += 1;
                 if (PlayerData.instance.charmSlots > 11) PlayerData.instance.charmSlots = 11;
-                ShowDreamConvao("你的脚步轻快异常");
+                ShowDreamConvo("hunter_dream".Localize());
             },
-            name = "猎人",
-            desc = "·获得冲刺、二段跳、螳螂爪、水晶之心\n·获得快速劈砍、稳定之体\n\n\n潜伏，杀戮，抽丝剥茧\n\n猎人的世界里，不是猎杀就是被猎杀",
+            name = "hunter_name".Localize(),
+            desc = "hunter_desc".Localize(),
             active = false,
             weight = 0,
             sprite = AssemblyUtils.GetSpriteFromResources("Hunter_Full_Body.png"),
@@ -1318,7 +1346,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             scale = new Vector2(0.15f, 0.15f)
 
         });
-        shopRewards.Add(giftname.johny, new gift()
+        shopRewards.Add(giftname.joni, new gift()
         {
             //护符槽血魂全满
             //绑定乔尼的祝福
@@ -1327,7 +1355,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             level = 5,
             reward = (giftname) =>
             {
-                role = giftname.johny;
+                role = giftname.joni;
                 PlayerData.instance.charmSlots = 11;
                 if (PlayerData.instance.maxHealthBase < 9)
                 {
@@ -1356,10 +1384,10 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                     PlayerData.instance.equippedCharms.Insert(1, 27);
                     PlayerData.instance.equippedCharm_27 = true;
                 }
-                ShowDreamConvao("你的心中充满慈悲");
+                ShowDreamConvo("joni_dream".Localize());
             },
-            name = "乔尼",
-            desc = "·获得全部面具、魂槽、护符槽\n·获得全部护符，绑定乔尼的祝福\n·1.75倍骨钉倍率\n\n\n虽然是异教徒，但蓝色之子乔尼却很少与他人产生矛盾，仁慈的她会真诚地祝福每一位路过的漫游者。",
+            name = "joni_name".Localize(),
+            desc = "joni_desc".Localize(),
             active = false,
             weight = 0,
             sprite = AssemblyUtils.GetSpriteFromResources("Joni.png"),
@@ -1383,10 +1411,10 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 GiveMask();
                 GiveVessel();
                 PlayerData.instance.charmSlots = 11;
-                ShowDreamConvao("你的决意无以复加");
+                ShowDreamConvo("moth_dream".Localize());
             },
-            name = "先知",
-            desc = "·获得梦之钉\n·+1自选护符\n·+1骨钉、+1面具、+1魂槽\n·获得满护符槽\n\n\n照料墓碑，引导挥舞者，为了忏悔昔日的罪行，先知日复一日的做着，从无怨言。\n\n只是有时，她也会梦见那道被遗忘的光，",
+            name = "moth_name".Localize(),
+            desc = "moth_desc".Localize(),
             active = false,
             weight = 0,
             sprite = AssemblyUtils.GetSpriteFromResources("Seer.png"),
@@ -1412,16 +1440,16 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 PlayerData.instance.hasShadowDash = true;
                 PlayerData.instance.canShadowDash = true;
                 PlayerData.instance.hasDreamNail = true;
-                ShowDreamConvao("你的形象不断高大");
+                ShowDreamConvo("grey_prince_dream".Localize());
             },
-            name = "灰色王子",
-            desc = "·骨钉固定为0钉\n·获得复仇之魂、荒芜俯冲、嚎叫幽灵\n·获得暗影披风\n·获得梦之钉\n·所有护符不消耗护符槽\n\n\n现在是\n\n幻想时间！！！",
+            name = "grey_prince_name".Localize(),
+            desc = "grey_prince_desc".Localize(),
             active = false,
             weight = 0,
             sprite = AssemblyUtils.GetSpriteFromResources("Grey_Prince_Zote_Idle.png"),
             scale = new Vector2(0.45f, 0.45f)
         });
-        shopRewards.Add(giftname.tuke, new gift()
+        shopRewards.Add(giftname.Tuk, new gift()
         {
             //5个腐臭蛋
             //500geo
@@ -1430,14 +1458,14 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             level = 5,
             reward = (giftname) =>
             {
-                role = giftname.tuke;
+                role = giftname.Tuk;
                 while (PlayerData.instance.maxHealthBase > 3) TakeAwayMask();
                 HeroController.instance.AddGeo(500);
                 relive_num = 5;
-                ShowDreamConvao("你的荷包鼓鼓当当");
+                ShowDreamConvo("Tuk_dream".Localize());
             },
-            name = "图克",
-            desc = "·初始只有三血\n·初始具有5个腐臭蛋、500吉欧\n·每次使用腐臭蛋后+1骨钉或+2面具\n\n\n皇家水道的寻荒者，脆弱但坚强\n\n食物、朋友，水流带来了所有想要的东西……图克只要把它们找出来就行了",
+            name = "Tuk_name".Localize(),
+            desc = "Tuk_desc".Localize(),
             active = false,
             weight = 0,
             sprite = AssemblyUtils.GetSpriteFromResources("Tuk.png"),
@@ -1446,7 +1474,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         shopRewards.Add(giftname.defender, new gift()
         {
             //绑定英勇气息
-            //1.25倍骨钉倍率todo
+            //1.25倍骨钉倍率
             //+1骨钉
             //+白砸
             level = 5,
@@ -1490,10 +1518,10 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                     PlayMakerFSM.BroadcastEvent("CHARM EQUIP CHECK");
                     // HeroController.instance.CharmUpdate();
                 }
-                ShowDreamConvao("你的锋芒无法隐藏");
+                ShowDreamConvo("mantis_dream".Localize());
             },
-            name = "螳螂",
-            desc = "·获得螳螂爪\n·绑定骄傲印记\n·1.25倍骨钉倍率\n\n\n他们依然身怀睿智和荣耀，当然也保存着致命的传统。实力是他们的底气，骄傲是他们的印记。\n\n寻求死亡的漫游者，祝你在爪下痛快地咽气。",
+            name = "mantis_name".Localize(),
+            desc = "mantis_desc".Localize(),
             active = false,
             weight = 0,
             sprite = AssemblyUtils.GetSpriteFromResources("mantis.png"),
@@ -1508,10 +1536,10 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 PlayerData.instance.gotCharm_40 = true;
                 PlayerData.instance.grimmChildLevel = 4;
                 PlayerData.instance.charmCost_40 = 2;
-                ShowDreamConvao("你的爱意交织愉悦");
+                ShowDreamConvo("collector_dream".Localize());
             },
-            name = "收藏家",
-            desc = "·0.7倍骨钉倍率\n·0.7倍法术倍率（吸虫法术不受影响）\n·获得格林之子\n·你的召唤物会因你而得到强化\n·除格林之子外，每个召唤护符都会使本体伤害倍率降低\n·召唤护符不消耗护符槽\n\n接近是爱，保护也是爱，伪装是爱，囚禁也是爱。\n\n没关系……不明白,也没关系……",
+            name = "collector_name".Localize(),
+            desc = "collector_desc".Localize(),
             active = false,
             weight = 0,
             sprite = AssemblyUtils.GetSpriteFromResources("B_Collector.png"),
@@ -1526,8 +1554,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             {
                 itemManager.NormalShopItem();
             },
-            name = "店主的钥匙",
-            desc = "刷新一次商店\n\n\n斯莱的储物室的钥匙，可以凭此找店主更换一批货物，当然，如果你换到了并不需要的东西，最终解释权归店主所有。",
+            name = "shop_keeper_key_name".Localize(),
+            desc = "shop_keeper_key_desc".Localize(),
             active = false,
             weight = 0,
             sprite = AssemblyUtils.GetSpriteFromResources("keeper_key.png")
@@ -1542,21 +1570,21 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                     PlayerData.instance.charmSlots++;
                 }
             },
-            name = "护符槽",
-            desc = "+1护符槽\n\n\n",
+            name = "shop_add_1_notch_name".Localize(),
+            desc = "shop_add_1_notch_desc".Localize(),
             active = false,
             weight = 1,
             sprite = AssemblyUtils.GetSpriteFromResources("Charm_Notch.png")
         });
-        shopRewards.Add(giftname.shop_add_4_nail_damage, new gift()
+        shopRewards.Add(giftname.shop_nail_upgrade, new gift()
         {
             price = 500,
             reward = (giftname) =>
             {
                 AddNailDamage();
             },
-            name = "苍白矿石",
-            desc = "+1级骨钉\n\n\n更锋利就更好吗？\n更纯粹就更好吗？\n曾有虫思考过这个问题，可惜它也没得到什么答案。",
+            name = "shop_nail_upgrade_name".Localize(),
+            desc = "shop_nail_upgrade_desc".Localize(),
             active = false,
             weight = 1,
             sprite = AssemblyUtils.GetSpriteFromResources("pale_stone.png")
@@ -1568,8 +1596,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             {
                 itemManager.RandomOneSmall();
             },
-            name = "随机一小天赋",
-            desc = "\"生活就像一袋巧克力，你永远不知道下一颗是什么味道\"",
+            name = "shop_random_gift_name".Localize(),
+            desc = "shop_random_gift_desc".Localize(),
             active = false,
             weight = 0,
             sprite = AssemblyUtils.GetSpriteFromResources("witches_eye.png")
@@ -1633,8 +1661,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                     PlayerData.instance.charmSlots++;
                 }
             },
-            name = "护符槽",
-            desc = "+1护符槽",
+            name = "shop_add_1_notch_name".Localize(),
+            desc = "shop_add_1_notch_desc".Localize(),
             weight = 1,
             getSprite = (giftname) =>
             {
@@ -1651,8 +1679,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                     PlayerData.instance.charmSlots++;
                 }
             },
-            name = "护符槽",
-            desc = "+1护符槽",
+            name = "shop_add_1_notch_name".Localize(),
+            desc = "shop_add_1_notch_desc".Localize(),
             weight = 1,
             getSprite = (giftname) =>
             {
@@ -1669,23 +1697,23 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                     PlayerData.instance.charmSlots++;
                 }
             },
-            name = "护符槽",
-            desc = "+1护符槽",
+            name = "shop_add_1_notch_name".Localize(),
+            desc = "shop_add_1_notch_desc".Localize(),
             weight = 1,
             getSprite = (giftname) =>
             {
                 return shopRewards[giftname.shop_add_1_notch_1].sprite;
             }
         });
-        shopRewards.Add(giftname.shop_relive, new gift()
+        shopRewards.Add(giftname.shop_egg, new gift()
         {
             price = 400,
             reward = (giftname) =>
             {
                 relive_num++;
             },
-            name = "腐臭蛋",
-            desc = "复活次数+1\n\n\n蛋神伟大，无需多言。",
+            name = "shop_egg_name".Localize(),
+            desc = "shop_egg_desc".Localize(),
             weight = 3,
             getSprite = (giftname) =>
             {
@@ -1707,8 +1735,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 PlayerData.instance.hasSuperDash = true;
                 PlayerData.instance.canSuperDash = true;
             },
-            name = "水晶之心",
-            desc = "获得超冲\n\n\n一个古老挖矿魔像的能量核心，以一块强力的水晶塑成。",
+            name = Language.Language.Get("INV_NAME_SUPERDASH", "UI"),
+            desc = Language.Language.Get("INV_DESC_SUPERDASH", "UI"),
             weight = 0.8f,
             getSprite = (giftname) =>
             {
@@ -1730,8 +1758,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 PlayerData.instance.hasWalljump = true;
                 PlayerData.instance.canWallJump = true;
             },
-            name = "螳螂爪",
-            desc = "获得螳螂爪\n\n\n用骨头雕刻的爪子。",
+            name = Language.Language.Get("INV_NAME_WALLJUMP", "UI"),
+            desc = Language.Language.Get("INV_DESC_WALLJUMP", "UI"),
             weight = 0.8f,
             getSprite = (giftname) =>
             {
@@ -1753,8 +1781,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 PlayerData.instance.hasDreamNail = true;
 
             },
-            name = "梦之钉",
-            desc = "获得梦之钉\n\n\n如果你有这样的武器，你会想去读一读其他人的心吗？",
+            name = Language.Language.Get("INV_NAME_DREAMNAIL_A", "UI"),
+            desc = Language.Language.Get("INV_DESC_DREAMNAIL_A", "UI"),
             weight = 0.8f,
             getSprite = (giftname) =>
             {
@@ -1775,8 +1803,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             {
                 GiveMask();
             },
-            name = "面具",
-            desc = "+1面具\n\n\n",
+            name = "shop_add_1_mask_name".Localize(),
+            desc = "shop_add_1_mask_desc".Localize(),
             weight = 1.5f,
             getSprite = (giftname) =>
             {
@@ -1798,8 +1826,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             {
                 GiveVessel();
             },
-            name = "魂槽",
-            desc = "+1魂槽\n\n\n",
+            name = "shop_add_1_vessel_name".Localize(),
+            desc = "shop_add_1_vessel_desc".Localize(),
             weight = 1.5f,
             getSprite = (giftname) =>
             {
@@ -1820,22 +1848,22 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             {
                 List<string> dreams = new List<string>
                 {
-                    "哇哦，你发现了彩蛋",
-                    "84 72 65 78 75 83",
-                    "这是我们第三次见面了呢",
-                    "70 79 82",
-                    "还不死心吗，你的钱好像不够了呢",
-                    "80 76 65 89 73 78 71",
-                    "告诉你个秘密，后面已经没有东西了"
+                    "pretty_key_Easter_egg_1".Localize(),
+                    "pretty_key_Easter_egg_2".Localize(),
+                    "pretty_key_Easter_egg_3".Localize(),
+                    "pretty_key_Easter_egg_4".Localize(),
+                    "pretty_key_Easter_egg_5".Localize(),
+                    "pretty_key_Easter_egg_6".Localize(),
+                    "pretty_key_Easter_egg_7".Localize(),
                 };
                 if (pretty_key_num == dreams.Count)
                 {
-                    ShowDreamConvao(dreams[pretty_key_num - 1]);
+                    ShowDreamConvo(dreams[pretty_key_num - 1]);
                     _set.owner = true;
                 }
                 else if (pretty_key_num < dreams.Count)
                 {
-                    ShowDreamConvao(dreams[pretty_key_num]);
+                    ShowDreamConvo(dreams[pretty_key_num]);
                     pretty_key_num++;
                     if (pretty_key_num == dreams.Count)
                         _set.owner = true;
@@ -1843,8 +1871,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
 
 
             },
-            name = "典雅钥匙",
-            desc = "由闪亮的白色金属制成的华丽钥匙。刻有特殊的标记，在黑暗中发出8geo的光芒。",
+            name = Language.Language.Get("INV_NAME_WHITEKEY", "UI"),
+            desc = "shop_pretty_key_desc".Localize(),
             weight = 0.1f,
             sprite = AssemblyUtils.GetSpriteFromResources("Elegant_Key.png"),
         });
@@ -1855,8 +1883,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             {
                 refresh_num++;
             },
-            name = "简单钥匙",
-            desc = "+1刷新次数\n\n\n仅仅是一把简单的钥匙，有时却能帮你打开通往未来之门。",
+            name = "shop_refresh_name".Localize(),
+            desc = "shop_refresh_desc".Localize(),
             weight = 2f,
             sprite = AssemblyUtils.GetSpriteFromResources("easy_key.png"),
         });
@@ -1867,8 +1895,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             {
                 PlayerData.instance.hasAcidArmour = true;
             },
-            name = "伊思玛的眼泪",
-            desc = "获得伊思玛的眼泪\n\n\n一滴硬化的眼泪形成的果实。",
+            name = Language.Language.Get("INV_NAME_ACIDARMOUR", "UI"),
+            desc = Language.Language.Get("INV_DESC_ACIDARMOUR", "UI"),
             weight = 0.8f,
             getSprite = (giftname) =>
             {
@@ -1889,8 +1917,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             {
                 PlayerData.instance.hasDoubleJump = true;
             },
-            name = "帝王之翼",
-            desc = "获得帝王之翼\n\n\n在黑暗中闪烁的虚无翅膀。",
+            name = Language.Language.Get("INV_NAME_DOUBLEJUMP", "UI"),
+            desc = Language.Language.Get("INV_DESC_DOUBLEJUMP", "UI"),
             weight = 0.4f,
             getSprite = (giftname) =>
             {
@@ -1920,8 +1948,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                     PlayerData.instance.canShadowDash = true;
                 }
             },
-            name = "冲刺",
-            desc = "获得或升级冲刺能力\n\n\n",
+            name = "shop_dash_name".Localize(),
+            desc = "shop_dash_desc".Localize(),
             weight = 0.4f,
             getSprite = (giftname) =>
             {
@@ -2021,7 +2049,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         if (self.FsmName == "UI Charms" && self.gameObject.name == "Charms")
         {
             charms = self.gameObject;
-            charms.FindGameObjectInChildren("Equipped Charms").FindGameObjectInChildren("Notches").FindGameObjectInChildren("Text Notches").GetComponent<TMPro.TextMeshPro>().text = "可自选" + getAnyCharm + "个";
+            charms.FindGameObjectInChildren("Equipped Charms").FindGameObjectInChildren("Notches").FindGameObjectInChildren("Text Notches").GetComponent<TMPro.TextMeshPro>().text = "get_any_charm_front".Localize() + getAnyCharm + "get_any_charm_behind".Localize();
             Log("Enable");
             // self.gameObject.AddComponent<Test>();
             self.ChangeTransition("Charm Collected?", "UNCOLLECTED", "Collected");
@@ -2055,7 +2083,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                         GameManager.instance.SetPlayerDataBool(charmString, true);
                         fsm.FsmVariables.GetFsmBool("Got Charm").Value = true;
                         getAnyCharm--;
-                        charms.FindGameObjectInChildren("Equipped Charms").FindGameObjectInChildren("Notches").FindGameObjectInChildren("Text Notches").GetComponent<TMPro.TextMeshPro>().text = "可自选" + getAnyCharm + "个";
+                        charms.FindGameObjectInChildren("Equipped Charms").FindGameObjectInChildren("Notches").FindGameObjectInChildren("Text Notches").GetComponent<TMPro.TextMeshPro>().text = "get_any_charm_front".Localize() + getAnyCharm + "get_any_charm_behind".Localize();
                     }
                 }, 1);
             }
@@ -2063,7 +2091,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             {
                 self.InsertCustomAction("Black Charm?", (fsm) =>
                 {
-                    if (role == giftname.johny)
+                    if (role == giftname.joni)
                     {
                         if (fsm.GetVariable<FsmInt>("Current Item Number").Value == 27) fsm.SendEvent("CANCEL");
                     }
@@ -2081,7 +2109,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             {
                 self.InsertCustomAction("Black Charm? 2", (fsm) =>
                                 {
-                                    if (role == giftname.johny)
+                                    if (role == giftname.joni)
                                     {
                                         if (fsm.GetVariable<FsmInt>("Current Item Number").Value == 27) fsm.SendEvent("CANCEL");
                                     }
@@ -2401,45 +2429,25 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
     public MenuScreen GetMenuScreen(MenuScreen modListMenu, ModToggleDelegates? toggleDelegates)
     {
         Satchel.BetterMenus.Menu menu = new("Rogue");
-        var h = new Satchel.BetterMenus.MenuButton("Reset", "重置至无能力状态", (but) =>
-        {
-            Rogue_Reset();
-        },
-        proceed: true);
-        var test = new MenuButton("给予奖励", "", (but) =>
-        {
-            if (itemManager != null)
-                itemManager.GiveReward(3);
-        });
-        var getcharm = new MenuButton("获取护符", "", (but) =>
-        {
-            for (int i = 1; i < 42; i++)
-            {
-                Log(i + "   " + Language.Language.Get("CHARM_NAME_" + i, "UI"));
-            }
-        });
-        // menu.AddElement(h);
-        // menu.AddElement(test);
-        // menu.AddElement(getcharm);
-        var b = new Satchel.BetterMenus.KeyBind("刷新", self_actions.refresh);
-        var c = new Satchel.BetterMenus.KeyBind("结束", self_actions.over);
-        var d = new Satchel.BetterMenus.KeyBind("开始", self_actions.start);
+        var b = new Satchel.BetterMenus.KeyBind("rouge_refresh".Localize(), self_actions.refresh);
+        var c = new Satchel.BetterMenus.KeyBind("rouge_end".Localize(), self_actions.over);
+        var d = new Satchel.BetterMenus.KeyBind("rogue_begin".Localize(), self_actions.start);
         menu.AddElement(b);
         menu.AddElement(d);
         menu.AddElement(c);
-        var text = new Satchel.BetterMenus.TextPanel("本mod为空洞肉鸽mod(丝之肉鸽？)，为国庆期间举办的水晶杯制作，当前为V" + GetVersion() + "正式版。", width: 1500);
 
-        Menu giftBase = new("天赋库");
+        var text = new Satchel.BetterMenus.TextPanel("menu_intro".Localize(), width: 1500);
+        Menu giftBase = new("menu_gift_base".Localize());
         int count = 0;
         List<List<Element>> list = new();
         List<Element> tempList = null;
-        giftBase.AddElement(new TextPanel("小天赋"));
+        giftBase.AddElement(new TextPanel("menu_small_gift".Localize()));
 
         foreach (var gift in smallRewards)
         {
             gift g = gift.Value;
             if (g.desc == null) continue;
-            var temp = Blueprints.ToggleButton(g.desc, "",
+            var temp = Blueprints.ToggleButton(g.desc.Replace('\n', '&'), "",
             (act) =>
             {
                 g.active = act;
@@ -2479,7 +2487,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         {
             giftBase.AddElement(new MenuRow(tempList, "1"));
         }
-        giftBase.AddElement(new TextPanel("大天赋"));
+        giftBase.AddElement(new TextPanel("menu_big_gift".Localize()));
         tempList.Clear();
         count = 0;
 
@@ -2523,15 +2531,13 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         if (count > 0) giftBase.AddElement(new MenuRow(tempList, ""));
 
         var gs = giftBase.GetMenuScreen(giftBase.returnScreen);
-        menu.AddElement(new MenuButton("天赋库", "", (but) =>
+        menu.AddElement(new MenuButton("menu_gift_base".Localize(), "", (but) =>
         {
             Utils.GoToMenuScreen(gs);
         }));
         menu.AddElement(text);
-        Log("456");
         var ms = menu.GetMenuScreen(modListMenu);
         giftBase.returnScreen = ms;
-        Log("789");
         return ms;
 
     }
@@ -2636,7 +2642,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         return;
     }
 
-    public void ShowDreamConvao(string msg)
+    public void ShowDreamConvo(string msg)
     {
         PlayMakerFSM playMakerFSM = PlayMakerFSM.FindFsmOnGameObject(HutongGames.PlayMaker.FsmVariables.GlobalVariables.GetFsmGameObject("Enemy Dream Msg").Value, "Display");
         playMakerFSM.FsmVariables.GetFsmString("Convo Title").Value = "rogue_" + msg;
@@ -2654,7 +2660,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         PlayerData playerData = PlayerData.instance;
         if (playerData.maxHealthBase >= 9) smallRewards[giftname.add_2_mask].weight = 0;
         if (playerData.MPReserveMax >= 99) smallRewards[giftname.add_1_vessel].weight = 0;
-        if (playerData.nailDamage >= 21) smallRewards[giftname.add_4_naildamage].weight = 0;
+        if (playerData.nailDamage >= 21) smallRewards[giftname.nail_upgrade].weight = 0;
         if (playerData.charmSlots >= 11) smallRewards[giftname.add_3_notch].weight = 0;
         if (playerData.fireballLevel == 2) smallRewards[giftname.get_fireball].weight = 0;
         if (playerData.screamLevel == 2) smallRewards[giftname.get_scream].weight = 0;
@@ -2688,7 +2694,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         }
         if (playerData.nailDamage >= 21)
         {
-            shopRewards[giftname.shop_add_4_nail_damage].weight = 0;
+            shopRewards[giftname.shop_nail_upgrade].weight = 0;
         }
         if (playerData.hasSuperDash) shopRewards[giftname.shop_super_dash].weight = 0;
         if (playerData.hasWalljump) shopRewards[giftname.shop_wall_jump].weight = 0;
@@ -2722,13 +2728,13 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         shopRewards[giftname.shop_add_1_notch_2].weight = 1;
         shopRewards[giftname.shop_add_1_notch_3].weight = 1;
         shopRewards[giftname.shop_add_1_notch_4].weight = 1;
-        shopRewards[giftname.shop_add_4_nail_damage].weight = 1;
+        shopRewards[giftname.shop_nail_upgrade].weight = 1;
         shopRewards[giftname.shop_random_gift].weight = 1;
         shopRewards[giftname.shop_any_charm_1].weight = 2;
         shopRewards[giftname.shop_any_charm_2].weight = 1.5f;
         shopRewards[giftname.shop_any_charm_3].weight = 0.8f;
         shopRewards[giftname.shop_any_charm_4].weight = 0.8f;
-        shopRewards[giftname.shop_relive].weight = 3f;
+        shopRewards[giftname.shop_egg].weight = 3f;
         shopRewards[giftname.shop_super_dash].weight = 0.8f;
         shopRewards[giftname.shop_wall_jump].weight = 0.8f;
         shopRewards[giftname.shop_dream_nail].weight = 0.8f;
@@ -2746,4 +2752,6 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             charmRewards[(giftname)i].weight = charm_weight_and_price[(giftname)i].Item1;
         }
     }
+
+
 }

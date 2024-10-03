@@ -102,16 +102,16 @@ public class ItemManager : MonoBehaviour
             Rogue.giftname.shaman,
             Rogue.giftname.hunter,
             // Rogue.giftname.uunn,
-            Rogue.giftname.johny,
+            Rogue.giftname.joni,
             Rogue.giftname.moth,
             Rogue.giftname.grey_prince,
-            Rogue.giftname.tuke,
+            Rogue.giftname.Tuk,
             // Rogue.giftname.defender,
             Rogue.giftname.mantis,
             Rogue.giftname.collector
         };
 
-    public string rouge_introduction = "记得左边有天赋可以选择<page>黑色的是大天赋选项，内容自选<page>彩色的是小天赋，觉得内容不合心意可以用\"刷新\"键刷新天赋，屏幕左侧显示了你的剩余刷新次数<page>好了快去吧，我要睡觉了";
+    public string rouge_introduction = "rogue_introduction".Localize();
 
 
 
@@ -121,7 +121,6 @@ public class ItemManager : MonoBehaviour
     {
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += OnSceneChanged;
         Modding.ModHooks.LanguageGetHook += OnLanguageGet;
-        On.ShopItemStats.CanBuy += OnCanBuy;
         On.PlayerData.GetBool += OnGetBool;
         On.PlayerData.SetBool += OnSetBool;
         On.PlayerData.GetInt += OnGetInt;
@@ -233,7 +232,7 @@ public class ItemManager : MonoBehaviour
                 {
                     hitInstance.Multiplier *= 0.8f;
                 }
-                else if (Rogue.role == Rogue.giftname.johny)
+                else if (Rogue.role == Rogue.giftname.joni)
                 {
                     hitInstance.Multiplier *= 1.75f;
                 }
@@ -313,16 +312,9 @@ public class ItemManager : MonoBehaviour
         }
     }
 
-    private bool OnCanBuy(On.ShopItemStats.orig_CanBuy orig, ShopItemStats self)
-    {
-        var x = orig(self);
-        Log("can buy");
-        return false;
-    }
-
     private string OnLanguageGet(string key, string sheetTitle, string orig)
     {
-        if (key == null) return "key为空";
+        if (key == null) return "key is null";
         if (Rogue.Instance.name_and_desc.ContainsKey(key))
         {
             return Rogue.Instance.name_and_desc[key];
@@ -332,9 +324,9 @@ public class ItemManager : MonoBehaviour
             return key.Split('_')[1];
         }
         if (sheetTitle == "rouge" && key == "rouge_introduction") return rouge_introduction;
-        if (sheetTitle == "Titles" && key == "rouge_introduction_MAIN") return "苟哥";
-        if (sheetTitle == "Titles" && key == "rouge_introduction_SUB") return "撼天动地的英雄";
-        if (sheetTitle == "Titles" && key == "rouge_introduction_SUPER") return "水晶山峰霸主";
+        if (sheetTitle == "Titles" && key == "rouge_introduction_MAIN") return "Gou_bro_MAIN".Localize();
+        if (sheetTitle == "Titles" && key == "rouge_introduction_SUB") return "Gou_bro_SUB".Localize();
+        if (sheetTitle == "Titles" && key == "rouge_introduction_SUPER") return "Gou_bro_SUPER".Localize();
         else return orig;
     }
 
@@ -405,7 +397,7 @@ public class ItemManager : MonoBehaviour
         damaged_num = 0;
         if (arg1.name == "GG_Engine")
         {
-            StartCoroutine(DelayShowDreamConvo(0.5f, "寻神者似乎有话跟你说"));
+            StartCoroutine(DelayShowDreamConvo(0.5f, "godseeker".Localize()));
         }
         if (arg1.name == "GG_Atrium_Roof")
         {
@@ -597,8 +589,8 @@ public class ItemManager : MonoBehaviour
         items.Add(Rogue.Instance.shopRewards[Rogue.giftname.shop_keeper_key]);
         if (Rogue.Instance.shopRewards[Rogue.giftname.shop_add_1_notch_1].weight > 0)
             items.Add(Rogue.Instance.shopRewards[Rogue.giftname.shop_add_1_notch_1]);
-        if (Rogue.Instance.shopRewards[Rogue.giftname.shop_add_4_nail_damage].weight > 0)
-            items.Add(Rogue.Instance.shopRewards[Rogue.giftname.shop_add_4_nail_damage]);
+        if (Rogue.Instance.shopRewards[Rogue.giftname.shop_nail_upgrade].weight > 0)
+            items.Add(Rogue.Instance.shopRewards[Rogue.giftname.shop_nail_upgrade]);
         items.Add(Rogue.Instance.shopRewards[Rogue.giftname.shop_random_gift]);
         var ranlist = RandomList(Rogue.Instance.actShopRewards, num: 9 - items.Count);
         SpwanShopItem(items.Concat(ranlist).ToList());
@@ -613,7 +605,7 @@ public class ItemManager : MonoBehaviour
     private IEnumerator DelayShowDreamConvo(float delay, string msg)
     {
         yield return new WaitForSeconds(delay);
-        Rogue.Instance.ShowDreamConvao(msg);
+        Rogue.Instance.ShowDreamConvo(msg);
     }
     public void DestroyAllItems()
     {
@@ -760,7 +752,6 @@ public class ItemManager : MonoBehaviour
     {
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= OnSceneChanged;
         ModHooks.LanguageGetHook -= OnLanguageGet;
-        On.ShopItemStats.CanBuy -= OnCanBuy;
         On.PlayerData.GetBool -= OnGetBool;
         On.PlayerData.SetBool -= OnSetBool;
         On.PlayerData.GetInt -= OnGetInt;
@@ -1131,13 +1122,13 @@ public class ItemManager : MonoBehaviour
     private void SpwanItem(Rogue.gift gift, bool inSelect = false)
     {
         if (gift == null) return;
-        SpwanItem(gift.level, gift.desc, gift.reward, gift.giftname);
+        SpwanItem(gift.level, gift.name, gift.reward, gift.giftname);
         return;
 
     }
 
 
-    private void SpwanItem(int level, string desc, Action<Rogue.giftname> action, Rogue.giftname giftname)
+    private void SpwanItem(int level, string name, Action<Rogue.giftname> action, Rogue.giftname giftname)
     {
         knight = GameObject.Find("Knight");
         item = Rogue.Instance.shiny_item;
@@ -1232,7 +1223,7 @@ public class ItemManager : MonoBehaviour
             fsm.ChangeTransition("Init", "ACTIVATE", "PD Bool?");
             fsm.GetAction<BoolTest>("Init", 2).isTrue = null;
             reward.GetAction<SetSpriteRendererSprite>(2).sprite = sprite;
-            reward.GetAction<SetTextMeshProText>(4).textString = desc;
+            reward.GetAction<SetTextMeshProText>(4).textString = name;
             reward.InsertCustomAction(() =>
             {
                 action(giftname);
@@ -1260,7 +1251,7 @@ public class ItemManager : MonoBehaviour
                     temp = temp.FindGameObjectInChildren(s);
                     if (temp == null) { Log("null is " + s); return; }
                 }
-                temp.GetComponent<TMPro.TextMeshPro>().text = desc;
+                temp.GetComponent<TMPro.TextMeshPro>().text = name;
             }, 2);
 
 
@@ -1407,10 +1398,6 @@ public class ItemManager : MonoBehaviour
             render.sprite = c.gameObject.FindGameObjectInChildren("Sprite").GetComponent<SpriteRenderer>().sprite;
             render.color = new Color(1, 1, 1, alpha);
             x += 1f;
-            // newC.GetComponentInChildren<SpriteRenderer>().color =;
-            // newC.gameObject.FindGameObjectInChildren("Glow").SetActive(false);
-            // newC.gameObject.LocateMyFSM("charm_show_if_collected").RemoveAction("Equipped", 0);
-            // // newC.GetComponentInChildren<SpriteRenderer>().enabled = true;
         }
     }
 
@@ -1482,7 +1469,6 @@ public class ItemManager : MonoBehaviour
         fireball.transform.localPosition = new Vector3(x, 7.5f, 0);
         fireball.layer = LayerMask.NameToLayer("UI");
         var render = fireball.AddComponent<SpriteRenderer>();
-        //吼，波，砸，梦钉，爬墙，水晶，二段，冲刺，三剑技，骨钉等级，腐臭蛋数目
         if (PlayerData.instance.fireballLevel == 1)
         {
             render.sprite = (Sprite)Inv_Items.FindGameObjectInChildren("Spell Fireball").LocateMyFSM("Check Active").GetAction<SetSpriteRendererSprite>("Lv 1", 0).sprite.Value;
@@ -1499,7 +1485,6 @@ public class ItemManager : MonoBehaviour
         scream.transform.localPosition = new Vector3(x, 7.5f, 0);
         scream.layer = LayerMask.NameToLayer("UI");
         render = scream.AddComponent<SpriteRenderer>();
-        //吼，波，砸，梦钉，爬墙，水晶，二段，冲刺，三剑技，骨钉等级，腐臭蛋数目
         if (PlayerData.instance.screamLevel == 1)
         {
             render.sprite = (Sprite)Inv_Items.FindGameObjectInChildren("Spell Scream").LocateMyFSM("Check Active").GetAction<SetSpriteRendererSprite>("Lv 1", 0).sprite.Value;
@@ -1516,7 +1501,6 @@ public class ItemManager : MonoBehaviour
         quake.transform.localPosition = new Vector3(x, 7.5f, 0);
         quake.layer = LayerMask.NameToLayer("UI");
         render = quake.AddComponent<SpriteRenderer>();
-        //吼，波，砸，梦钉，爬墙，水晶，二段，冲刺，三剑技，骨钉等级，腐臭蛋数目
         if (PlayerData.instance.quakeLevel == 1)
         {
             render.sprite = (Sprite)Inv_Items.FindGameObjectInChildren("Spell Quake").LocateMyFSM("Check Active").GetAction<SetSpriteRendererSprite>("Lv 1", 0).sprite.Value;
@@ -1533,7 +1517,6 @@ public class ItemManager : MonoBehaviour
         cyc_Slash.transform.localPosition = new Vector3(x, 7.5f, 0);
         cyc_Slash.layer = LayerMask.NameToLayer("UI");
         render = cyc_Slash.AddComponent<SpriteRenderer>();
-        //吼，波，砸，梦钉，爬墙，水晶，二段，冲刺，三剑技，骨钉等级，腐臭蛋数目
         if (PlayerData.instance.hasCyclone)
         {
             render.sprite = (Sprite)Inv_Items.FindGameObjectInChildren("Art Cyclone").GetComponent<SpriteRenderer>().sprite;
