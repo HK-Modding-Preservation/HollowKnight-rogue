@@ -113,6 +113,8 @@ public class ItemManager : MonoBehaviour
 
     public string rouge_introduction = "rogue_introduction".Localize();
 
+    public bool hatchscene = false;
+
 
 
 
@@ -129,9 +131,148 @@ public class ItemManager : MonoBehaviour
         On.SpellFluke.OnEnable += OnFlukeDamage;
         On.PlayMakerFSM.OnEnable += OnFSMEnable;
         On.KnightHatchling.OnEnable += OnHatchingDamage;
+        On.KnightHatchling.DoChaseSimple += OnHatchingChaseSimple;
+        On.KnightHatchling.DoChase += OnHatchingChase;
 
 
 
+    }
+
+    private void OnHatchingChase(On.KnightHatchling.orig_DoChase orig, KnightHatchling self, Transform target, float distance, float speedMax, float accelerationForce, float targetRadius, float deceleration, Vector2 offset)
+    {
+        if (PlayerData.instance.equippedCharm_1)
+        {
+            ReflectionHelper.CallMethod<KnightHatchling>(self, "DoChaseSimple", new object[] { HeroController.instance.gameObject.transform, speedMax, accelerationForce, offset.x, offset.y });
+        }
+        else
+        {
+            orig(self, target, distance, speedMax, accelerationForce, targetRadius, deceleration, offset);
+        }
+    }
+
+    private void OnHatchingChaseSimple(On.KnightHatchling.orig_DoChaseSimple orig, KnightHatchling self, Transform target, float speedMax, float accelerationForce, float offsetX, float offsetY)
+    {
+        if (PlayerData.instance.equippedCharm_1)
+        {
+            orig(self, HeroController.instance.gameObject.transform, speedMax, accelerationForce, offsetX, offsetY);
+        }
+        else
+        {
+            orig(self, target, speedMax, accelerationForce, offsetX, offsetY);
+        }
+    }
+    private void HatchChange()
+    {
+        GameObject charmeffect = GameObject.Find("Knight").FindGameObjectInChildren("Charm Effects");
+        var fsm = charmeffect.LocateMyFSM("Hatchling Spawn");
+        var spell_con = GameObject.Find("Knight").LocateMyFSM("Spell Control");
+        if (Rogue.Instance.inRogue && Rogue.role == Rogue.giftname.collector)
+        {
+            int mp_cost = 8;
+            if (PlayerData.instance.equippedCharm_33) mp_cost -= 4;
+            fsm.FsmVariables.FindFsmInt("Soul Cost").Value = mp_cost;
+
+            int hatch_max = 4;
+            int spell_level = PlayerData.instance.fireballLevel + PlayerData.instance.quakeLevel + PlayerData.instance.screamLevel;
+            if (spell_level >= 3) hatch_max *= 2;
+            if (spell_level >= 6) hatch_max *= 2;
+            if (PlayerData.instance.equippedCharm_11) hatch_max = 16;
+            fsm.FsmVariables.FindFsmInt("Hatchling Max").Value = hatch_max;
+
+            float hatch_time = 4;
+            float hatch_speed = 1;
+            hatch_speed += 0.3f * spell_level;
+            if (PlayerData.instance.equippedCharm_32) hatch_speed *= 2;
+            fsm.FsmVariables.FindFsmFloat("Hatch Time").Value = hatch_time / hatch_speed;
+
+            var hatch = fsm.GetState("Hatch 2");
+            if (hatch == null)
+            {
+                hatch = fsm.CopyState("Hatch", "Hatch 2");
+                hatch.ChangeTransition("FINISHED", "Equipped");
+                hatch.RemoveAction(0);
+            }
+            var check = fsm.GetState("Check Count 2");
+            if (check == null)
+            {
+                check = fsm.CopyState("Check Count", "Check Count 2");
+                check.ChangeTransition("CANCEL", "Equipped");
+                check.ChangeTransition("FINISHED", "Hatch 2");
+
+            }
+            if (fsm.GetState("Equipped").Transitions.Count() == 1)
+                fsm.AddTransition("Equipped", "SPAWN", "Check Count 2");
+            if (PlayerData.instance.equippedCharm_17)
+            {
+                var hatch_cloud = spell_con.GetState("Hatch Cloud");
+                if (hatch_cloud == null)
+                {
+                    hatch_cloud = spell_con.CopyState("Dung Cloud", "Hatch Cloud");
+                    hatch_cloud.RemoveAction(0);
+                    hatch_cloud.RemoveAction(0);
+                    hatch_cloud.RemoveAction(0);
+                    hatch_cloud.ChangeTransition("FINISHED", "Set HP Amount");
+                    hatch_cloud.InsertCustomAction((state) =>
+                    {
+                        float num = 2;
+                        if (PlayerData.instance.equippedCharm_33) num *= 1.5f;
+                        if (PlayerData.instance.equippedCharm_34) num *= 2;
+                        for (int i = 0; i < (int)num; i++)
+                            GameObject.Find("Knight").FindGameObjectInChildren("Charm Effects").LocateMyFSM("Hatchling Spawn").SendEvent("SPAWN");
+                    }, 0);
+
+                }
+                if (spell_con.GetState("Spore Cloud").Transitions.Length == 2)
+                {
+                    spell_con.GetState("Spore Cloud").AddTransition("HATCH", "Hatch Cloud");
+                }
+                if (spell_con.GetState("Spore Cloud").Actions.Length == 6)
+                {
+                    spell_con.InsertCustomAction("Spore Cloud", (fsm) =>
+                    {
+                        if (PlayerData.instance.equippedCharm_22) fsm.SendEvent("HATCH");
+                    }, 2);
+                }
+            }
+            if (PlayerData.instance.equippedCharm_11)
+            {
+                fsm.ChangeTransition("Equipped", "FINISHED", "no");
+                var state = spell_con.GetState("Fireball Recoil 2");
+                if (state == null)
+                {
+                    spell_con.CopyState("Fireball Recoil", "Fireball Recoil 2");
+                    state = spell_con.GetState("Fireball Recoil 2");
+                    state.InsertCustomAction(() =>
+                    {
+                        int mp = 33;
+                        int num = 4;
+
+                        if (PlayerData.instance.equippedCharm_33) { mp = 24; num += 2; }
+                        if (PlayerData.instance.fireballLevel == 2) { num += 2; }
+                        HeroController.instance.TakeMP(mp);
+                        for (int i = 0; i < num; i++)
+                            GameObject.Find("Knight").FindGameObjectInChildren("Charm Effects").LocateMyFSM("Hatchling Spawn").SendEvent("SPAWN");
+                    }, 0);
+                    // state.RemoveAction(1);
+                    state.ChangeTransition("ANIM END", "Spell End");
+                }
+                spell_con.ChangeTransition("Fireball Antic", "ANIM END", "Fireball Recoil 2");
+            }
+            else
+            {
+                fsm.ChangeTransition("Equipped", "FINISHED", "Can Hatch?");
+                spell_con.ChangeTransition("Fireball Antic", "ANIM END", "Level Check");
+            }
+
+        }
+        else
+        {
+            fsm.FsmVariables.FindFsmInt("Soul Cost").Value = 8;
+            fsm.FsmVariables.FindFsmInt("Hatchling Max").Value = 4;
+            fsm.FsmVariables.FindFsmFloat("Hatch Time").Value = 4;
+            fsm.ChangeTransition("Equipped", "FINISHED", "Can Hatch?");
+            spell_con.ChangeTransition("Fireball Antic", "ANIM END", "Level Check");
+        }
     }
 
     private void OnHatchingDamage(On.KnightHatchling.orig_OnEnable orig, KnightHatchling self)
@@ -143,31 +284,23 @@ public class ItemManager : MonoBehaviour
         {
             var de = ReflectionHelper.GetField<KnightHatchling, KnightHatchling.TypeDetails>(self, "details");
             float damage = de.damage;
-            if (Rogue.getBirthright) damage += 5;
+            if (Rogue.getBirthright) damage += 3;
             damage += PlayerData.instance.nailDamage * 1.0f / 4;
             if (PlayerData.instance.equippedCharm_25) damage *= 1.5f;
+            if (PlayerData.instance.equippedCharm_11) damage *= 0.5f;
             de.damage = (int)damage;
+
             ReflectionHelper.SetField(self, "details", de);
 
-            int mp_cost = 8;
-            if (PlayerData.instance.equippedCharm_33) mp_cost -= 4;
-            fsm.FsmVariables.FindFsmInt("Soul Cost").Value = mp_cost;
 
-            int hatch_max = 4;
-            int spell_level = PlayerData.instance.fireballLevel + PlayerData.instance.quakeLevel + PlayerData.instance.screamLevel;
-            hatch_max += spell_level;
-            fsm.FsmVariables.FindFsmInt("Hatchling Max").Value = hatch_max;
+            if (hatchscene) return;
+            hatchscene = false;
 
-            float hatch_time = 4;
-            if (PlayerData.instance.equippedCharm_32) hatch_time /= 2;
-            if (spell_level == 6) hatch_time /= 2;
-            fsm.FsmVariables.FindFsmFloat("Hatch Time").Value = hatch_time;
         }
         else
         {
-            fsm.FsmVariables.FindFsmInt("Soul Cost").Value = 8;
-            fsm.FsmVariables.FindFsmInt("Hatchling Max").Value = 4;
-            fsm.FsmVariables.FindFsmFloat("Hatch Time").Value = 4;
+
+
         }
     }
 
@@ -381,8 +514,13 @@ public class ItemManager : MonoBehaviour
     private void OnSceneChanged(Scene arg0, Scene arg1)
     {
         scenename = arg1.name;
+        hatchscene = false;
         DisplayEquipped();
         DisplayStates();
+        if (HeroController.instance != null)
+        {
+            HatchChange();
+        }
         if (Rogue.Instance.inRogue && BossSequenceController.IsInSequence)
         {
             List<string> nobossscene = new List<string> { "GG_Spa", "GG_Engine", "GG_Unn", "GG_Engine_Root", "GG_Wyrm", "GG_Atrium_Roof" };
@@ -789,23 +927,32 @@ public class ItemManager : MonoBehaviour
         {
             if (Rogue.Instance.inRogue && Rogue.role == Rogue.giftname.collector)
             {
-                float damage = 11;
-                if (Rogue.getBirthright) damage += 5;
-                damage += PlayerData.instance.nailDamage * 1.0f / 2;
+                float damage = 3;
+                if (Rogue.getBirthright) damage += 1;
+                damage += PlayerData.instance.nailDamage * 1.0f / 3;
                 if (PlayerData.instance.equippedCharm_25) damage *= 1.5f;
                 if (PlayerData.instance.equippedCharm_6 && PlayerData.instance.health == 1) damage *= 1.75f;
                 self.GetAction<SetIntValue>("Level 4", 0).intValue = (int)damage;
 
 
-                float attack_timer = 1.5f;
-                if (PlayerData.instance.equippedCharm_32) attack_timer -= 0.2f;
+                self.GetAction<Wait>("Follow", 18).time = 0.25f;
+                self.GetAction<SetFloatValue>("No Target", 0).floatValue = 0.3f;
+                float attack_timer = 0.59f;
+                float attack_speed = 1f;
                 int spelllevel = PlayerData.instance.fireballLevel + PlayerData.instance.quakeLevel + PlayerData.instance.screamLevel;
-                attack_timer -= spelllevel * 0.1f;
-                self.GetAction<RandomFloat>("Antic", 3).min = attack_timer;
-                self.GetAction<RandomFloat>("Antic", 3).max = attack_timer;
+                attack_speed += spelllevel * 0.3f;
+                if (PlayerData.instance.equippedCharm_32) attack_speed *= 1.5f;
+                self.GetAction<RandomFloat>("Antic", 3).min = attack_timer / attack_speed;
+                self.GetAction<RandomFloat>("Antic", 3).max = attack_timer / attack_speed;
+                float anticfps = 16;
+                float shootfps = 12;
+                self.gameObject.GetComponent<tk2dSpriteAnimator>().Library.GetClipByName("Shoot 4").fps = shootfps * attack_speed;
+                self.gameObject.GetComponent<tk2dSpriteAnimator>().Library.GetClipByName("Antic 4").fps = anticfps * attack_speed;
 
 
-                float speed = 30f;
+
+
+                float speed = 50f;
                 if (PlayerData.instance.equippedCharm_31) speed += 10f;
                 if (PlayerData.instance.equippedCharm_37) speed += 10f;
                 self.FsmVariables.FindFsmFloat("Flameball Speed").Value = speed;
@@ -824,10 +971,14 @@ public class ItemManager : MonoBehaviour
             }
             else
             {
+                self.GetAction<Wait>("Follow", 18).time = 0.25f;
                 self.GetAction<SetIntValue>("Level 4", 0).intValue = (int)11;
+                self.GetAction<SetFloatValue>("No Target", 0).floatValue = 0.75f;
                 self.GetAction<RandomFloat>("Antic", 3).min = 1.5f;
                 self.GetAction<RandomFloat>("Antic", 3).max = 1.5f;
                 self.FsmVariables.FindFsmFloat("Flameball Speed").Value = 30f;
+                self.gameObject.GetComponent<tk2dSpriteAnimator>().Library.GetClipByName("Shoot 4").fps = 12;
+                self.gameObject.GetComponent<tk2dSpriteAnimator>().Library.GetClipByName("Antic 4").fps = 16;
 
                 GameObject grimm = GameObject.Find("Grimmchild(Clone)");
                 if (grimm != null)
@@ -1241,7 +1392,7 @@ public class ItemManager : MonoBehaviour
             waitstate.ChangeTransition("FINISHED", "Idle");
             fsm.ChangeTransition("Fling?", "FINISHED", "wait state");
             fsm.FsmVariables.GetFsmString("Tag").Value = "Boss";
-
+            fsm.gameObject.FindGameObjectInChildren("Inspect Region").LocateMyFSM("inspect").FsmVariables.FindFsmBool("Inspectable").Value = false;
             fsm.InsertCustomAction("Idle", (fsm) =>
             {
                 GameObject temp = fsm.gameObject;

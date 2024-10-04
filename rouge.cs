@@ -778,7 +778,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                         PlayerData.instance.canWallJump = true;
                         PlayerData.instance.canSuperDash = true;
                     },
-            name = Language.Language.Get("INV_NAME_WALLJUMP", "UI") + "\n" + Language.Language.Get("INV_NAME_SUPERDASH", "UI") + "\n" + Language.Language.Get("INV_NAME_ACIDARMOUR", "UI") + "\n" + Language.Language.Get("INV_NAME_DREAMNAIL_A", "UI"),
+            name = Language.Language.Get("INV_NAME_WALLJUMP", "UI") + "&" + Language.Language.Get("INV_NAME_SUPERDASH", "UI") + "&" + Language.Language.Get("INV_NAME_ACIDARMOUR", "UI") + "&" + Language.Language.Get("INV_NAME_DREAMNAIL_A", "UI"),
             desc = "获得螳螂爪/超冲/酸泪/梦钉",
             weight = 1f,
         });
@@ -934,7 +934,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             PlayerData.instance.gotCharm_32 = true;
 
         },
-            name = Language.Language.Get("CHARM_NAME_14", "UI") + "\n" + Language.Language.Get("CHARM_NAME_32", "UI"),
+            name = Language.Language.Get("CHARM_NAME_14", "UI") + "&" + Language.Language.Get("CHARM_NAME_32", "UI"),
             desc = "获得稳定之体&快速劈砍",
             weight = 0.9f,
         });
@@ -957,7 +957,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 PlayerData.instance.gotCharm_33 = true;
                 PlayerData.instance.gotCharm_20 = true;
             },
-            name = Language.Language.Get("CHARM_NAME_33", "UI") + "\n" + Language.Language.Get("CHARM_NAME_20", "UI"),
+            name = Language.Language.Get("CHARM_NAME_33", "UI") + "&" + Language.Language.Get("CHARM_NAME_20", "UI"),
             desc = "获得法术扭曲者&灵魂捕手",
             weight = 0.9f,
         });
@@ -1190,7 +1190,10 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             reward = (giftname) =>
             {
                 GiveVessel();
-                List<gift> gifts2 = new() { smallRewards[giftname.get_scream], smallRewards[giftname.get_fireball], smallRewards[giftname.get_quake] };
+                List<gift> gifts2 = new();
+                if (PlayerData.instance.screamLevel < 2) gifts2.Add(smallRewards[giftname.get_scream]);
+                if (PlayerData.instance.fireballLevel < 2) gifts2.Add(smallRewards[giftname.get_fireball]);
+                if (PlayerData.instance.quakeLevel < 2) gifts2.Add(smallRewards[giftname.get_quake]);
                 itemManager.rewardsStack.Push(new ItemManager.OneReward() { mode = ItemManager.Mode.fix_gift, gifts = gifts2 });
             },
             name = "mage_name".Localize(),
@@ -1202,9 +1205,16 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             level = 5,
             reward = (giftname) =>
             {
-                List<gift> gifts1 = new() { smallRewards[giftname.get_upward_slash], smallRewards[giftname.get_cyclone], smallRewards[giftname.get_dash_slash] };
+                List<gift> gifts1 = new();
+                if (!PlayerData.instance.hasCyclone) gifts1.Add(smallRewards[giftname.get_cyclone]);
+                if (!PlayerData.instance.hasUpwardSlash) gifts1.Add(smallRewards[giftname.get_dash_slash]);
+                if (!PlayerData.instance.hasDashSlash) gifts1.Add(smallRewards[giftname.get_upward_slash]);
                 itemManager.rewardsStack.Push(new ItemManager.OneReward() { mode = ItemManager.Mode.fix_select_small_gift, select = 1, gifts = gifts1 });
-                List<gift> gifts2 = new() { smallRewards[giftname.get_dash], smallRewards[giftname.get_zhua_lei_ding], smallRewards[giftname.get_double_jump] };
+
+                List<gift> gifts2 = new();
+                if (smallRewards[giftname.get_dash].weight != 0) gifts2.Add(smallRewards[giftname.get_dash]);
+                if (smallRewards[giftname.get_zhua_lei_ding].weight != 0) gifts2.Add(smallRewards[giftname.get_zhua_lei_ding]);
+                if (smallRewards[giftname.get_double_jump].weight != 0) gifts2.Add(smallRewards[giftname.get_double_jump]);
                 itemManager.rewardsStack.Push(new ItemManager.OneReward() { mode = ItemManager.Mode.fix_select_small_gift, select = 1, gifts = gifts2 });
             },
             name = "ranger_name".Localize(),
