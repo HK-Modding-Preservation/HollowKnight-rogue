@@ -249,6 +249,10 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
     private string bank_scene = "Fungus3_35";
     private string bank = "Bank Stand";
     private string banker = "Banker";
+
+    private string white_palace = "White_Palace_01";
+
+    private string white_fly = "White Palace Fly";
     public GameObject charms;
 
     public GameObject shiny_item = null;
@@ -256,6 +260,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
     public GameObject menu_go = null;
 
     public GameObject shop_go = null;
+
+    public GameObject fly_go = null;
     public int getAnyCharm = 0;
 
     public int refresh_num = 3;
@@ -354,7 +360,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             (gouBro_scene,gouBro),
             (bench_scene,bench),
             (bank_scene,bank),
-            (bank_scene,banker)
+            (bank_scene,banker),
+            (white_palace,white_fly)
         };
     }
 
@@ -381,6 +388,10 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         banker_animation = UnityEngine.Object.Instantiate(banker_go.GetComponent<tk2dSpriteAnimator>().Library);
         UnityEngine.Object.DontDestroyOnLoad(banker_animation);
         banker_go.SetActive(false);
+
+        fly_go = UnityEngine.Object.Instantiate(preloadedObjects[white_palace][white_fly]);
+        UnityEngine.Object.DontDestroyOnLoad(fly_go);
+        fly_go.SetActive(false);
 
         bench_go = UnityEngine.Object.Instantiate(preloadedObjects[bench_scene][bench]);
         UnityEngine.Object.DontDestroyOnLoad(bench_go);
@@ -613,6 +624,15 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         adjust_shop_go(itemManager.item_shop_go);
         GameObject.DontDestroyOnLoad(itemManager.item_shop_go);
         itemManager.item_shop_go.SetActive(false);
+
+        if (itemManager.item_fly_go != null)
+        {
+            itemManager.item_fly_go.SetActive(false);
+            GameObject.DestroyImmediate(itemManager.item_fly_go);
+        }
+        itemManager.item_fly_go = GameObject.Instantiate(fly_go);
+        GameObject.DontDestroyOnLoad(itemManager.item_fly_go);
+        itemManager.item_fly_go.SetActive(false);
 
         if (itemManager.item_restbench != null)
         {
@@ -1100,13 +1120,13 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                         {
                             PlayerData.instance.hasShadowDash = true;
                             PlayerData.instance.canShadowDash = true;
-                            ShowConvo(Language.Language.Get("INV_NAME_SHADOWDASH"));
+                            ShowConvo(Language.Language.Get("INV_NAME_SHADOWDASH", "UI"));
                         }
                         else
                         {
                             PlayerData.instance.hasDash = true;
                             PlayerData.instance.canDash = true;
-                            ShowConvo(Language.Language.Get("INV_NAME_DASH"));
+                            ShowConvo(Language.Language.Get("INV_NAME_DASH", "UI"));
                         }
                         break;
                     case giftname.collector:
@@ -1546,6 +1566,9 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 PlayerData.instance.gotCharm_40 = true;
                 PlayerData.instance.grimmChildLevel = 4;
                 PlayerData.instance.charmCost_40 = 2;
+                PlayerData.instance.gotCharm_38 = true;
+                PlayerData.instance.equippedCharm_38 = true;
+                PlayerData.instance.equippedCharms.Add(38);
                 ShowDreamConvo("collector_dream".Localize());
             },
             name = "collector_name".Localize(),
@@ -2113,6 +2136,10 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                     {
                         if (fsm.GetVariable<FsmInt>("Current Item Number").Value == 13) fsm.SendEvent("CANCEL");
                     }
+                    if (role == giftname.collector)
+                    {
+                        if (fsm.GetVariable<FsmInt>("Current Item Number").Value == 38) fsm.SendEvent("CANCEL");
+                    }
                 }, 0);
             }
             if (self.GetState("Black Charm? 2").Actions.Length == 2)
@@ -2130,6 +2157,11 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                                     if (role == giftname.mantis)
                                     {
                                         if (fsm.GetVariable<FsmInt>("Current Item Number").Value == 13) fsm.SendEvent("CANCEL");
+                                    }
+                                    if (role == giftname.collector)
+                                    {
+                                        if (fsm.GetVariable<FsmInt>("Current Item Number").Value == 38) fsm.SendEvent("CANCEL");
+
                                     }
                                 }, 0);
             }

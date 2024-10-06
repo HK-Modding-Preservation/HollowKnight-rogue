@@ -96,6 +96,8 @@ public class ItemManager : MonoBehaviour
 
     public GameObject item_restbench = null;
 
+    public GameObject item_fly_go = null;
+
     public List<Rogue.giftname> roleList = new List<Rogue.giftname>
         {
             Rogue.giftname.nail_master,
@@ -181,8 +183,9 @@ public class ItemManager : MonoBehaviour
 
             float hatch_time = 4;
             float hatch_speed = 1;
-            hatch_speed += 0.3f * spell_level;
-            if (PlayerData.instance.equippedCharm_32) hatch_speed *= 2;
+            int new_spelllevel = Math.Max(Math.Max(PlayerData.instance.fireballLevel, PlayerData.instance.quakeLevel), PlayerData.instance.screamLevel);
+            hatch_speed += 0.9f * new_spelllevel;
+            if (PlayerData.instance.equippedCharm_32) hatch_speed *= 1.5f;
             fsm.FsmVariables.FindFsmFloat("Hatch Time").Value = hatch_time / hatch_speed;
 
             var hatch = fsm.GetState("Hatch 2");
@@ -283,24 +286,30 @@ public class ItemManager : MonoBehaviour
         if (Rogue.Instance.inRogue && Rogue.role == Rogue.giftname.collector)
         {
             var de = ReflectionHelper.GetField<KnightHatchling, KnightHatchling.TypeDetails>(self, "details");
-            float damage = de.damage;
-            if (Rogue.getBirthright) damage += 3;
-            damage += PlayerData.instance.nailDamage * 1.0f / 4;
-            if (PlayerData.instance.equippedCharm_25) damage *= 1.5f;
-            if (PlayerData.instance.equippedCharm_11) damage *= 0.5f;
+            float damage = de.damage + 20 - 9;
+            int spelllevel = Math.Max(Math.Max(PlayerData.instance.fireballLevel, PlayerData.instance.screamLevel), PlayerData.instance.quakeLevel);
+            damage += 5 * spelllevel;
+            if (PlayerData.instance.equippedCharm_19) damage += damage / 3;
+            if (PlayerData.instance.equippedCharm_11) damage *= 0.7f;
+            if (PlayerData.instance.equippedCharm_40) damage *= 0.7f;
             de.damage = (int)damage;
+            if (Rogue.getBirthright && scenename != "GG_Spa")
+            {
+                self.damageEnemies.attackType = AttackTypes.SharpShadow;
+            }
+            else
+            {
+                self.damageEnemies.attackType = AttackTypes.Generic;
+            }
 
             ReflectionHelper.SetField(self, "details", de);
 
 
-            if (hatchscene) return;
-            hatchscene = false;
 
         }
         else
         {
-
-
+            self.damageEnemies.attackType = AttackTypes.Generic;
         }
     }
 
@@ -379,10 +388,10 @@ public class ItemManager : MonoBehaviour
                 }
                 else if (Rogue.role == Rogue.giftname.collector)
                 {
-                    float mul = 0.7f;
-                    if (PlayerData.instance.equippedCharm_22) mul *= 0.7f;
-                    if (PlayerData.instance.equippedCharm_38) mul *= 0.7f;
-                    if (PlayerData.instance.equippedCharm_39) mul *= 0.7f;
+                    float mul = 0.5f;
+                    if (PlayerData.instance.equippedCharm_22) mul *= 0.5f;
+                    if (PlayerData.instance.equippedCharm_40) mul *= 0.5f;
+                    if (PlayerData.instance.equippedCharm_39) mul *= 0.5f;
                     hitInstance.Multiplier *= mul;
                 }
                 break;
@@ -395,10 +404,10 @@ public class ItemManager : MonoBehaviour
                 }
                 else if (Rogue.role == Rogue.giftname.collector)
                 {
-                    float mul = 0.7f;
-                    if (PlayerData.instance.equippedCharm_22) mul *= 0.7f;
-                    if (PlayerData.instance.equippedCharm_38) mul *= 0.7f;
-                    if (PlayerData.instance.equippedCharm_39) mul *= 0.7f;
+                    float mul = 0.5f;
+                    if (PlayerData.instance.equippedCharm_22) mul *= 0.5f;
+                    if (PlayerData.instance.equippedCharm_40) mul *= 0.5f;
+                    if (PlayerData.instance.equippedCharm_39) mul *= 0.5f;
                     hitInstance.Multiplier *= mul;
                 }
                 break;
@@ -418,6 +427,8 @@ public class ItemManager : MonoBehaviour
     private void OnCharmUpdate(PlayerData data, HeroController controller)
     {
         DisplayEquipped();
+        HatchChange();
+
     }
 
     private void OnSetBool(On.PlayerData.orig_SetBool orig, PlayerData self, string boolName, bool value)
@@ -536,12 +547,14 @@ public class ItemManager : MonoBehaviour
         if (arg1.name == "GG_Engine")
         {
             StartCoroutine(DelayShowDreamConvo(0.5f, "godseeker".Localize()));
+            item_fly_go.SetActive(false);
         }
         if (arg1.name == "GG_Atrium_Roof")
         {
             GameObject taijie = Instantiate(GameObject.Find("gg_plat_float_small"));
             taijie.transform.SetPosition2D(new Vector2(118, 64));
             taijie.SetActive(true);
+            item_fly_go.SetActive(false);
             if (Rogue.Instance.inRogue)
             {
 
@@ -568,6 +581,8 @@ public class ItemManager : MonoBehaviour
             item_restbench.SetActive(false);
             if (Rogue.Instance.inRogue)
             {
+                // item_fly_go.SetActive(true);
+                item_fly_go.transform.position = new Vector3(85, 20, 0);
                 Rogue.Instance.spa_count++;
                 Rogue.Instance.UpdateWeight();
                 DestroyAllItems();
@@ -596,6 +611,7 @@ public class ItemManager : MonoBehaviour
             item_menu_go.SetActive(false);
             item_shop_go.SetActive(false);
             item_restbench.SetActive(false);
+            item_fly_go.SetActive(false);
         }
     }
     public void SpwanShopItem(List<Rogue.gift> gifts, bool select = false)
@@ -918,7 +934,6 @@ public class ItemManager : MonoBehaviour
                         Rogue.Instance.smallRewards[Rogue.giftname.get_birthright].reward(Rogue.giftname.get_birthright);
                         Rogue.Instance.UpdateWeight();
                         DisplayStates();
-
                     }
                 }, 1);
             }
@@ -927,20 +942,21 @@ public class ItemManager : MonoBehaviour
         {
             if (Rogue.Instance.inRogue && Rogue.role == Rogue.giftname.collector)
             {
-                float damage = 3;
-                if (Rogue.getBirthright) damage += 1;
-                damage += PlayerData.instance.nailDamage * 1.0f / 3;
+                int naillevel = (PlayerData.instance.nailDamage - 5) / 4;
+                float damage = 10;
+                damage += naillevel;
                 if (PlayerData.instance.equippedCharm_25) damage *= 1.5f;
                 if (PlayerData.instance.equippedCharm_6 && PlayerData.instance.health == 1) damage *= 1.75f;
+                if (PlayerData.instance.equippedCharm_22) damage *= 0.7f;
                 self.GetAction<SetIntValue>("Level 4", 0).intValue = (int)damage;
 
 
                 self.GetAction<Wait>("Follow", 18).time = 0.25f;
                 self.GetAction<SetFloatValue>("No Target", 0).floatValue = 0.3f;
-                float attack_timer = 0.59f;
+                float attack_timer = 0.79f;
                 float attack_speed = 1f;
-                int spelllevel = PlayerData.instance.fireballLevel + PlayerData.instance.quakeLevel + PlayerData.instance.screamLevel;
-                attack_speed += spelllevel * 0.3f;
+
+                attack_speed += naillevel * 0.5f;
                 if (PlayerData.instance.equippedCharm_32) attack_speed *= 1.5f;
                 self.GetAction<RandomFloat>("Antic", 3).min = attack_timer / attack_speed;
                 self.GetAction<RandomFloat>("Antic", 3).max = attack_timer / attack_speed;
@@ -952,15 +968,47 @@ public class ItemManager : MonoBehaviour
 
 
 
-                float speed = 50f;
+                float speed = 30f;
                 if (PlayerData.instance.equippedCharm_31) speed += 10f;
                 if (PlayerData.instance.equippedCharm_37) speed += 10f;
                 self.FsmVariables.FindFsmFloat("Flameball Speed").Value = speed;
+                if (PlayerData.instance.equippedCharm_2) self.GetAction<FireAtTarget>("Shoot", 7).spread = 0;
+
+
+
+                if (self.GetState("Shoot").Actions.Length == 10)
+                {
+                    self.InsertCustomAction("Shoot", (fsm) =>
+                    {
+                        if (PlayerData.instance.equippedCharm_22)
+                        {
+                            var ball = fsm.FsmVariables.FindFsmGameObject("Flameball").Value;
+                            var rb2d = ball.GetComponent<Rigidbody2D>();
+                            float speed = fsm.FsmVariables.FindFsmFloat("Flameball Speed").Value;
+                            float num3 = Mathf.Acos(rb2d.velocity.x / speed) / ((float)Math.PI / 180f);
+                            float[] spreads = new float[] { -35f, 35f };
+                            foreach (var spread in spreads)
+                            {
+                                GameObject newball = Instantiate(ball);
+                                newball.transform.position = ball.transform.position;
+                                float newnum3 = num3 + spread;
+                                var x = speed * Mathf.Cos(newnum3 * ((float)Math.PI / 180f));
+                                var y = speed * Mathf.Sin(newnum3 * ((float)Math.PI / 180f));
+                                Vector2 velocity = default(Vector2);
+                                velocity.x = x;
+                                velocity.y = y;
+                                newball.GetComponent<Rigidbody2D>().velocity = velocity;
+                            }
+
+                        }
+                    }, 8);
+                }
 
                 GameObject grimm = GameObject.Find("Grimmchild(Clone)");
                 if (grimm != null)
                 {
                     float scale = 1f;
+                    if (Rogue.getBirthright) scale += 0.5f;
                     if (PlayerData.instance.equippedCharm_13) scale += 1f;
                     if (PlayerData.instance.equippedCharm_18) scale += 0.5f;
                     grimm.FindGameObjectInChildren("Enemy Range").transform.localScale = new Vector3(scale, scale, scale);
@@ -979,6 +1027,12 @@ public class ItemManager : MonoBehaviour
                 self.FsmVariables.FindFsmFloat("Flameball Speed").Value = 30f;
                 self.gameObject.GetComponent<tk2dSpriteAnimator>().Library.GetClipByName("Shoot 4").fps = 12;
                 self.gameObject.GetComponent<tk2dSpriteAnimator>().Library.GetClipByName("Antic 4").fps = 16;
+                if (PlayerData.instance.equippedCharm_2) self.GetAction<FireAtTarget>("Shoot", 7).spread = 15f;
+
+                if (self.GetState("Shoot").Actions.Length == 11)
+                {
+                    self.RemoveAction("Shoot", 8);
+                }
 
                 GameObject grimm = GameObject.Find("Grimmchild(Clone)");
                 if (grimm != null)
@@ -1403,6 +1457,7 @@ public class ItemManager : MonoBehaviour
                     if (temp == null) { Log("null is " + s); return; }
                 }
                 temp.GetComponent<TMPro.TextMeshPro>().text = name;
+                temp.GetComponent<TMPro.TextMeshPro>().fontSize = Lang.getfontsize();
             }, 2);
 
 
