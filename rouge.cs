@@ -2582,6 +2582,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         Menu setting = new("Settings");
         setting.AddElement(new Satchel.BetterMenus.CustomSlider("font_size", (size) => { _set.item_font_size = size; }, () => _set.item_font_size, 0, 10));
         setting.AddElement(new Satchel.BetterMenus.CustomSlider("ui_transparency", (alpha) => { _set.UI_alpha = alpha; }, () => _set.UI_alpha, 0, 1));
+        setting.AddElement(new Satchel.BetterMenus.MenuButton("default", "turn all to default", (but) => { _set.item_font_size = 6.67f; _set.UI_alpha = 0.6f; Utils.GoToMenuScreen(setting.returnScreen); }));
         var ss = setting.GetMenuScreen(setting.returnScreen);
         menu.AddElement(new MenuButton("Settings", "", (but) =>
         {
