@@ -26,6 +26,10 @@ public class setting
 
     public bool owner;
 
+    public float item_font_size = 6.67f;
+
+    public float UI_alpha = 0.6f;
+
 
 
 

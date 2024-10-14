@@ -2577,9 +2577,20 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         {
             Utils.GoToMenuScreen(gs);
         }));
+
+
+        Menu setting = new("Settings");
+        setting.AddElement(new Satchel.BetterMenus.CustomSlider("font_size", (size) => { _set.item_font_size = size; }, () => _set.item_font_size, 0, 10));
+        setting.AddElement(new Satchel.BetterMenus.CustomSlider("ui_transparency", (alpha) => { _set.UI_alpha = alpha; }, () => _set.UI_alpha, 0, 1));
+        var ss = setting.GetMenuScreen(setting.returnScreen);
+        menu.AddElement(new MenuButton("Settings", "", (but) =>
+        {
+            Utils.GoToMenuScreen(ss);
+        }));
         menu.AddElement(text);
         var ms = menu.GetMenuScreen(modListMenu);
         giftBase.returnScreen = ms;
+        setting.returnScreen = ms;
         return ms;
 
     }
