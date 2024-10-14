@@ -539,7 +539,7 @@ public class ItemManager : MonoBehaviour
             {
                 int geo = 50;
                 if (PlayerData.instance.equippedCharm_24) geo += 20;
-                if (damaged_num == 0 || Rogue.role == Rogue.giftname.uunn) geo += 20;
+                if (damaged_num == 0 || Rogue.role == Rogue.giftname.uunn) geo += 50;
                 HeroController.instance.AddGeo(geo);
             }
         }
@@ -876,7 +876,7 @@ public class ItemManager : MonoBehaviour
             Rogue.Instance.Rogue_Over();
             ModHooks.AfterTakeDamageHook -= CheckIfdamaged;
         }
-        if (Rogue.Instance.inRogue && BossSequenceController.IsInSequence && (scenename != "GG_Spa") && (scenename! != "GG_Atrium_Roof"))
+        if (Rogue.Instance.inRogue && BossSequenceController.IsInSequence && (scenename != "GG_Spa") && (scenename! != "GG_Atrium_Roof" || scenename != "GG_Engine"))
         {
             if (!GameManager.instance.isPaused)
             {
