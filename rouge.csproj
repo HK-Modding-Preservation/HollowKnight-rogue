@@ -47,7 +47,7 @@
 
   
     <Copy Condition="'$(DocumentationFile)' != ''" SourceFiles="ReadMe.md;$(TargetPath);$(TargetDir)/$(TargetName).pdb;$(TargetDir)/$(TargetName).xml" DestinationFolder="$(ExportDir)/$(TargetName)/zip/" />
-  <Copy Condition="'$(DocumentationFile)' == ''" SourceFiles="ReadMe.md;$(TargetPath);$(TargetDir)/$(TargetName).pdb;" DestinationFolder="$(ExportDir)/$(TargetName)/zip/" />
+  <Copy Condition="'$(DocumentationFile)' == ''" SourceFiles="collector_en.md;collector_zh.md;ReadMe.md;$(TargetPath);$(TargetDir)/$(TargetName).pdb;" DestinationFolder="$(ExportDir)/$(TargetName)/zip/" />
   <!-- <Copy Condition="'$(DocumentationFile)' != ''" SourceFiles="ReadMe.md;$(TargetPath);$(TargetDir)/$(TargetName).xml" DestinationFolder="$(ExportDir)/$(TargetName)/zip/" />
   <Copy Condition="'$(DocumentationFile)' == ''" SourceFiles="ReadMe.md;$(TargetPath);" DestinationFolder="$(ExportDir)/$(TargetName)/zip/" /> -->
   
