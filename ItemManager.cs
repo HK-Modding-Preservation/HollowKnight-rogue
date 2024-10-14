@@ -1457,7 +1457,7 @@ public class ItemManager : MonoBehaviour
                     if (temp == null) { Log("null is " + s); return; }
                 }
                 temp.GetComponent<TMPro.TextMeshPro>().text = name;
-                temp.GetComponent<TMPro.TextMeshPro>().fontSize = Lang.getfontsize();
+                temp.GetComponent<TMPro.TextMeshPro>().fontSize = Rogue.Instance._set.item_font_size;
             }, 2);
 
 
@@ -1516,7 +1516,13 @@ public class ItemManager : MonoBehaviour
             DestroyAllItems();
             if (rewardsStack.Count > 0)
             {
-                var reward = rewardsStack.Pop();
+                OneReward reward;
+                do
+                {
+                    reward = rewardsStack.Pop();
+                }
+                while (FixEmptyReward(reward) && rewardsStack.Count > 0);
+                if (FixEmptyReward(reward)) return;
                 switch (reward.mode)
                 {
                     case Mode.select_small_gift:
@@ -1549,6 +1555,12 @@ public class ItemManager : MonoBehaviour
             }
         }
 
+    }
+
+    private bool FixEmptyReward(OneReward reward)
+    {
+        if ((reward.mode == Mode.fix_gift || reward.mode == Mode.fix_select_small_gift || reward.mode == Mode.fix_select_big_gift) && reward.gifts.Count <= 0) return true;
+        return false;
     }
 
     private void Log(object msg)
@@ -1609,6 +1621,7 @@ public class ItemManager : MonoBehaviour
 
     public void DisplayStates()
     {
+        alpha = Rogue.Instance._set.UI_alpha;
         if (PlayerData.instance == null) return;
         PlayerData.instance.CalculateNotchesUsed();
 
