@@ -99,5 +99,7 @@
     "Gou_bro_SUPER": "水晶山峰霸主",
     "Gou_bro_SUB": "撼天动地的英雄",
     "godseeker": "寻神者似乎有话跟你说",
-    "fontsize": "4"
+    "font_size": "物品字体大小",
+    "ui_transparency": "UI透明度",
+    "reroll_num": "初始刷新次数"
 }
