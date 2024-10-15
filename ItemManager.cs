@@ -539,7 +539,7 @@ public class ItemManager : MonoBehaviour
             {
                 int geo = 50;
                 if (PlayerData.instance.equippedCharm_24) geo += 20;
-                if (damaged_num == 0 || Rogue.role == Rogue.giftname.uunn) geo += 50;
+                if (damaged_num == 0 || Rogue.role == Rogue.giftname.uunn) geo += 20;
                 HeroController.instance.AddGeo(geo);
             }
         }
@@ -847,6 +847,7 @@ public class ItemManager : MonoBehaviour
         }
         if (Rogue.self_actions.start.IsPressed && startgap < 0)
         {
+            startgap = 1f;
             Rogue.Instance.Rogue_Reset();
             Rogue.Instance.Rogue_Start();
             DisplayEquipped();
@@ -873,6 +874,7 @@ public class ItemManager : MonoBehaviour
         }
         if (Rogue.self_actions.over.IsPressed && overgap < 0)
         {
+            overgap = 1f;
             Rogue.Instance.Rogue_Over();
             ModHooks.AfterTakeDamageHook -= CheckIfdamaged;
         }
@@ -1362,11 +1364,8 @@ public class ItemManager : MonoBehaviour
                 {
                     newitem.transform.position = try_pos;
                     bool spaflag = true;
-                    Log("\n");
-                    Log(newitem.transform.position.x);
                     foreach (var item in items)
                     {
-                        Log(item.transform.position.x);
                         if (Math.Abs(item.transform.position.x - newitem.transform.position.x) < 0.5f)
                         {
                             spaflag = false;
@@ -1604,7 +1603,6 @@ public class ItemManager : MonoBehaviour
         float x = 4;
         foreach (var num in PlayerData.instance.equippedCharms)
         {
-            Log("num is " + num);
             var c = Collected_Charms.transform.Find(num.ToString());
             var newC = new GameObject(c.name);
             newC.layer = LayerMask.NameToLayer("UI");

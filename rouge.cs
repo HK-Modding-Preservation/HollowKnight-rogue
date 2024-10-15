@@ -43,7 +43,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
 
     public override string GetVersion()
     {
-        return "1.0.0.2";
+        return "1.0.0.5";
     }
     public class actions : PlayerActionSet
     {
@@ -410,7 +410,6 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         menu_go.FindGameObjectInChildren("Confirm").FindGameObjectInChildren("UI List").LocateMyFSM("Confirm Control").InsertCustomAction("Special Type?", (fsm) =>
         {
             giftname type = (giftname)(fsm.FsmVariables.GetFsmInt("Special Type").Value - 18);
-            Log(type);
             if (smallRewards.ContainsKey(type))
             {
                 smallRewards[type].reward(type);
@@ -480,7 +479,6 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             menu_go.FindGameObjectInChildren("Confirm").FindGameObjectInChildren("UI List").LocateMyFSM("Confirm Control").InsertCustomAction("Special Type?", (fsm) =>
             {
                 giftname type = (giftname)(fsm.FsmVariables.GetFsmInt("Special Type").Value - 18);
-                Log(type);
                 if (smallRewards.ContainsKey(type))
                 {
                     smallRewards[type].reward(type);
@@ -685,7 +683,6 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             reward = (giftname) =>
                     {
                         GiveVessel();
-                        Log("1 vessel");
                     },
             name = "add_1_vessel_name".Localize(),
             desc = "add_1_vessel_name".Localize(),
@@ -2046,9 +2043,6 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 getSprite = (giftname) =>
                 {
                     List<int> breakable = new List<int> { 23, 24, 25 };
-                    Log(giftname);
-                    Log((int)giftname);
-                    Log("i= " + i);
                     var charmIcon = HutongGames.PlayMaker.FsmVariables.GlobalVariables.FindFsmGameObject("Charm Icons").Value;
                     if (charmIcon == null) return null;
                     if (!breakable.Contains((int)giftname) && (int)giftname != 40)
@@ -2235,7 +2229,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             itemManager.Next(true);
             getAnyCharm = 0;
             relive_num = 1;
-            refresh_num = 3;
+            refresh_num = _set.reroll_num;
             itemManager.BeginDisplay();
             inRogue = true;
             HeroController.instance.geoCounter.gameObject.GetComponent<DeactivateIfPlayerdataTrue>().enabled = false;
@@ -2280,7 +2274,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             GiveAllCharms();
             GiveAllSkills();
             role = null;
-
+            itemManager.DisplayStates();
         }
     }
 
@@ -2289,7 +2283,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
     {
         if (PlayerData.instance.maxHealthBase < 9)
         {
-            // HeroController.instance.MaxHealth();
+            HeroController.instance.MaxHealth();
             HeroController.instance.AddToMaxHealth(1);
             PlayMakerFSM.BroadcastEvent("MAX HP UP");
         }
@@ -2488,8 +2482,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         foreach (var gift in smallRewards)
         {
             gift g = gift.Value;
-            if (g.desc == null) continue;
-            var temp = Blueprints.ToggleButton(g.desc.Replace('\n', '&'), "",
+            if (g.name == null) continue;
+            var temp = Blueprints.ToggleButton(g.name.Replace('\n', '&'), "",
             (act) =>
             {
                 g.active = act;
@@ -2523,8 +2517,6 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
 
         }
         //TODO 游戏中天赋库不出现的bug
-        Log(count);
-        Log(tempList.Count);
         if (count > 0)
         {
             giftBase.AddElement(new MenuRow(tempList, "1"));
@@ -2536,8 +2528,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         foreach (var gift in bigRewards)
         {
             gift g = gift.Value;
-            if (g.desc == null) continue;
-            var temp = Blueprints.ToggleButton(g.desc, "",
+            if (g.name == null) continue;
+            var temp = Blueprints.ToggleButton(g.name, "",
             (act) =>
             {
                 g.active = act;
@@ -2580,9 +2572,10 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
 
 
         Menu setting = new("Settings");
-        setting.AddElement(new Satchel.BetterMenus.CustomSlider("font_size", (size) => { _set.item_font_size = size; }, () => _set.item_font_size, 0, 10));
-        setting.AddElement(new Satchel.BetterMenus.CustomSlider("ui_transparency", (alpha) => { _set.UI_alpha = alpha; }, () => _set.UI_alpha, 0, 1));
-        setting.AddElement(new Satchel.BetterMenus.MenuButton("default", "turn all to default", (but) => { _set.item_font_size = 6.67f; _set.UI_alpha = 0.6f; Utils.GoToMenuScreen(setting.returnScreen); }));
+        setting.AddElement(new Satchel.BetterMenus.CustomSlider("font_size".Localize(), (size) => { _set.item_font_size = size; }, () => _set.item_font_size, 0, 10));
+        setting.AddElement(new Satchel.BetterMenus.CustomSlider("ui_transparency".Localize(), (alpha) => { _set.UI_alpha = alpha; }, () => _set.UI_alpha, 0, 1));
+        setting.AddElement(Blueprints.IntInputField("reroll_num".Localize(), (num) => { _set.reroll_num = num; }, () => _set.reroll_num, 3));
+        setting.AddElement(new Satchel.BetterMenus.MenuButton("default", "turn all to default", (but) => { _set.item_font_size = 6.67f; _set.UI_alpha = 0.6f; _set.reroll_num = 3; setting.Update(); }));
         var ss = setting.GetMenuScreen(setting.returnScreen);
         menu.AddElement(new MenuButton("Settings", "", (but) =>
         {
