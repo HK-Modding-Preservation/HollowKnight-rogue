@@ -30,6 +30,8 @@ public class setting
 
     public float UI_alpha = 0.6f;
 
+    public int reroll_num = 3;
+
 
 
 
