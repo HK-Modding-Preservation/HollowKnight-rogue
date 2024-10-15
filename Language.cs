@@ -65,19 +65,5 @@ public static class Lang
         }
         return no_that_key;
     }
-    public static float getfontsize()
-    {
-        string size = "fontsize".Localize();
-        float res = 6.67f;
-        try
-        {
-            res = float.Parse(size);
-        }
-        catch
-        {
-            Modding.Logger.Log("font size error");
-        }
-        return res;
 
-    }
 }
