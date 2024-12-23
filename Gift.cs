@@ -281,6 +281,7 @@ internal static class GiftFactory
     {
 
         all_gifts.Add(Giftname.role_test, new RoleGift<Test>(Giftname.role_test));
+        all_gifts[Giftname.role_test].sprite = null;
         all_gifts.Add(Giftname.role_nail_master, new RoleGift<NailMaster>(Giftname.role_nail_master));
         all_gifts.Add(Giftname.role_shaman, new RoleGift<Shaman>(Giftname.role_shaman));
         all_gifts.Add(Giftname.role_hunter, new RoleGift<Hunter>(Giftname.role_hunter));
