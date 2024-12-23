@@ -1,4 +1,6 @@
 
+using System.CodeDom;
+using System.Configuration;
 using Unity.IO.LowLevel.Unsafe;
 
 namespace rogue.Characters;
@@ -15,13 +17,59 @@ public enum CharacterRole
     moth = (int)Giftname.role_moth,
     grey_prince = (int)Giftname.role_grey_prince,
     grimm = (int)Giftname.role_grimm,
-    Tuk = (int)Giftname.role_tuk,
+    tuk = (int)Giftname.role_tuk,
     defender = (int)Giftname.role_defender,
     mantis = (int)Giftname.role_mantis,
     collector = (int)Giftname.role_collector,
     no_role,
 }
+internal static class CharacterInfo
+{
+    internal static Dictionary<CharacterRole, Vector2> role_sprite_scales = new()
+    {
+        {CharacterRole.test, new Vector2(1, 1)},
+        {CharacterRole.nail_master, new Vector2(1, 1)},
+        {CharacterRole.shaman, new Vector2(1, 1)},
+        {CharacterRole.hunter, new Vector2(0.2f, 0.2f)},
+        {CharacterRole.uunn, new Vector2(0.15f, 0.15f)},
+        {CharacterRole.joni, new Vector2(0.7f, 0.7f)},
+        {CharacterRole.guarder, new Vector2(1, 1)},
+        {CharacterRole.moth, new Vector2(0.6f, 0.6f)},
+        {CharacterRole.grey_prince, new Vector2(0.45f, 0.45f)},
+        {CharacterRole.grimm, new Vector2(1,1)},
+        {CharacterRole.tuk, new Vector2(0.45f, 0.45f)},
+        {CharacterRole.defender, new Vector2(0.5f, 0.5f)},
+        {CharacterRole.mantis, new Vector2(0.55f, 0.55f)},
+        {CharacterRole.collector, new Vector2(0.5f, 0.5f)},
+    };
+}
+public class RoleGift<T> : Gift where T : Character
+{
+    public RoleGift(Giftname role_name) : base(5)
+    {
+        this.giftname = role_name;
+        role = (CharacterRole)role_name;
+        showConvo = false;
+        active = true;
+        force_active = true;
+        weight = 0;
+        price = 0;
+        string true_name = role_name.ToString().Replace("role_", "");
+        name = (true_name + "_name").Localize();
+        desc = (true_name + "_desc").Localize();
+        sprite = AssemblyUtils.GetSpriteFromResources(true_name + ".png");
+        scale = CharacterInfo.role_sprite_scales.ContainsKey(role) ? CharacterInfo.role_sprite_scales[role] : new Vector2(1, 1);
+    }
+    CharacterRole role;
+    internal override void GetGift()
+    {
+        HeroController.instance?.gameObject.RemoveComponent<Character>();
+        HeroController.instance?.gameObject.AddComponent<T>();
+    }
 
+
+
+}
 public abstract class Character : MonoBehaviour
 {
     internal CharacterRole Selfname { get; protected private set; }

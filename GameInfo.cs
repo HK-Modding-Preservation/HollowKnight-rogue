@@ -3,17 +3,17 @@ namespace rogue;
 
 internal static class GameInfo
 {
-    internal static bool in_rogue;
-    internal static CharacterRole role;
-    internal static int get_any_charm_num;
+    internal static bool in_rogue = false;
+    internal static CharacterRole role = CharacterRole.no_role;
+    internal static int get_any_charm_num = 0;
 
-    internal static int revive_num;
+    internal static int revive_num = 0;
 
-    internal static bool get_birthright;
-    internal static int pretty_key_num;
-    internal static int refresh_num;
-    internal static int spa_count;
-    internal static float timer;
+    internal static bool get_birthright = false;
+    internal static int pretty_key_num = 0;
+    internal static int refresh_num = 0;
+    internal static int spa_count = 0;
+    internal static float timer = 0;
     internal static Dictionary<GiftVariety, List<Gift>> act_gifts = new()
     {
         {GiftVariety.item,new()},
@@ -59,6 +59,7 @@ internal static class GameInfo
     {
         in_rogue = false;
         get_birthright = false;
+        
         role = CharacterRole.no_role;
     }
 }

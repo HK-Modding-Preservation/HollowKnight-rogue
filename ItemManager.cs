@@ -653,6 +653,10 @@ public class ItemManager : MonoBehaviour
 
     public List<Gift> RandomList(List<Gift> gifts, int num = 1, bool canRepeat = false, System.Random random = null)
     {
+        if (random == null)
+        {
+            random = this.item_random;
+        }
         List<Gift> res = new();
         float whole = gifts.Sum((gift) =>
         {
@@ -788,6 +792,7 @@ public class ItemManager : MonoBehaviour
 
     private void SpwanItem(int level, string name, Action<Giftname> action, Giftname giftname)
     {
+        Log(giftname.ToString() + " spawn");
         knight = GameObject.Find("Knight");
         item = Rogue.Instance.shiny_item;
         if (knight != null)
@@ -973,7 +978,9 @@ public class ItemManager : MonoBehaviour
                 }
                 while (FixEmptyReward(reward) && rewardsStack.Count > 0);
                 if (FixEmptyReward(reward)) return;
-
+                Log(reward.ToString());
+                Log(reward.gifts);
+                Log(reward.mode);
                 switch (reward.mode)
                 {
                     case Mode.select_small_gift:
@@ -1016,7 +1023,9 @@ public class ItemManager : MonoBehaviour
 
     private void Log(object msg)
     {
-        Modding.Logger.Log(msg);
+
+        Rogue.Instance.Log(msg);
+
     }
     private string TimerText()
     {

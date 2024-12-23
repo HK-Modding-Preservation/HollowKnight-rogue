@@ -170,7 +170,13 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         On.BossSequenceController.SetupNewSequence += BeginScene;
 
         On.HeroController.Awake += OnSavegameLoad;
+        ModHooks.SavegameSaveHook += TestSavaGame;
 
+    }
+
+    private void TestSavaGame(int obj)
+    {
+        Log("Save Game!!!");
     }
 
     public void adjust_menu_go(GameObject menu_go)
@@ -413,7 +419,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             else GameObject.Destroy(child);
         }
 
-
+        while (HeroController.instance?.gameObject.GetComponent<Character>() != null)
+            HeroController.instance?.gameObject.RemoveComponent<Character>();
         GameInfo.Reset();
         PlayerData.instance.geo = 0;
         itemManager.timeSpan = TimeSpan.FromSeconds(0);
@@ -453,7 +460,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
     {
         if (itemManager != null)
         {
-            
+            GameInfo.Over();
             HeroController.instance.geoCounter.gameObject.GetComponent<DeactivateIfPlayerdataTrue>().enabled = false;
             HeroController.instance.geoCounter.gameObject.SetActive(true);
             HeroController.instance.TakeGeo(PlayerData.instance.geo);
@@ -465,9 +472,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             GiftHelper.AdjustVesselTo(3);
             GiftHelper.GiveAllCharms();
             GiftHelper.GiveAllSkills();
-            
-            while (HeroController.instance?.gameObject.GetComponent<Character>() != null)
-                HeroController.instance?.gameObject.RemoveComponent<Character>();
+
+
             itemManager.DisplayStates();
         }
     }
@@ -497,6 +503,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             gift_menus.Add(giftmenu);
             foreach (var gift in gifts.Value)
             {
+                Log(gift.name);
                 Gift g = gift;
                 if (g.name == null) continue;
                 var temp = Blueprints.ToggleButton(g.name.Replace('\n', '&'), "",
@@ -506,12 +513,12 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 },
                 () => g.active
                 );
-                if (count == 0) tempList = new();
                 if (count == 2)
                 {
                     giftmenu.AddElement(new MenuRow(tempList, ""));
                     count = 0;
                 }
+                if (count == 0) tempList = new();
                 tempList.Add(temp);
                 count++;
             }

@@ -158,7 +158,7 @@ public class Gift
     [NonSerialized]
     internal Func<Giftname, Sprite> getSprite = null;
     [NonSerialized]
-    public bool force_active = false;
+    public bool force_active = true;
     [NonSerialized]
     public Vector2 scale = Vector2.zero;
 
@@ -279,205 +279,19 @@ internal static class GiftFactory
     }
     private static void RoleInit()
     {
-        all_gifts.Add(Giftname.role_test, new Gift(0)
-        {
-            reward = (giftname) =>
-            {
-                HeroController.instance?.gameObject.AddComponent<Test>();
-            },
-            name = "test_name".Localize(),
-            desc = "test_desc".Localize(),
-            weight = 0,
-            active = false,
-            force_active = true
-        });
-        all_gifts.Add(Giftname.role_nail_master, new Gift(5)
-        {
-            //加2骨钉
-            //全剑技
-            reward = (giftname) =>
-            {
-                HeroController.instance?.gameObject.AddComponent<NailMaster>();
 
-            },
-            name = "nail_master_name".Localize(),
-            desc = "nail_master_desc".Localize(),
-            active = false,
-            weight = 0,
-            sprite = AssemblyUtils.GetSpriteFromResources("B_Great_Nailsage_Sly.png")
-        });
-        all_gifts.Add(Giftname.role_shaman, new Gift(5)
-        {
-            //萨满之石
-            //获得黑波
-            //1.25法术伤害倍率
-            //0.8倍骨钉倍率
-            //刷新次数+2
-            reward = (giftname) =>
-            {
-
-                HeroController.instance?.gameObject.AddComponent<Shaman>();
-
-            },
-            name = "shaman_name".Localize(),
-            desc = "shaman_desc".Localize(),
-            active = false,
-            weight = 0,
-            sprite = AssemblyUtils.GetSpriteFromResources("Snail_Shaman.png")
-        });
-        all_gifts.Add(Giftname.role_hunter, new Gift(5)
-        {
-            //白冲
-            //二段
-            // 爪
-            // 超冲
-            // 快速劈砍
-            // 稳定之体
-            // +1护符槽
-            reward = (giftname) =>
-            {
-
-                HeroController.instance?.gameObject.AddComponent<Hunter>();
-
-            },
-            name = "hunter_name".Localize(),
-            desc = "hunter_desc".Localize(),
-            active = false,
-            weight = 0,
-            sprite = AssemblyUtils.GetSpriteFromResources("Hunter_Full_Body.png"),
-            scale = new Vector2(0.2f, 0.2f)
-        });
-        all_gifts.Add(Giftname.role_uunn, new Gift(5)
-        {
-            //delete?
-            reward = (giftname) =>
-            {
-                HeroController.instance?.gameObject.AddComponent<Uunn>();
-            },
-            name = "乌恩",
-            desc = "获得乌恩之形&快速聚集\n+2护符槽\n全boss视为无伤",
-            active = false,
-            weight = 0,
-            sprite = AssemblyUtils.GetSpriteFromResources("Unn.png"),
-            scale = new Vector2(0.15f, 0.15f)
-
-        });
-        all_gifts.Add(Giftname.role_joni, new Gift(5)
-        {
-            //护符槽血魂全满
-            //绑定乔尼的祝福
-            //解锁全部护符
-            //1.75倍骨钉倍率
-            reward = (giftname) =>
-            {
-                HeroController.instance?.gameObject.AddComponent<Joni>();
-            },
-            name = "joni_name".Localize(),
-            desc = "joni_desc".Localize(),
-            active = false,
-            weight = 0,
-            sprite = AssemblyUtils.GetSpriteFromResources("Joni.png"),
-            scale = new Vector2(0.7f, 0.7f)
-        });
-        all_gifts.Add(Giftname.role_moth, new Gift(5)
-        {
-            //梦之钉
-            //1自选护符
-            //+1骨钉
-            //+1面具
-            //+8护符槽
-            //+1魂槽
-            reward = (giftname) =>
-            {
-                HeroController.instance?.gameObject.AddComponent<Moth>();
-            },
-            name = "moth_name".Localize(),
-            desc = "moth_desc".Localize(),
-            active = false,
-            weight = 0,
-            sprite = AssemblyUtils.GetSpriteFromResources("Seer.png"),
-            scale = new Vector2(0.6f, 0.6f)
-        });
-        all_gifts.Add(Giftname.role_grey_prince, new Gift(5)
-        {
-            //骨钉固定为-1钉
-            //全白法+黑冲
-            //护符不消耗护符槽
-            //梦钉
-            reward = (giftname) =>
-            {
-                HeroController.instance?.gameObject.AddComponent<GreyPrince>();
-            },
-            name = "grey_prince_name".Localize(),
-            desc = "grey_prince_desc".Localize(),
-            active = false,
-            weight = 0,
-            sprite = AssemblyUtils.GetSpriteFromResources("Grey_Prince_Zote_Idle.png"),
-            scale = new Vector2(0.45f, 0.45f)
-        });
-        all_gifts.Add(Giftname.role_tuk, new Gift(5)
-        {
-            //5个腐臭蛋
-            //500geo
-            //每次使用腐臭蛋后+1骨钉或+2面具
-            //初始只有三血
-            reward = (giftname) =>
-            {
-                HeroController.instance?.gameObject.AddComponent<Tuk>();
-            },
-            name = "Tuk_name".Localize(),
-            desc = "Tuk_desc".Localize(),
-            active = false,
-            weight = 0,
-            sprite = AssemblyUtils.GetSpriteFromResources("Tuk.png"),
-            scale = new Vector2(0.45f, 0.45f)
-        });
-        all_gifts.Add(Giftname.role_defender, new Gift(5)
-        {
-            //绑定英勇气息
-            //1.25倍骨钉倍率
-            //+1骨钉
-            //+白砸
-            reward = (giftname) =>
-            {
-                HeroController.instance?.gameObject.AddComponent<Defender>();
-            },
-            name = "奥格瑞姆",
-            desc = "绑定防御者纹章\n+1护符槽&获得坚固力量&+1骨钉&获得白砸",
-            active = false,
-            weight = 0,
-            sprite = AssemblyUtils.GetSpriteFromResources("White_Defender_without_Essence.png"),
-            scale = new Vector2(0.5f, 0.5f)
-        });
-        all_gifts.Add(Giftname.role_mantis, new Gift(5)
-        {
-            //获得螳螂爪
-            //绑定骄傲印记
-            //
-            reward = (giftname) =>
-            {
-                HeroController.instance?.gameObject.AddComponent<Mantis>();
-            },
-            name = "mantis_name".Localize(),
-            desc = "mantis_desc".Localize(),
-            active = false,
-            weight = 0,
-            sprite = AssemblyUtils.GetSpriteFromResources("mantis.png"),
-            scale = new Vector2(0.55f, 0.55f)
-        });
-        all_gifts.Add(Giftname.role_collector, new Gift(5)
-        {
-            reward = (giftname) =>
-            {
-
-            },
-            name = "collector_name".Localize(),
-            desc = "collector_desc".Localize(),
-            active = false,
-            weight = 0,
-            sprite = AssemblyUtils.GetSpriteFromResources("B_Collector.png"),
-            scale = new Vector2(0.5f, 0.5f)
-        });
+        all_gifts.Add(Giftname.role_test, new RoleGift<Test>(Giftname.role_test));
+        all_gifts.Add(Giftname.role_nail_master, new RoleGift<NailMaster>(Giftname.role_nail_master));
+        all_gifts.Add(Giftname.role_shaman, new RoleGift<Shaman>(Giftname.role_shaman));
+        all_gifts.Add(Giftname.role_hunter, new RoleGift<Hunter>(Giftname.role_hunter));
+        all_gifts.Add(Giftname.role_uunn, new RoleGift<Uunn>(Giftname.role_uunn));
+        all_gifts.Add(Giftname.role_joni, new RoleGift<Joni>(Giftname.role_joni));
+        all_gifts.Add(Giftname.role_moth, new RoleGift<Moth>(Giftname.role_moth));
+        all_gifts.Add(Giftname.role_grey_prince, new RoleGift<GreyPrince>(Giftname.role_grey_prince));
+        all_gifts.Add(Giftname.role_tuk, new RoleGift<Tuk>(Giftname.role_tuk));
+        all_gifts.Add(Giftname.role_defender, new RoleGift<Defender>(Giftname.role_defender));
+        all_gifts.Add(Giftname.role_mantis, new RoleGift<Mantis>(Giftname.role_mantis));
+        all_gifts.Add(Giftname.role_collector, new RoleGift<Collector>(Giftname.role_collector));
 
     }
     private static void ShopInit()
@@ -1325,7 +1139,6 @@ internal static class GiftFactory
             desc = "获得快速聚集&深度聚集&乌恩之形",
             weight = 1f,
             active = true,
-            force_active = false
         });
         all_gifts.Add(Giftname.get_badeer_yingke_wuyou, new Gift(0)
         {
