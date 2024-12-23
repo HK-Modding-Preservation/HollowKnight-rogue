@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <!-- Change this to the path of your modded HK installation -->
-    <HollowKnightRefs>C:\Users\shownyoung\Desktop\play\MOD制作\前置\1.5api</HollowKnightRefs>
+    <HollowKnightRefs>D:\play\MOD制作\前置\1.5api</HollowKnightRefs>
     <GamePath>F:\SteamLibrary\steamapps\common\Hollow Knight\hollow_knight_Data\Managed</GamePath>
     <!-- Change this to the path where you want the ready-to-upload exports to be -->
     <ExportDir>E:/Github_Projects/__Exports/</ExportDir>

@@ -1,28 +1,15 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.Linq;
-using System.Security.AccessControl;
-using HutongGames.PlayMaker;
-using HutongGames.PlayMaker.Actions;
-using IL.tk2dRuntime.TileMap;
-using IL.TMPro;
-using JetBrains.Annotations;
-using Modding;
-using Satchel;
-using Satchel.BetterMenus;
-using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using Random = UnityEngine.Random;
-
-
+using rogue.Characters;
+using System.ComponentModel;
 namespace rogue;
 
 public class ItemManager : MonoBehaviour
 {
+    internal static ItemManager Instance { get; private set; }
+    public ItemManager()
+    {
+        Instance = this;
+    }
     public GameObject item;
     public GameObject knight;
 
@@ -46,7 +33,6 @@ public class ItemManager : MonoBehaviour
     public TimeSpan timeSpan = TimeSpan.Zero;
 
 
-    public float timer = 0f;
 
 
     public enum Mode
@@ -74,7 +60,7 @@ public class ItemManager : MonoBehaviour
 
         public int select;
 
-        public List<Rogue.gift> gifts;
+        public List<Gift> gifts;
     }
 
     internal Stack<OneReward> rewardsStack = new();
@@ -97,25 +83,33 @@ public class ItemManager : MonoBehaviour
     public GameObject item_restbench = null;
 
     public GameObject item_fly_go = null;
+    public Action after_revive_action = null;
 
-    public List<Rogue.giftname> roleList = new List<Rogue.giftname>
+    internal List<Giftname> roleList = new List<Giftname>
         {
-            Rogue.giftname.nail_master,
-            Rogue.giftname.shaman,
-            Rogue.giftname.hunter,
-            // Rogue.giftname.uunn,
-            Rogue.giftname.joni,
-            Rogue.giftname.moth,
-            Rogue.giftname.grey_prince,
-            Rogue.giftname.Tuk,
-            // Rogue.giftname.defender,
-            Rogue.giftname.mantis,
-            Rogue.giftname.collector
+            Giftname.role_nail_master,
+            Giftname.role_shaman,
+            Giftname.role_hunter,
+            // Giftname.uunn,
+            Giftname.role_joni,
+            Giftname.role_moth,
+            Giftname.role_grey_prince,
+            Giftname.role_tuk,
+            // Giftname.defender,
+            Giftname.role_mantis,
+            Giftname.role_collector
         };
+    List<string> nobossscene = new List<string> { "GG_Spa", "GG_Engine", "GG_Unn", "GG_Engine_Root", "GG_Wyrm", "GG_Atrium_Roof" };
 
     public string rouge_introduction = "rogue_introduction".Localize();
 
     public bool hatchscene = false;
+
+    public delegate int OnChangeSceneAndAddGeo(int geo, int damage_num);
+    public OnChangeSceneAndAddGeo after_scene_add_geo_num;
+    Action<PlayMakerFSM> fsm_enable = null;
+
+    System.Random item_random;
 
 
 
@@ -127,307 +121,43 @@ public class ItemManager : MonoBehaviour
         Modding.ModHooks.LanguageGetHook += OnLanguageGet;
         On.PlayerData.GetBool += OnGetBool;
         On.PlayerData.SetBool += OnSetBool;
-        On.PlayerData.GetInt += OnGetInt;
         ModHooks.CharmUpdateHook += OnCharmUpdate;
-        On.HealthManager.TakeDamage += OnTakeDamage;
-        On.SpellFluke.OnEnable += OnFlukeDamage;
         On.PlayMakerFSM.OnEnable += OnFSMEnable;
-        On.KnightHatchling.OnEnable += OnHatchingDamage;
-        On.KnightHatchling.DoChaseSimple += OnHatchingChaseSimple;
-        On.KnightHatchling.DoChase += OnHatchingChase;
-
-
+        ModHooks.TakeHealthHook += Revive;
+        item_random = new();
+    }
+    public void OnDestroy()
+    {
+        UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= OnSceneChanged;
+        ModHooks.LanguageGetHook -= OnLanguageGet;
+        On.PlayerData.GetBool -= OnGetBool;
+        On.PlayerData.SetBool -= OnSetBool;
+        ModHooks.CharmUpdateHook -= OnCharmUpdate;
+        On.PlayMakerFSM.OnEnable -= OnFSMEnable;
+        ModHooks.TakeHealthHook -= Revive;
 
     }
 
-    private void OnHatchingChase(On.KnightHatchling.orig_DoChase orig, KnightHatchling self, Transform target, float distance, float speedMax, float accelerationForce, float targetRadius, float deceleration, Vector2 offset)
+    private int Revive(int damage)
     {
-        if (PlayerData.instance.equippedCharm_1)
+        if (GameInfo.revive_num > 0 && GameInfo.in_rogue && BossSequenceController.IsInSequence)
         {
-            ReflectionHelper.CallMethod<KnightHatchling>(self, "DoChaseSimple", new object[] { HeroController.instance.gameObject.transform, speedMax, accelerationForce, offset.x, offset.y });
-        }
-        else
-        {
-            orig(self, target, distance, speedMax, accelerationForce, targetRadius, deceleration, offset);
-        }
-    }
-
-    private void OnHatchingChaseSimple(On.KnightHatchling.orig_DoChaseSimple orig, KnightHatchling self, Transform target, float speedMax, float accelerationForce, float offsetX, float offsetY)
-    {
-        if (PlayerData.instance.equippedCharm_1)
-        {
-            orig(self, HeroController.instance.gameObject.transform, speedMax, accelerationForce, offsetX, offsetY);
-        }
-        else
-        {
-            orig(self, target, speedMax, accelerationForce, offsetX, offsetY);
-        }
-    }
-    private void HatchChange()
-    {
-        GameObject charmeffect = GameObject.Find("Knight").FindGameObjectInChildren("Charm Effects");
-        var fsm = charmeffect.LocateMyFSM("Hatchling Spawn");
-        var spell_con = GameObject.Find("Knight").LocateMyFSM("Spell Control");
-        if (Rogue.Instance.inRogue && Rogue.role == Rogue.giftname.collector)
-        {
-            int mp_cost = 8;
-            if (PlayerData.instance.equippedCharm_33) mp_cost -= 4;
-            fsm.FsmVariables.FindFsmInt("Soul Cost").Value = mp_cost;
-
-            int hatch_max = 4;
-            int spell_level = PlayerData.instance.fireballLevel + PlayerData.instance.quakeLevel + PlayerData.instance.screamLevel;
-            if (spell_level >= 3) hatch_max *= 2;
-            if (spell_level >= 6) hatch_max *= 2;
-            if (PlayerData.instance.equippedCharm_11) hatch_max = 16;
-            fsm.FsmVariables.FindFsmInt("Hatchling Max").Value = hatch_max;
-
-            float hatch_time = 4;
-            float hatch_speed = 1;
-            int new_spelllevel = Math.Max(Math.Max(PlayerData.instance.fireballLevel, PlayerData.instance.quakeLevel), PlayerData.instance.screamLevel);
-            hatch_speed += 0.9f * new_spelllevel;
-            if (PlayerData.instance.equippedCharm_32) hatch_speed *= 1.5f;
-            fsm.FsmVariables.FindFsmFloat("Hatch Time").Value = hatch_time / hatch_speed;
-
-            var hatch = fsm.GetState("Hatch 2");
-            if (hatch == null)
+            if (((PlayerData.instance.health + PlayerData.instance.healthBlue) <= damage) || (PlayerData.instance.equippedCharm_27 && (PlayerData.instance.healthBlue <= damage)))
             {
-                hatch = fsm.CopyState("Hatch", "Hatch 2");
-                hatch.ChangeTransition("FINISHED", "Equipped");
-                hatch.RemoveAction(0);
-            }
-            var check = fsm.GetState("Check Count 2");
-            if (check == null)
-            {
-                check = fsm.CopyState("Check Count", "Check Count 2");
-                check.ChangeTransition("CANCEL", "Equipped");
-                check.ChangeTransition("FINISHED", "Hatch 2");
-
-            }
-            if (fsm.GetState("Equipped").Transitions.Count() == 1)
-                fsm.AddTransition("Equipped", "SPAWN", "Check Count 2");
-            if (PlayerData.instance.equippedCharm_17)
-            {
-                var hatch_cloud = spell_con.GetState("Hatch Cloud");
-                if (hatch_cloud == null)
-                {
-                    hatch_cloud = spell_con.CopyState("Dung Cloud", "Hatch Cloud");
-                    hatch_cloud.RemoveAction(0);
-                    hatch_cloud.RemoveAction(0);
-                    hatch_cloud.RemoveAction(0);
-                    hatch_cloud.ChangeTransition("FINISHED", "Set HP Amount");
-                    hatch_cloud.InsertCustomAction((state) =>
-                    {
-                        float num = 2;
-                        if (PlayerData.instance.equippedCharm_33) num *= 1.5f;
-                        if (PlayerData.instance.equippedCharm_34) num *= 2;
-                        for (int i = 0; i < (int)num; i++)
-                            GameObject.Find("Knight").FindGameObjectInChildren("Charm Effects").LocateMyFSM("Hatchling Spawn").SendEvent("SPAWN");
-                    }, 0);
-
-                }
-                if (spell_con.GetState("Spore Cloud").Transitions.Length == 2)
-                {
-                    spell_con.GetState("Spore Cloud").AddTransition("HATCH", "Hatch Cloud");
-                }
-                if (spell_con.GetState("Spore Cloud").Actions.Length == 6)
-                {
-                    spell_con.InsertCustomAction("Spore Cloud", (fsm) =>
-                    {
-                        if (PlayerData.instance.equippedCharm_22) fsm.SendEvent("HATCH");
-                    }, 2);
-                }
-            }
-            if (PlayerData.instance.equippedCharm_11)
-            {
-                fsm.ChangeTransition("Equipped", "FINISHED", "no");
-                var state = spell_con.GetState("Fireball Recoil 2");
-                if (state == null)
-                {
-                    spell_con.CopyState("Fireball Recoil", "Fireball Recoil 2");
-                    state = spell_con.GetState("Fireball Recoil 2");
-                    state.InsertCustomAction(() =>
-                    {
-                        int mp = 33;
-                        int num = 4;
-
-                        if (PlayerData.instance.equippedCharm_33) { mp = 24; num += 2; }
-                        if (PlayerData.instance.fireballLevel == 2) { num += 2; }
-                        HeroController.instance.TakeMP(mp);
-                        for (int i = 0; i < num; i++)
-                            GameObject.Find("Knight").FindGameObjectInChildren("Charm Effects").LocateMyFSM("Hatchling Spawn").SendEvent("SPAWN");
-                    }, 0);
-                    // state.RemoveAction(1);
-                    state.ChangeTransition("ANIM END", "Spell End");
-                }
-                spell_con.ChangeTransition("Fireball Antic", "ANIM END", "Fireball Recoil 2");
-            }
-            else
-            {
-                fsm.ChangeTransition("Equipped", "FINISHED", "Can Hatch?");
-                spell_con.ChangeTransition("Fireball Antic", "ANIM END", "Level Check");
-            }
-
-        }
-        else
-        {
-            fsm.FsmVariables.FindFsmInt("Soul Cost").Value = 8;
-            fsm.FsmVariables.FindFsmInt("Hatchling Max").Value = 4;
-            fsm.FsmVariables.FindFsmFloat("Hatch Time").Value = 4;
-            fsm.ChangeTransition("Equipped", "FINISHED", "Can Hatch?");
-            spell_con.ChangeTransition("Fireball Antic", "ANIM END", "Level Check");
-        }
-    }
-
-    private void OnHatchingDamage(On.KnightHatchling.orig_OnEnable orig, KnightHatchling self)
-    {
-        orig(self);
-        GameObject charmeffect = GameObject.Find("Knight").FindGameObjectInChildren("Charm Effects");
-        var fsm = charmeffect.LocateMyFSM("Hatchling Spawn");
-        if (Rogue.Instance.inRogue && Rogue.role == Rogue.giftname.collector)
-        {
-            var de = ReflectionHelper.GetField<KnightHatchling, KnightHatchling.TypeDetails>(self, "details");
-            float damage = de.damage + 20 - 9;
-            int spelllevel = Math.Max(Math.Max(PlayerData.instance.fireballLevel, PlayerData.instance.screamLevel), PlayerData.instance.quakeLevel);
-            damage += 5 * spelllevel;
-            if (PlayerData.instance.equippedCharm_19) damage += damage / 3;
-            if (PlayerData.instance.equippedCharm_11) damage *= 0.7f;
-            if (PlayerData.instance.equippedCharm_40) damage *= 0.7f;
-            de.damage = (int)damage;
-            if (Rogue.getBirthright && scenename != "GG_Spa")
-            {
-                self.damageEnemies.attackType = AttackTypes.SharpShadow;
-            }
-            else
-            {
-                self.damageEnemies.attackType = AttackTypes.Generic;
-            }
-
-            ReflectionHelper.SetField(self, "details", de);
-
-
-
-        }
-        else
-        {
-            self.damageEnemies.attackType = AttackTypes.Generic;
-        }
-    }
-
-    private int OnGetInt(On.PlayerData.orig_GetInt orig, PlayerData self, string intName)
-    {
-        if (Rogue.Instance.inRogue)
-        {
-            if (Rogue.role == Rogue.giftname.grey_prince)
-            {
-                if (intName.StartsWith("charmCost_")) return 0;
-            }
-            if (Rogue.role == Rogue.giftname.nail_master)
-            {
-                if (intName == "charmCost_26") return 0;
-            }
-            if (Rogue.role == Rogue.giftname.mantis)
-            {
-                if (intName == "charmCost_13") return 0;
-            }
-            if (Rogue.role == Rogue.giftname.collector)
-            {
-                if (intName == "charmCost_38") return 0;
-                if (intName == "charmCost_39") return 0;
-                if (intName == "charmCost_40") return 0;
-                if (intName == "charmCost_22") return 0;
-            }
-
-        }
-        return orig(self, intName);
-    }
-
-    private void OnFlukeDamage(On.SpellFluke.orig_OnEnable orig, SpellFluke self)
-    {
-        orig(self);
-        if (Rogue.Instance.inRogue)
-        {
-            if (Rogue.role == Rogue.giftname.shaman)
-            {
-                if (PlayerData.instance.equippedCharm_19)
-                {
-                    ReflectionHelper.SetField<SpellFluke, int>(self, "damage", 6);
-                }
-                else
-                {
-                    ReflectionHelper.SetField<SpellFluke, int>(self, "damage", 5);
-                }
+                GameInfo.revive_num--;
+                after_revive_action?.Invoke();
+                GiftFactory.UpdateWeight();
+                DisplayStates();
+                return 0;
             }
         }
-    }
+        return damage;
 
-    private void OnTakeDamage(On.HealthManager.orig_TakeDamage orig, HealthManager self, HitInstance hitInstance)
-    {
-        if (!Rogue.Instance.inRogue)
-        {
-            orig(self, hitInstance);
-            return;
-        }
-        switch (hitInstance.AttackType)
-        {
-            case AttackTypes.Nail:
-                if (Rogue.role == Rogue.giftname.shaman)
-                {
-                    hitInstance.Multiplier *= 0.8f;
-                }
-                else if (Rogue.role == Rogue.giftname.joni)
-                {
-                    hitInstance.Multiplier *= 1.75f;
-                }
-                else if (Rogue.role == Rogue.giftname.defender)
-                {
-                    hitInstance.Multiplier *= 1.25f;
-                }
-                else if (Rogue.role == Rogue.giftname.mantis)
-                {
-                    hitInstance.Multiplier *= 1.25f;
-                }
-                else if (Rogue.role == Rogue.giftname.collector)
-                {
-                    float mul = 0.5f;
-                    if (PlayerData.instance.equippedCharm_22) mul *= 0.5f;
-                    if (PlayerData.instance.equippedCharm_40) mul *= 0.5f;
-                    if (PlayerData.instance.equippedCharm_39) mul *= 0.5f;
-                    hitInstance.Multiplier *= mul;
-                }
-                break;
-            case AttackTypes.Generic:
-                break;
-            case AttackTypes.Spell:
-                if (Rogue.role == Rogue.giftname.shaman)
-                {
-                    hitInstance.Multiplier *= 1.25f;
-                }
-                else if (Rogue.role == Rogue.giftname.collector)
-                {
-                    float mul = 0.5f;
-                    if (PlayerData.instance.equippedCharm_22) mul *= 0.5f;
-                    if (PlayerData.instance.equippedCharm_40) mul *= 0.5f;
-                    if (PlayerData.instance.equippedCharm_39) mul *= 0.5f;
-                    hitInstance.Multiplier *= mul;
-                }
-                break;
-            case AttackTypes.Splatter:
-                break;
-            case AttackTypes.SharpShadow:
-                break;
-            case AttackTypes.NailBeam:
-                break;
-            case AttackTypes.RuinsWater:
-                break;
-            default: break;
-        }
-        orig(self, hitInstance);
     }
 
     private void OnCharmUpdate(PlayerData data, HeroController controller)
     {
         DisplayEquipped();
-        HatchChange();
 
     }
 
@@ -459,10 +189,6 @@ public class ItemManager : MonoBehaviour
     private string OnLanguageGet(string key, string sheetTitle, string orig)
     {
         if (key == null) return "key is null";
-        if (Rogue.Instance.name_and_desc.ContainsKey(key))
-        {
-            return Rogue.Instance.name_and_desc[key];
-        }
         if (sheetTitle == "Enemy Dreams" && key.StartsWith("rogue_"))
         {
             return key.Split('_')[1];
@@ -528,18 +254,13 @@ public class ItemManager : MonoBehaviour
         hatchscene = false;
         DisplayEquipped();
         DisplayStates();
-        if (HeroController.instance != null)
+        if (GameInfo.in_rogue && BossSequenceController.IsInSequence)
         {
-            HatchChange();
-        }
-        if (Rogue.Instance.inRogue && BossSequenceController.IsInSequence)
-        {
-            List<string> nobossscene = new List<string> { "GG_Spa", "GG_Engine", "GG_Unn", "GG_Engine_Root", "GG_Wyrm", "GG_Atrium_Roof" };
             if (!nobossscene.Contains(arg0.name))
             {
                 int geo = 50;
                 if (PlayerData.instance.equippedCharm_24) geo += 20;
-                if (damaged_num == 0 || Rogue.role == Rogue.giftname.uunn) geo += 20;
+                if (after_scene_add_geo_num != null) geo = after_scene_add_geo_num(geo, damaged_num);
                 HeroController.instance.AddGeo(geo);
             }
         }
@@ -549,16 +270,14 @@ public class ItemManager : MonoBehaviour
             StartCoroutine(DelayShowDreamConvo(0.5f, "godseeker".Localize()));
             item_fly_go.SetActive(false);
         }
-        if (arg1.name == "GG_Atrium_Roof")
+        else if (arg1.name == "GG_Atrium_Roof")
         {
             GameObject taijie = Instantiate(GameObject.Find("gg_plat_float_small"));
             taijie.transform.SetPosition2D(new Vector2(118, 64));
             taijie.SetActive(true);
             item_fly_go.SetActive(false);
-            if (Rogue.Instance.inRogue)
+            if (GameInfo.in_rogue)
             {
-
-
                 StartShopItem();
                 item_menu_go.SetActive(true);
                 item_shop_go.transform.SetPosition2D(new Vector2(129.9f, 63));
@@ -579,15 +298,15 @@ public class ItemManager : MonoBehaviour
         else if (arg1.name == "GG_Spa")
         {
             item_restbench.SetActive(false);
-            if (Rogue.Instance.inRogue)
+            if (GameInfo.in_rogue)
             {
                 // item_fly_go.SetActive(true);
                 item_fly_go.transform.position = new Vector3(85, 20, 0);
-                Rogue.Instance.spa_count++;
-                Rogue.Instance.UpdateWeight();
+                GameInfo.spa_count++;
+                GiftFactory.UpdateWeight();
                 DestroyAllItems();
-                GiveReward(Rogue.Instance.spa_count);
-                if (Rogue.Instance.spa_count % 2 == 0 || Rogue.Instance.spa_count == 7)
+                GiveReward(GameInfo.spa_count);
+                if (GameInfo.spa_count % 2 == 0 || GameInfo.spa_count == 7)
                 {
                     NormalShopItem();
                     item_menu_go.SetActive(true);
@@ -602,7 +321,6 @@ public class ItemManager : MonoBehaviour
                     var banker = item_shop_go.FindGameObjectInChildren("banker");
                     banker.SetActive(true);
                     banker.GetComponent<tk2dSpriteAnimator>().Play("Idle");
-
                 }
             }
         }
@@ -614,7 +332,7 @@ public class ItemManager : MonoBehaviour
             item_fly_go.SetActive(false);
         }
     }
-    public void SpwanShopItem(List<Rogue.gift> gifts, bool select = false)
+    public void SpwanShopItem(List<Gift> gifts, bool select = false)
     {
         if (shop_item_temp == null)
         {
@@ -634,11 +352,11 @@ public class ItemManager : MonoBehaviour
         now_scene_items.Clear();
         int count = 0;
         string selectname = "rogue_select";
-        List<Rogue.giftname> charms = new(){
-                Rogue.giftname.shop_any_charm_1,
-                Rogue.giftname.shop_any_charm_2,
-                Rogue.giftname.shop_any_charm_3,
-                Rogue.giftname.shop_any_charm_4
+        List<Giftname> charms = new(){
+                Giftname.shop_any_charm_1,
+                Giftname.shop_any_charm_2,
+                Giftname.shop_any_charm_3,
+                Giftname.shop_any_charm_4
             };
         foreach (var gift in gifts)
         {
@@ -647,13 +365,13 @@ public class ItemManager : MonoBehaviour
             var render = good.FindGameObjectInChildren("Item Sprite").GetComponent<SpriteRenderer>();
             if (charms.Contains(gift.giftname))
             {
-                var list = RandomList(Rogue.Instance.actCharmRewards, 1, false);
+                var list = RandomList(GameInfo.act_gifts[GiftVariety.charm], 1, false);
                 if (list.Count <= 0)
                 {
                     Destroy(good);
                     continue;
                 }
-                Rogue.gift charmgift = list[0];
+                Gift charmgift = list[0];
                 good.name = charmgift.name;
                 goodstats.nameConvo = charmgift.name;
                 goodstats.descConvo = charmgift.desc;
@@ -728,25 +446,25 @@ public class ItemManager : MonoBehaviour
     }
     public void StartShopItem()
     {
-        List<Rogue.gift> roles = new();
+        List<Gift> roles = new();
         foreach (var role in roleList)
         {
-            roles.Add(Rogue.Instance.shopRewards[role]);
+            roles.Add(GiftFactory.all_gifts[role]);
         }
-        if (Rogue.Instance._set.owner) roles = roles.Append(Rogue.Instance.shopRewards[Rogue.giftname.test]).ToList();
+        if (Rogue.Instance._set.owner) roles = roles.Append(GiftFactory.all_gifts[Giftname.role_test]).ToList();
         SpwanShopItem(roles, select: true);
 
     }
     public void NormalShopItem()
     {
-        List<Rogue.gift> items = new List<Rogue.gift>();
-        items.Add(Rogue.Instance.shopRewards[Rogue.giftname.shop_keeper_key]);
-        if (Rogue.Instance.shopRewards[Rogue.giftname.shop_add_1_notch_1].weight > 0)
-            items.Add(Rogue.Instance.shopRewards[Rogue.giftname.shop_add_1_notch_1]);
-        if (Rogue.Instance.shopRewards[Rogue.giftname.shop_nail_upgrade].weight > 0)
-            items.Add(Rogue.Instance.shopRewards[Rogue.giftname.shop_nail_upgrade]);
-        items.Add(Rogue.Instance.shopRewards[Rogue.giftname.shop_random_gift]);
-        var ranlist = RandomList(Rogue.Instance.actShopRewards, num: 9 - items.Count);
+        List<Gift> items = new List<Gift>();
+        items.Add(GiftFactory.all_gifts[Giftname.shop_keeper_key]);
+        if (GiftFactory.all_gifts[Giftname.shop_add_1_notch_1].weight > 0)
+            items.Add(GiftFactory.all_gifts[Giftname.shop_add_1_notch_1]);
+        if (GiftFactory.all_gifts[Giftname.shop_nail_upgrade].weight > 0)
+            items.Add(GiftFactory.all_gifts[Giftname.shop_nail_upgrade]);
+        items.Add(GiftFactory.all_gifts[Giftname.shop_random_gift]);
+        var ranlist = RandomList(GameInfo.act_gifts[GiftVariety.shop], num: 9 - items.Count);
         SpwanShopItem(items.Concat(ranlist).ToList());
 
 
@@ -785,7 +503,7 @@ public class ItemManager : MonoBehaviour
             {
                 mode = Mode.fix_select_big_gift,
                 select = 1,
-                gifts = Rogue.Instance.actBigRewards
+                gifts = GameInfo.act_gifts[GiftVariety.huge]
             });
         }
         StartCoroutine(DelayGenerater(1f));
@@ -800,7 +518,7 @@ public class ItemManager : MonoBehaviour
         if (HeroController.instance == null) return;
         if (Rogue.self_actions.refresh.IsPressed)
         {
-            if (Rogue.Instance.refresh_num > 0)
+            if (GameInfo.refresh_num > 0)
             {
                 if (refreshgap < 0f)
                 {
@@ -813,22 +531,22 @@ public class ItemManager : MonoBehaviour
                         {
                             case Mode.select_small_gift:
                                 DestroyAllItems();
-                                Rogue.Instance.refresh_num--;
+                                GameInfo.refresh_num--;
                                 RandomSelectSmall(tempselect, t);
                                 break;
                             case Mode.select_big_gift:
                                 DestroyAllItems();
-                                Rogue.Instance.refresh_num--;
+                                GameInfo.refresh_num--;
                                 RandomSelectBig(tempselect, t);
                                 break;
                             case Mode.one_big_gift:
                                 DestroyAllItems();
-                                Rogue.Instance.refresh_num--;
+                                GameInfo.refresh_num--;
                                 RandomOneBig();
                                 break;
                             case Mode.one_small_gift:
                                 DestroyAllItems();
-                                Rogue.Instance.refresh_num--;
+                                GameInfo.refresh_num--;
                                 RandomOneSmall();
                                 break;
                             case Mode.fix_gift:
@@ -878,18 +596,18 @@ public class ItemManager : MonoBehaviour
             Rogue.Instance.Rogue_Over();
             ModHooks.AfterTakeDamageHook -= CheckIfdamaged;
         }
-        if (Rogue.Instance.inRogue && BossSequenceController.IsInSequence && (scenename != "GG_Spa") && (scenename! != "GG_Atrium_Roof" || scenename != "GG_Engine"))
+        if (GameInfo.in_rogue && BossSequenceController.IsInSequence && (scenename != "GG_Spa") && (scenename! != "GG_Atrium_Roof" || scenename != "GG_Engine"))
         {
             if (!GameManager.instance.isPaused)
             {
-                timer += Time.unscaledDeltaTime;
-                timeSpan = TimeSpan.FromSeconds(timer);
+                GameInfo.timer += Time.unscaledDeltaTime;
+                timeSpan = TimeSpan.FromSeconds(GameInfo.timer);
             }
         }
 
         if (refresh_text_pro != null)
         {
-            refresh_text_pro.text = Rogue.Instance.refresh_num.ToString();
+            refresh_text_pro.text = GameInfo.refresh_num.ToString();
         }
         if (time_display_text_pro != null)
         {
@@ -900,24 +618,12 @@ public class ItemManager : MonoBehaviour
 
     private int CheckIfdamaged(int hazardType, int damageAmount)
     {
-        damaged_num++;
+        if (damageAmount > 0)
+            damaged_num++;
         return damageAmount;
     }
 
-    public void OnDestroy()
-    {
-        UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= OnSceneChanged;
-        ModHooks.LanguageGetHook -= OnLanguageGet;
-        On.PlayerData.GetBool -= OnGetBool;
-        On.PlayerData.SetBool -= OnSetBool;
-        On.PlayerData.GetInt -= OnGetInt;
-        ModHooks.CharmUpdateHook -= OnCharmUpdate;
-        On.HealthManager.TakeDamage -= OnTakeDamage;
-        On.SpellFluke.OnEnable -= OnFlukeDamage;
-        On.PlayMakerFSM.OnEnable -= OnFSMEnable;
-        On.KnightHatchling.OnEnable -= OnHatchingDamage;
 
-    }
     private void OnFSMEnable(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
     {
         if (self.FsmName == "FSM" && self.gameObject.name == "blue stuff")
@@ -931,278 +637,23 @@ public class ItemManager : MonoBehaviour
             {
                 self.InsertCustomAction("End", () =>
                 {
-                    if (Rogue.Instance.inRogue && !Rogue.getBirthright)
+                    if (GameInfo.in_rogue && !GameInfo.get_birthright)
                     {
-                        Rogue.Instance.smallRewards[Rogue.giftname.get_birthright].reward(Rogue.giftname.get_birthright);
-                        Rogue.Instance.UpdateWeight();
+                        GiftFactory.all_gifts[Giftname.get_birthright].GetGift();
+                        GiftFactory.UpdateWeight();
                         DisplayStates();
                     }
                 }, 1);
             }
         }
-        else if (self.FsmName == "Control" && self.gameObject.name.Contains("Grimmchild"))
-        {
-            if (Rogue.Instance.inRogue && Rogue.role == Rogue.giftname.collector)
-            {
-                int naillevel = (PlayerData.instance.nailDamage - 5) / 4;
-                float damage = 10;
-                damage += naillevel;
-                if (PlayerData.instance.equippedCharm_25) damage *= 1.5f;
-                if (PlayerData.instance.equippedCharm_6 && PlayerData.instance.health == 1) damage *= 1.75f;
-                if (PlayerData.instance.equippedCharm_22) damage *= 0.7f;
-                self.GetAction<SetIntValue>("Level 4", 0).intValue = (int)damage;
-
-
-                self.GetAction<Wait>("Follow", 18).time = 0.25f;
-                self.GetAction<SetFloatValue>("No Target", 0).floatValue = 0.3f;
-                float attack_timer = 0.79f;
-                float attack_speed = 1f;
-
-                attack_speed += naillevel * 0.5f;
-                if (PlayerData.instance.equippedCharm_32) attack_speed *= 1.5f;
-                self.GetAction<RandomFloat>("Antic", 3).min = attack_timer / attack_speed;
-                self.GetAction<RandomFloat>("Antic", 3).max = attack_timer / attack_speed;
-                float anticfps = 16;
-                float shootfps = 12;
-                self.gameObject.GetComponent<tk2dSpriteAnimator>().Library.GetClipByName("Shoot 4").fps = shootfps * attack_speed;
-                self.gameObject.GetComponent<tk2dSpriteAnimator>().Library.GetClipByName("Antic 4").fps = anticfps * attack_speed;
-
-
-
-
-                float speed = 30f;
-                if (PlayerData.instance.equippedCharm_31) speed += 10f;
-                if (PlayerData.instance.equippedCharm_37) speed += 10f;
-                self.FsmVariables.FindFsmFloat("Flameball Speed").Value = speed;
-                if (PlayerData.instance.equippedCharm_2) self.GetAction<FireAtTarget>("Shoot", 7).spread = 0;
-
-
-
-                if (self.GetState("Shoot").Actions.Length == 10)
-                {
-                    self.InsertCustomAction("Shoot", (fsm) =>
-                    {
-                        if (PlayerData.instance.equippedCharm_22)
-                        {
-                            var ball = fsm.FsmVariables.FindFsmGameObject("Flameball").Value;
-                            var rb2d = ball.GetComponent<Rigidbody2D>();
-                            float speed = fsm.FsmVariables.FindFsmFloat("Flameball Speed").Value;
-                            float num3 = Mathf.Acos(rb2d.velocity.x / speed) / ((float)Math.PI / 180f);
-                            float[] spreads = new float[] { -35f, 35f };
-                            foreach (var spread in spreads)
-                            {
-                                GameObject newball = Instantiate(ball);
-                                newball.transform.position = ball.transform.position;
-                                float newnum3 = num3 + spread;
-                                var x = speed * Mathf.Cos(newnum3 * ((float)Math.PI / 180f));
-                                var y = speed * Mathf.Sin(newnum3 * ((float)Math.PI / 180f));
-                                Vector2 velocity = default(Vector2);
-                                velocity.x = x;
-                                velocity.y = y;
-                                newball.GetComponent<Rigidbody2D>().velocity = velocity;
-                            }
-
-                        }
-                    }, 8);
-                }
-
-                GameObject grimm = GameObject.Find("Grimmchild(Clone)");
-                if (grimm != null)
-                {
-                    float scale = 1f;
-                    if (Rogue.getBirthright) scale += 0.5f;
-                    if (PlayerData.instance.equippedCharm_13) scale += 1f;
-                    if (PlayerData.instance.equippedCharm_18) scale += 0.5f;
-                    grimm.FindGameObjectInChildren("Enemy Range").transform.localScale = new Vector3(scale, scale, scale);
-                }
-
-
-
-            }
-            else
-            {
-                self.GetAction<Wait>("Follow", 18).time = 0.25f;
-                self.GetAction<SetIntValue>("Level 4", 0).intValue = (int)11;
-                self.GetAction<SetFloatValue>("No Target", 0).floatValue = 0.75f;
-                self.GetAction<RandomFloat>("Antic", 3).min = 1.5f;
-                self.GetAction<RandomFloat>("Antic", 3).max = 1.5f;
-                self.FsmVariables.FindFsmFloat("Flameball Speed").Value = 30f;
-                self.gameObject.GetComponent<tk2dSpriteAnimator>().Library.GetClipByName("Shoot 4").fps = 12;
-                self.gameObject.GetComponent<tk2dSpriteAnimator>().Library.GetClipByName("Antic 4").fps = 16;
-                if (PlayerData.instance.equippedCharm_2) self.GetAction<FireAtTarget>("Shoot", 7).spread = 15f;
-
-                if (self.GetState("Shoot").Actions.Length == 11)
-                {
-                    self.RemoveAction("Shoot", 8);
-                }
-
-                GameObject grimm = GameObject.Find("Grimmchild(Clone)");
-                if (grimm != null)
-                {
-                    grimm.FindGameObjectInChildren("Enemy Range").transform.localScale = new Vector3(1, 1, 1);
-                }
-            }
-        }
-        else if (self.FsmName == "Hatchling Spawn" && self.gameObject.name.Contains("Charm Effects"))
-        {
-
-        }
-        else if (self.FsmName == "Control" && self.gameObject.name.Contains("Weaverling"))
-        {
-            if (Rogue.Instance.inRogue && Rogue.role == Rogue.giftname.collector)
-            {
-                if (PlayerData.instance.equippedCharm_31)
-                {
-                    self.GetAction<SetFloatValue>("Sprintmaster", 0).floatValue = 1.5f;
-                    self.GetAction<SetFloatValue>("Sprintmaster", 2).floatValue = 2.25f;
-                }
-                else
-                {
-                    self.GetAction<SetFloatValue>("Sprintmaster", 0).floatValue = 1f;
-                    self.GetAction<SetFloatValue>("Sprintmaster", 2).floatValue = 1.5f;
-                }
-                if (PlayerData.instance.equippedCharm_1)
-                {
-                    self.GetAction<RandomFloat>("Init", 1).min = 1.5f;
-                    self.GetAction<RandomFloat>("Init", 1).max = 1.5f;
-                }
-                else
-                {
-                    self.GetAction<RandomFloat>("Init", 1).min = 1f;
-                    self.GetAction<RandomFloat>("Init", 1).max = 1f;
-                }
-            }
-            else
-            {
-                self.GetAction<SetFloatValue>("Sprintmaster", 0).floatValue = 1f;
-                self.GetAction<SetFloatValue>("Sprintmaster", 2).floatValue = 1.5f;
-                self.GetAction<RandomFloat>("Init", 1).min = 1f;
-                self.GetAction<RandomFloat>("Init", 1).max = 1f;
-            }
-        }
-        else if (self.FsmName == "Attack" && self.gameObject.name.Contains("Enemy Damager") && self.gameObject.transform.parent.name.Contains("Weaverling"))
-        {
-            if (Rogue.Instance.inRogue && Rogue.role == Rogue.giftname.collector)
-            {
-                float damage = 3;
-                damage += PlayerData.instance.nailDamage * 1.0f / 8;
-                if (PlayerData.instance.equippedCharm_25) damage *= 1.5f;
-                if (PlayerData.instance.equippedCharm_6 && PlayerData.instance.health == 1) damage *= 1.75f;
-                self.FsmVariables.FindFsmInt("Damage").Value = (int)damage;
-
-                int mp_get = Rogue.getBirthright ? 5 : 3;
-                int spelllevel = PlayerData.instance.fireballLevel + PlayerData.instance.quakeLevel + PlayerData.instance.screamLevel;
-                mp_get += spelllevel / 2;
-                if (PlayerData.instance.equippedCharm_20) mp_get += 1;
-                if (PlayerData.instance.equippedCharm_35) mp_get += 2;
-                if (PlayerData.instance.equippedCharm_21) mp_get += 2;
-                self.GetAction<CallMethodProper>("Grubsong", 1).parameters[0].intValue = mp_get;
-
-
-
-            }
-            else
-            {
-                self.FsmVariables.FindFsmInt("Damage").Value = 3;
-                self.GetAction<CallMethodProper>("Grubsong", 1).parameters[0].intValue = 3;
-            }
-
-        }
-        else if (self.FsmName == "Shield Hit" && self.gameObject.name.Contains("Shield"))
-        {
-            if (Rogue.Instance.inRogue && Rogue.role == Rogue.giftname.collector)
-            {
-                if (self.GetState("Init").Actions.Length == 10)
-                {
-                    self.InsertCustomAction("Init", (fsm) =>
-                    {
-                        float damage = PlayerData.instance.nailDamage;
-                        if (Rogue.getBirthright) damage += 5;
-                        if (PlayerData.instance.equippedCharm_25) damage *= 1.5f;
-                        if (PlayerData.instance.equippedCharm_6 && PlayerData.instance.health == 1) damage *= 1.75f;
-                        self.FsmVariables.FindFsmInt("Damage").Value = (int)damage;
-                    }, 10);
-                }
-                float timer = 2f;
-                int spelllevel = PlayerData.instance.fireballLevel + PlayerData.instance.quakeLevel + PlayerData.instance.screamLevel;
-                timer -= spelllevel * 0.2f;
-                if (PlayerData.instance.equippedCharm_4) timer -= 0.2f;
-                self.GetAction<Wait>("Break", 3).time = timer;
-
-                float scale = 1f;
-                if (PlayerData.instance.equippedCharm_18) scale += 0.15f;
-                if (PlayerData.instance.equippedCharm_13) scale += 0.25f;
-                self.GetAction<SetScale>("Dreamwielder?", 0).x = -scale;
-                self.GetAction<SetScale>("Dreamwielder?", 0).y = scale;
-                self.GetAction<SetScale>("Dreamwielder?", 1).x = scale;
-                self.GetAction<SetScale>("Dreamwielder?", 1).y = scale;
-                self.GetAction<SetScale>("Dreamwielder?", 3).x = -scale * 1.15f;
-                self.GetAction<SetScale>("Dreamwielder?", 3).y = scale * 1.15f;
-                self.GetAction<SetScale>("Dreamwielder?", 4).x = scale * 1.15f;
-                self.GetAction<SetScale>("Dreamwielder?", 4).y = scale * 1.15f;
-
-            }
-            else
-            {
-                if (self.GetState("Init").Actions.Length == 11)
-                {
-                    self.RemoveAction("Init", 10);
-                }
-                self.FsmVariables.FindFsmInt("Damage").Value = 10;
-                self.GetAction<Wait>("Break", 3).time = 2;
-                self.GetAction<SetScale>("Dreamwielder?", 0).x = -1;
-                self.GetAction<SetScale>("Dreamwielder?", 0).y = 1;
-                self.GetAction<SetScale>("Dreamwielder?", 1).x = 1;
-                self.GetAction<SetScale>("Dreamwielder?", 1).y = 1;
-                self.GetAction<SetScale>("Dreamwielder?", 3).x = -1.15f;
-                self.GetAction<SetScale>("Dreamwielder?", 3).y = 1.15f;
-                self.GetAction<SetScale>("Dreamwielder?", 4).x = 1.15f;
-                self.GetAction<SetScale>("Dreamwielder?", 4).y = 1.15f;
-            }
-
-        }
-        else if (self.FsmName == "Control" && self.gameObject.name.Contains("Orbit Shield"))
-        {
-            if (Rogue.Instance.inRogue && Rogue.role == Rogue.giftname.collector)
-            {
-                float speed = 110f;
-                if (PlayerData.instance.equippedCharm_32) speed = 250f;
-                self.FsmVariables.FindFsmFloat("Speed").Value = speed;
-            }
-            else
-            {
-                self.FsmVariables.FindFsmFloat("Speed").Value = 110f;
-            }
-
-        }
-        else if (self.FsmName == "Focus Speedup" && self.gameObject.name.Contains("Orbit Shield"))
-        {
-            if (Rogue.Instance.inRogue && Rogue.role == Rogue.giftname.collector)
-            {
-                float speed = 110f;
-                float focus_speed = 300f;
-                if (PlayerData.instance.equippedCharm_32)
-                {
-                    speed = 250f;
-                    focus_speed = 1000f;
-                }
-                self.GetAction<SetFsmFloat>("Idle", 0).setValue = speed;
-                self.GetAction<SetFsmFloat>("Focus", 0).setValue = focus_speed;
-            }
-            else
-            {
-                self.GetAction<SetFsmFloat>("Idle", 0).setValue = 110f;
-                self.GetAction<SetFsmFloat>("Focus", 0).setValue = 300f;
-            }
-
-        }
+        fsm_enable?.Invoke(self);
         orig(self);
 
     }
 
-    public List<Rogue.gift> RandomList(List<Rogue.gift> gifts, int num = 1, bool canRepeat = false)
+    public List<Gift> RandomList(List<Gift> gifts, int num = 1, bool canRepeat = false, System.Random random = null)
     {
-        List<Rogue.gift> res = new();
+        List<Gift> res = new();
         float whole = gifts.Sum((gift) =>
         {
             return gift.weight;
@@ -1227,7 +678,7 @@ public class ItemManager : MonoBehaviour
             {
                 float now = 0;
                 index = 0;
-                while (now == 0) now = UnityEngine.Random.Range(0, whole);
+                while (now == 0) now = (float)random.NextDouble() * whole;
                 while (now > 0)
                 {
                     now -= gifts[index].weight;
@@ -1247,9 +698,9 @@ public class ItemManager : MonoBehaviour
     {
         items.Clear();
         nowMode = Mode.one_small_gift;
-        int count = Rogue.Instance.actSmallRewards.Count;
+        int count = GameInfo.act_gifts[GiftVariety.item].Count;
         if (count <= 0) return;
-        var list = RandomList(Rogue.Instance.actSmallRewards, 1);
+        var list = RandomList(GameInfo.act_gifts[GiftVariety.item], 1);
         if (list.Count > 0)
             SpwanItem(list[0]);
     }
@@ -1257,9 +708,9 @@ public class ItemManager : MonoBehaviour
     {
         items.Clear();
         nowMode = Mode.one_big_gift;
-        int count = Rogue.Instance.actBigRewards.Count;
+        int count = GameInfo.act_gifts[GiftVariety.huge].Count;
         if (count <= 0) return;
-        var list = RandomList(Rogue.Instance.actBigRewards, 1);
+        var list = RandomList(GameInfo.act_gifts[GiftVariety.huge], 1);
         if (list.Count > 0)
             SpwanItem(list[0]);
     }
@@ -1268,9 +719,9 @@ public class ItemManager : MonoBehaviour
         items.Clear();
         nowMode = Mode.select_small_gift;
         tempselect = select;
-        int count = Rogue.Instance.actSmallRewards.Count;
+        int count = GameInfo.act_gifts[GiftVariety.item].Count;
         if (count <= 0) return;
-        var list = RandomList(Rogue.Instance.actSmallRewards, give);
+        var list = RandomList(GameInfo.act_gifts[GiftVariety.item], give);
         foreach (var item in list)
         {
             SpwanItem(item);
@@ -1283,9 +734,9 @@ public class ItemManager : MonoBehaviour
         items.Clear();
         nowMode = Mode.select_big_gift;
         tempselect = select;
-        int count = Rogue.Instance.actBigRewards.Count;
+        int count = GameInfo.act_gifts[GiftVariety.huge].Count;
         if (count <= 0) return;
-        var list = RandomList(Rogue.Instance.actBigRewards, give);
+        var list = RandomList(GameInfo.act_gifts[GiftVariety.huge], give);
         foreach (var item in list)
         {
             SpwanItem(item);
@@ -1294,7 +745,7 @@ public class ItemManager : MonoBehaviour
 
     }
 
-    public void FixGifts(List<Rogue.gift> gifts)
+    public void FixGifts(List<Gift> gifts)
     {
         items.Clear();
         nowMode = Mode.fix_gift;
@@ -1304,7 +755,7 @@ public class ItemManager : MonoBehaviour
         }
     }
 
-    public void FixSelectBig(List<Rogue.gift> bigs, int select)
+    public void FixSelectBig(List<Gift> bigs, int select)
     {
         items.Clear();
         nowMode = Mode.fix_select_big_gift;
@@ -1315,7 +766,7 @@ public class ItemManager : MonoBehaviour
         }
 
     }
-    public void FixSelectSmall(List<Rogue.gift> smalls, int select)
+    public void FixSelectSmall(List<Gift> smalls, int select)
     {
         items.Clear();
         nowMode = Mode.fix_select_big_gift;
@@ -1326,7 +777,7 @@ public class ItemManager : MonoBehaviour
         }
 
     }
-    private void SpwanItem(Rogue.gift gift, bool inSelect = false)
+    private void SpwanItem(Gift gift, bool inSelect = false)
     {
         if (gift == null) return;
         SpwanItem(gift.level, gift.name, gift.reward, gift.giftname);
@@ -1335,7 +786,7 @@ public class ItemManager : MonoBehaviour
     }
 
 
-    private void SpwanItem(int level, string name, Action<Rogue.giftname> action, Rogue.giftname giftname)
+    private void SpwanItem(int level, string name, Action<Giftname> action, Giftname giftname)
     {
         knight = GameObject.Find("Knight");
         item = Rogue.Instance.shiny_item;
@@ -1431,7 +882,7 @@ public class ItemManager : MonoBehaviour
             reward.InsertCustomAction(() =>
             {
                 action(giftname);
-                Rogue.Instance.UpdateWeight();
+                GiftFactory.UpdateWeight();
                 DisplayStates();
             }, 6);
             reward.RemoveAction(0);
@@ -1522,10 +973,11 @@ public class ItemManager : MonoBehaviour
                 }
                 while (FixEmptyReward(reward) && rewardsStack.Count > 0);
                 if (FixEmptyReward(reward)) return;
+
                 switch (reward.mode)
                 {
                     case Mode.select_small_gift:
-                        if (reward.select < reward.give && Rogue.role == Rogue.giftname.test && Rogue.Instance.inRogue) reward.select++;
+                        if (reward.select < reward.give && GameInfo.role == Characters.CharacterRole.test && GameInfo.in_rogue) reward.select++;
                         RandomSelectSmall(reward.select, reward.give);
                         break;
 
@@ -1545,7 +997,7 @@ public class ItemManager : MonoBehaviour
                         FixSelectBig(reward.gifts, reward.select);
                         break;
                     case Mode.fix_select_small_gift:
-                        if (reward.select < reward.gifts.Count && Rogue.Instance.inRogue && Rogue.role == Rogue.giftname.test && Rogue.getBirthright) reward.select++;
+                        if (reward.select < reward.gifts.Count && GameInfo.in_rogue && GameInfo.role == Characters.CharacterRole.test && GameInfo.get_birthright) reward.select++;
                         FixSelectSmall(reward.gifts, reward.select);
                         break;
                     default:
@@ -1639,29 +1091,29 @@ public class ItemManager : MonoBehaviour
         }
         inventory_display_holder = new GameObject("inventory_display_holder");
 
-        if (Rogue.role != null)
+        if (GameInfo.role != CharacterRole.no_role)
         {
             GameObject role = new("role");
             role.layer = LayerMask.NameToLayer("UI");
             role.transform.SetParent(inventory_display_holder.transform);
             role.transform.localPosition = new Vector3(-14.3f, 7.6f, 0);
             var role_render = role.AddComponent<SpriteRenderer>();
-            if (Rogue.Instance.shopRewards[Rogue.role.Value].sprite != null)
+            if (GiftFactory.all_gifts[(Giftname)GameInfo.role].sprite != null)
             {
-                role_render.sprite = Rogue.Instance.shopRewards[Rogue.role.Value].sprite;
+                role_render.sprite = GiftFactory.all_gifts[(Giftname)GameInfo.role].sprite;
             }
-            else if (Rogue.Instance.shopRewards[Rogue.role.Value].getSprite != null)
+            else if (GiftFactory.all_gifts[(Giftname)GameInfo.role].getSprite != null)
             {
-                role_render.sprite = Rogue.Instance.shopRewards[Rogue.role.Value].getSprite(Rogue.role.Value);
+                role_render.sprite = GiftFactory.all_gifts[(Giftname)GameInfo.role].getSprite((Giftname)GameInfo.role);
             }
             else
             {
                 role_render.sprite = null;
             }
-            if (Rogue.Instance.shopRewards[Rogue.role.Value].scale != Vector2.zero)
-                role.transform.localScale = Rogue.Instance.shopRewards[Rogue.role.Value].scale;
+            if (GiftFactory.all_gifts[(Giftname)GameInfo.role].scale != Vector2.zero)
+                role.transform.localScale = GiftFactory.all_gifts[(Giftname)GameInfo.role].scale;
             role_render.color = new Color(1, 1, 1, alpha);
-            if (Rogue.role == Rogue.giftname.test)
+            if ((Giftname)GameInfo.role == Giftname.role_test)
             {
                 role.RemoveComponent<SpriteRenderer>();
                 var test_text = role.AddComponent<TMPro.TextMeshPro>();
@@ -1912,7 +1364,7 @@ public class ItemManager : MonoBehaviour
             all_font = Equipment.FindGameObjectInChildren("Rancid Egg").FindGameObjectInChildren("Egg Amount").GetComponent<TMPro.TextMeshPro>().font;
         }
         text.font = all_font;
-        egg_num.GetComponent<TMPro.TextMeshPro>().text = Rogue.Instance.relive_num.ToString();
+        egg_num.GetComponent<TMPro.TextMeshPro>().text = GameInfo.revive_num.ToString();
         render.color = new Color(1, 1, 1, alpha);
         text.color = new Color(1, 1, 1, alpha);
         x += 1;
