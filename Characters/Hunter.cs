@@ -17,8 +17,7 @@ internal class Hunter : Character
         PlayerData.instance.hasSuperDash = true;
         PlayerData.instance.gotCharm_14 = true;
         PlayerData.instance.gotCharm_32 = true;
-        PlayerData.instance.charmSlots += 1;
-        if (PlayerData.instance.charmSlots > 11) PlayerData.instance.charmSlots = 11;
+        GiftHelper.AddCharmSlot(1);
         Rogue.Instance.ShowDreamConvo("hunter_dream".Localize());
     }
 

@@ -108,6 +108,7 @@ public class ItemManager : MonoBehaviour
     public delegate int OnChangeSceneAndAddGeo(int geo, int damage_num);
     public OnChangeSceneAndAddGeo after_scene_add_geo_num;
     Action<PlayMakerFSM> fsm_enable = null;
+    public Func<OneReward, OneReward> before_spawn_item = null;
 
     System.Random item_random;
 
@@ -978,16 +979,15 @@ public class ItemManager : MonoBehaviour
                 }
                 while (FixEmptyReward(reward) && rewardsStack.Count > 0);
                 if (FixEmptyReward(reward)) return;
-                Log(reward.ToString());
-                Log(reward.gifts);
-                Log(reward.mode);
+                if (before_spawn_item != null)
+                {
+                    reward = before_spawn_item(reward);
+                }
                 switch (reward.mode)
                 {
                     case Mode.select_small_gift:
-                        if (reward.select < reward.give && GameInfo.role == Characters.CharacterRole.test && GameInfo.in_rogue) reward.select++;
                         RandomSelectSmall(reward.select, reward.give);
                         break;
-
                     case Mode.select_big_gift:
                         RandomSelectBig(reward.select, reward.give);
                         break;
@@ -1004,7 +1004,6 @@ public class ItemManager : MonoBehaviour
                         FixSelectBig(reward.gifts, reward.select);
                         break;
                     case Mode.fix_select_small_gift:
-                        if (reward.select < reward.gifts.Count && GameInfo.in_rogue && GameInfo.role == Characters.CharacterRole.test && GameInfo.get_birthright) reward.select++;
                         FixSelectSmall(reward.gifts, reward.select);
                         break;
                     default:

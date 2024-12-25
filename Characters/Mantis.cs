@@ -5,20 +5,15 @@ internal class Mantis : Character
     public Mantis()
     {
         this.Selfname = CharacterRole.mantis;
+        nail_mul = 1.25f;
     }
 
     public override void BeginCharacter()
     {
         GameInfo.role = CharacterRole.mantis;
         PlayerData.instance.hasWalljump = true;
+        CharmHelper.SetCantUnequip(13);
         PlayerData.instance.gotCharm_13 = true;
-        if (!PlayerData.instance.equippedCharms.Contains(13))
-        {
-            PlayerData.instance.equippedCharms.Insert(1, 13);
-            PlayerData.instance.equippedCharm_13 = true;
-            PlayMakerFSM.BroadcastEvent("CHARM EQUIP CHECK");
-            // HeroController.instance.CharmUpdate();
-        }
         Rogue.Instance.ShowDreamConvo("mantis_dream".Localize());
         On.PlayerData.GetInt += FreePrideMask;
     }
@@ -31,6 +26,7 @@ internal class Mantis : Character
 
     public override void EndCharacter()
     {
+        CharmHelper.SetCanEquip(13);
         On.PlayerData.GetInt -= FreePrideMask;
     }
 }

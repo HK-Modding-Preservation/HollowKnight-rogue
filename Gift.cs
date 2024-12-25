@@ -227,6 +227,7 @@ internal static class GiftFactory
             {Giftname.charm_wuyou,(0.8f,300)}
         };
     public static Dictionary<Giftname, Gift> all_gifts = new();
+    public static Action before_update_weight = null;
     private static void Log(object msg)
     {
         Rogue.Instance.Log(msg);
@@ -1240,11 +1241,7 @@ internal static class GiftFactory
 
     public static void UpdateWeight()
     {
-        if (GameInfo.role == CharacterRole.grey_prince)
-        {
-            PlayerData.instance.nailDamage = 5;
-            PlayMakerFSM.BroadcastEvent("UPDATE NAIL DAMAGE");
-        }
+        before_update_weight?.Invoke();
         PlayerData playerData = PlayerData.instance;
         if (playerData.maxHealthBase >= 9) all_gifts[Giftname.add_2_mask].now_weight = 0;
         if (playerData.MPReserveMax >= 99) all_gifts[Giftname.add_1_vessel].now_weight = 0;

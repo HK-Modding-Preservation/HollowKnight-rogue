@@ -4,6 +4,8 @@ internal class Shaman : Character
     public Shaman()
     {
         this.Selfname = CharacterRole.shaman;
+        nail_mul = 0.8f;
+        spell_mul = 1.25f;
     }
     public override void BeginCharacter()
     {
@@ -31,5 +33,22 @@ internal class Shaman : Character
     public override void EndCharacter()
     {
         On.SpellFluke.OnEnable -= OnFlukeDamage;
+    }
+    public override int GetBirthrightNum()
+    {
+        return 1;
+    }
+    public override void GetBirthright(int num)
+    {
+        switch (num)
+        {
+            case 0:
+                PlayerData.instance.quakeLevel += 1;
+                if (PlayerData.instance.quakeLevel > 2) PlayerData.instance.quakeLevel = 2;
+                break;
+        }
+    }
+    public override void RemoveBirthright(int num)
+    {
     }
 }

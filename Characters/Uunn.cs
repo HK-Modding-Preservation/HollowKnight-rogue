@@ -25,6 +25,6 @@ internal class Uunn : Character
 
     public override void EndCharacter()
     {
-
+        ItemManager.Instance.after_scene_add_geo_num -= UunnReward;
     }
 }

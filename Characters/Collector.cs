@@ -3,6 +3,7 @@
 namespace rogue.Characters;
 internal class Collector : Character
 {
+    readonly List<int> spawn_charms = new List<int>() { 22, 38, 39, 40 };
     public Collector()
     {
         this.Selfname = CharacterRole.collector;
@@ -17,6 +18,7 @@ internal class Collector : Character
         PlayerData.instance.gotCharm_38 = true;
         PlayerData.instance.equippedCharm_38 = true;
         PlayerData.instance.equippedCharms.Add(38);
+        CharmHelper.SetCantUnequip(38);
         Rogue.Instance.ShowDreamConvo("collector_dream".Localize());
         On.PlayerData.GetInt += FreeSpawnCharm;
         On.KnightHatchling.OnEnable += OnHatchingDamage;
@@ -29,6 +31,7 @@ internal class Collector : Character
     }
     public override void EndCharacter()
     {
+        CharmHelper.SetCanEquip(38);
         On.PlayerData.GetInt -= FreeSpawnCharm;
         On.KnightHatchling.OnEnable -= OnHatchingDamage;
         On.KnightHatchling.DoChaseSimple -= OnHatchingChaseSimple;
@@ -37,6 +40,21 @@ internal class Collector : Character
         ModHooks.CharmUpdateHook -= ChangeHatchOnCharmUpdate;
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= ChangeHatchOnSceneChanged;
         HatchRollBack();
+    }
+    protected override void DamageMul(On.HealthManager.orig_TakeDamage orig, HealthManager self, HitInstance hitInstance)
+    {
+        nail_mul = 1;
+        spell_mul = 1;
+        foreach (var charm in spawn_charms)
+        {
+            if (PlayerData.instance.equippedCharms.Contains(charm))
+            {
+                nail_mul *= 0.5f;
+                spell_mul *= 0.5f;
+            }
+        }
+
+        base.DamageMul(orig, self, hitInstance);
     }
 
     private void ChangeGrimm(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)

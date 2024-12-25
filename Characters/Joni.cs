@@ -1,6 +1,12 @@
 namespace rogue.Characters;
 internal class Joni : Character
 {
+    public Joni()
+    {
+        Selfname = CharacterRole.joni;
+        nail_mul = 1.75f;
+        spell_mul = 1.75f;
+    }
 
     public override void BeginCharacter()
     {
@@ -9,11 +15,7 @@ internal class Joni : Character
         GiftHelper.AdjustMaskTo(9);
         GiftHelper.AdjustVesselTo(3);
         GiftHelper.GiveAllCharms();
-        if (!PlayerData.instance.equippedCharms.Contains(27))
-        {
-            PlayerData.instance.equippedCharms.Insert(1, 27);
-            PlayerData.instance.equippedCharm_27 = true;
-        }
+        CharmHelper.SetCantUnequip(27);
         Rogue.Instance.ShowDreamConvo("joni_dream".Localize());
     }
     protected override void AfterRevive()

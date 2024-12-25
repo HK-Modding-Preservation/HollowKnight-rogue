@@ -11,4 +11,29 @@ namespace rogue; internal static class CharmHelper
 
     };
     internal static Dictionary<int, int> custom_cost = new();
+    internal static bool SetCantUnequip(int charm)
+    {
+        PlayerData.instance.SetBool("gotCharm_" + charm, true);
+        if (!PlayerData.instance.equippedCharms.Contains(charm))
+        {
+            PlayerData.instance.equippedCharms.Add(charm);
+            PlayerData.instance.SetBool("equippedCharm_" + charm, true);
+        }
+        PlayMakerFSM.BroadcastEvent("CHARM EQUIP CHECK");
+        if (cant_unequip_charm.Contains(charm))
+        {
+            return false;
+        }
+        cant_unequip_charm.Add(charm);
+        return true;
+    }
+    internal static bool SetCanEquip(int charm)
+    {
+        if (cant_unequip_charm.Contains(charm))
+        {
+            cant_unequip_charm.Remove(charm);
+            return true;
+        }
+        return false;
+    }
 }

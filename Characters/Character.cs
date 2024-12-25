@@ -75,12 +75,27 @@ public abstract class Character : MonoBehaviour
     internal CharacterRole Selfname { get; protected private set; }
     protected float nail_mul = 1;
     protected float spell_mul = 1;
+    protected List<int> got_birthright = new();
     public virtual int GetBirthrightNum()
     {
         return 0;
     }
+    public virtual void ExecGetBirthright(int num)
+    {
+        if (got_birthright.Contains(num)) return;
+        GetBirthright(num);
+        got_birthright.Add(num);
+    }
+    public virtual void ExecRemoveBirthright(int num)
+    {
+        if (!got_birthright.Contains(num)) return;
+        RemoveBirthright(num);
+        got_birthright.Remove(num);
+    }
     public virtual void GetBirthright(int num)
     {
+
+
 
     }
     public virtual void RemoveBirthright(int num)
@@ -102,6 +117,17 @@ public abstract class Character : MonoBehaviour
         PlayMakerFSM.BroadcastEvent("UPDATE BLUE HEALTH");
     }
 
+    public void OnDestroy()
+    {
+        foreach (var br in got_birthright)
+        {
+            RemoveBirthright(br);
+        }
+        got_birthright.Clear();
+        EndCharacter();
+        On.HealthManager.TakeDamage -= DamageMul;
+        ItemManager.Instance.after_revive_action -= AfterRevive;
+    }
     protected virtual void DamageMul(On.HealthManager.orig_TakeDamage orig, HealthManager self, HitInstance hitInstance)
     {
         if (!GameInfo.in_rogue)
@@ -132,10 +158,5 @@ public abstract class Character : MonoBehaviour
         orig(self, hitInstance);
 
     }
-    public void OnDestroy()
-    {
-        EndCharacter();
-        On.HealthManager.TakeDamage -= DamageMul;
-        ItemManager.Instance.after_revive_action -= AfterRevive;
-    }
+
 }

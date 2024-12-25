@@ -77,6 +77,16 @@ static class GiftHelper
         PlayMakerFSM.BroadcastEvent("UPDATE NAIL DAMAGE");
     }
 
+    public static void AddCharmSlot(int t)
+    {
+        PlayerData.instance.charmSlots += t;
+        if (PlayerData.instance.charmSlots > 11) PlayerData.instance.charmSlots = 11;
+    }
+    public static void RemoveCharmSlot(int t)
+    {
+        PlayerData.instance.charmSlots -= t;
+        if (PlayerData.instance.charmSlots < 0) PlayerData.instance.charmSlots = 0;
+    }
     public static void GiveVessel()
     {
         if (PlayerData.instance.MPReserveMax < 99)

@@ -1,3 +1,4 @@
+
 namespace rogue.Characters;
 internal class Moth : Character
 {
@@ -14,7 +15,7 @@ internal class Moth : Character
         GiftHelper.AddNailDamage();
         GiftHelper.GiveMask();
         GiftHelper.GiveVessel();
-        PlayerData.instance.charmSlots = 11;
+        GiftHelper.AddCharmSlot(8);
         Rogue.Instance.ShowDreamConvo("moth_dream".Localize());
     }
 
