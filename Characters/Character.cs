@@ -55,9 +55,9 @@ public class RoleGift<T> : Gift where T : Character
         weight = 0;
         price = 0;
         string true_name = role_name.ToString().Replace("role_", "");
-        name = (true_name + "_name").Localize();
-        desc = (true_name + "_desc").Localize();
-        sprite = AssemblyUtils.GetSpriteFromResources(true_name + ".png");
+        name = true_name + "_name";
+        desc = true_name + "_desc";
+        sprite = SpriteLoader.GetSprite(true_name);
         scale = CharacterInfo.role_sprite_scales.ContainsKey(role) ? CharacterInfo.role_sprite_scales[role] : new Vector2(1, 1);
     }
     CharacterRole role;
@@ -109,6 +109,7 @@ public abstract class Character : MonoBehaviour
         BeginCharacter();
         On.HealthManager.TakeDamage += DamageMul;
         ItemManager.Instance.after_revive_action += AfterRevive;
+        ItemManager.Instance.DisplayStates();
     }
 
     protected virtual void AfterRevive()

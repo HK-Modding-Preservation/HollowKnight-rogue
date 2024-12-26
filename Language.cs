@@ -48,7 +48,7 @@ public static class Lang
                 }
                 else
                 {
-                    return no_that_key;
+                    return "?" + name + "?";
                 }
             }
         }

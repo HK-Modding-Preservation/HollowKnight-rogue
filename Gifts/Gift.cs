@@ -117,13 +117,17 @@ public enum Giftname
     shop_acid_swim,
     shop_double_jump,
     shop_dash,
+    refresh_dash,
 }
 public class Gift
 {
-    public Gift(int level)
+    public Gift(int level, Func<string> getName = null, Func<string> getDesc = null)
     {
         this.level = level;
+        this.getName = getName;
+        this.getDesc = getDesc;
     }
+
     public bool active = true;
     [NonSerialized]
     public int id;
@@ -139,10 +143,10 @@ public class Gift
     internal Giftname giftname;
 
     [NonSerialized]
-    public string name = "";
+    internal protected string name = "";
 
     [NonSerialized]
-    public string desc = "";
+    internal protected string desc = "";
 
     [NonSerialized]
     public float weight = 0;
@@ -153,14 +157,36 @@ public class Gift
     public bool showConvo = true;
 
     [NonSerialized]
-    public Sprite sprite = null;
+    internal protected Sprite sprite = null;
 
     [NonSerialized]
-    internal Func<Giftname, Sprite> getSprite = null;
+    internal protected Func<Giftname, Sprite> getSprite = null;
     [NonSerialized]
     public bool force_active = true;
     [NonSerialized]
     public Vector2 scale = Vector2.zero;
+    Func<string> getName = null;
+    Func<string> getDesc = null;
+    internal virtual string GetName()
+    {
+        if (getName != null) return getName();
+        return name.Localize();
+    }
+    internal virtual string GetDesc()
+    {
+        if (getDesc != null) return getName();
+        return desc.Localize();
+    }
+    internal virtual string GetShowString()
+    {
+        return GetName();
+    }
+    internal virtual Sprite GetSprite()
+    {
+        if (sprite != null) return sprite;
+        if (getSprite != null) return getSprite(giftname);
+        return null;
+    }
 
     internal virtual void GetGift()
     {
@@ -184,48 +210,7 @@ public enum GiftVariety
 internal static class GiftFactory
 {
     public static Dictionary<GiftVariety, List<Gift>> all_kind_of_gifts = new();
-    static Dictionary<Giftname, (float, int)> charm_weight_and_price = new Dictionary<Giftname, (float, int)>
-        {
-            {Giftname.charm_compass,(1,50)},
-            {Giftname.charm_fengqun,(1,50)},
-            {Giftname.charm_yingke,(1,200)},
-            {Giftname.charm_bushou,(0.8f,350)},
-            {Giftname.charm_saman,(0.4f,800)},
-            {Giftname.charm_shihun,(0.8f,450)},
-            {Giftname.charm_dash_master,(1f,150)},
-            {Giftname.charm_feimaotui,(1,150)},
-            {Giftname.charm_chongge,(8,300)},
-            {Giftname.charm_tuibian,(1,200)},
-            {Giftname.charm_xinzang,(1,300)},
-            {Giftname.charm_tanlan,(5,200)},
-            {Giftname.charm_power,(0.4f,800)},
-            {Giftname.charm_faniu,(0.6f,500)},
-            {Giftname.charm_wenti,(1,200)},
-            {Giftname.charm_chenzhong,(1,200)},
-            {Giftname.charm_kuaipi,(0.4f,600)},
-            {Giftname.charm_xiuchang,(1,200)},
-            {Giftname.charm_jiaoao,(0.8f,350)},
-            {Giftname.charm_wangnu,(1,50)},
-            {Giftname.charm_jingji,(1,100)},
-            {Giftname.charm_baldur,(1f,150)},
-            {Giftname.charm_xichong,(0.4f,600)},
-            {Giftname.charm_defender,(1,100)},
-            {Giftname.charm_zigong,(0.8f,200)},
-            {Giftname.charm_quick_focus,(0.8f,300)},
-            {Giftname.charm_deep_facus,(0.8f,300)},
-            {Giftname.charm_blue_heart,(1,150)},
-            {Giftname.charm_blue_hexin,(1,250)},
-            {Giftname.charm_jiaoni,(0.8f,50)},
-            {Giftname.charm_fengchao,(1,250)},
-            {Giftname.charm_mogu,(1,150)},
-            {Giftname.charm_fengli,(1,150)},
-            {Giftname.charm_wuen,(0.8f,300)},
-            {Giftname.charm_dingyao,(5,300)},
-            {Giftname.charm_bian_zhi_zhe,(1,250)},
-            {Giftname.charm_wumeng,(5,250)},
-            {Giftname.charm_meng_zhi_dun,(1,200)},
-            {Giftname.charm_wuyou,(0.8f,300)}
-        };
+
     public static Dictionary<Giftname, Gift> all_gifts = new();
     public static Action before_update_weight = null;
     private static void Log(object msg)
@@ -234,55 +219,16 @@ internal static class GiftFactory
     }
     private static void CharmInit()
     {
-        List<int> breakable = new List<int> { 23, 24, 25 };
         for (int i = 1; i <= 40; i++)
         {
             if (i == 36) continue;
-            all_gifts.Add((Giftname)i, new Gift(1)
-            {
-                giftname = (Giftname)i,
-                name = Language.Language.Get("CHARM_NAME_" + i + (breakable.Contains(i) ? "_G" : "") + (i == 40 ? "_N" : ""), "UI"),
-                desc = Language.Language.Get("CHARM_DESC_" + i + (breakable.Contains(i) ? "_G" : "") + (i == 40 ? "_N" : ""), "UI").Replace("<br>", "\n"),
-                weight = charm_weight_and_price.ContainsKey((Giftname)i) ? charm_weight_and_price[(Giftname)i].Item1 : 0,
-                price = charm_weight_and_price.ContainsKey((Giftname)i) ? charm_weight_and_price[(Giftname)i].Item2 : 999,
-                sprite = null,
-                reward = (giftname) =>
-                {
-                    PlayerData.instance.SetBool("gotCharm_" + (int)giftname, true);
-                },
-                getSprite = (giftname) =>
-                {
-                    List<int> breakable = new List<int> { 23, 24, 25 };
-                    var charmIcon = HutongGames.PlayMaker.FsmVariables.GlobalVariables.FindFsmGameObject("Charm Icons").Value;
-                    if (charmIcon == null) return null;
-                    if (!breakable.Contains((int)giftname) && (int)giftname != 40)
-                        return charmIcon.GetComponent<CharmIconList>().spriteList[(int)giftname];
-                    if ((int)giftname == 23)
-                    {
-                        return charmIcon.GetComponent<CharmIconList>().unbreakableHeart;
-                    }
-                    if ((int)giftname == 24)
-                    {
-                        return charmIcon.GetComponent<CharmIconList>().unbreakableGreed;
-                    }
-                    if ((int)giftname == 25)
-                    {
-                        return charmIcon.GetComponent<CharmIconList>().unbreakableStrength;
-                    }
-                    if ((int)giftname == 40)
-                    {
-                        return charmIcon.GetComponent<CharmIconList>().nymmCharm;
-                    }
-                    return null;
-                }
-            });
+            all_gifts.Add((Giftname)i, new CharmGift((Giftname)i));
         }
     }
     private static void RoleInit()
     {
 
         all_gifts.Add(Giftname.role_test, new RoleGift<Test>(Giftname.role_test));
-        all_gifts[Giftname.role_test].sprite = null;
         all_gifts.Add(Giftname.role_nail_master, new RoleGift<NailMaster>(Giftname.role_nail_master));
         all_gifts.Add(Giftname.role_shaman, new RoleGift<Shaman>(Giftname.role_shaman));
         all_gifts.Add(Giftname.role_hunter, new RoleGift<Hunter>(Giftname.role_hunter));
@@ -306,11 +252,11 @@ internal static class GiftFactory
             {
                 ItemManager.Instance.NormalShopItem();
             },
-            name = "shop_keeper_key_name".Localize(),
-            desc = "shop_keeper_key_desc".Localize(),
+            name = "shop_keeper_key_name",
+            desc = "shop_keeper_key_desc",
             active = false,
             weight = 0,
-            sprite = AssemblyUtils.GetSpriteFromResources("keeper_key.png")
+            sprite = SpriteLoader.GetSprite("keeper_key")
         });
         all_gifts.Add(Giftname.shop_add_1_notch_1, new Gift(1)
         {
@@ -322,11 +268,11 @@ internal static class GiftFactory
                     PlayerData.instance.charmSlots++;
                 }
             },
-            name = "shop_add_1_notch_name".Localize(),
-            desc = "shop_add_1_notch_desc".Localize(),
+            name = "shop_add_1_notch_name",
+            desc = "shop_add_1_notch_desc",
             active = false,
             weight = 1,
-            sprite = AssemblyUtils.GetSpriteFromResources("Charm_Notch.png")
+            sprite = SpriteLoader.GetSprite("charm_notch")
         });
         all_gifts.Add(Giftname.shop_nail_upgrade, new Gift(3)
         {
@@ -335,11 +281,11 @@ internal static class GiftFactory
             {
                 GiftHelper.AddNailDamage();
             },
-            name = "shop_nail_upgrade_name".Localize(),
-            desc = "shop_nail_upgrade_desc".Localize(),
+            name = "shop_nail_upgrade_name",
+            desc = "shop_nail_upgrade_desc",
             active = false,
             weight = 1,
-            sprite = AssemblyUtils.GetSpriteFromResources("pale_stone.png")
+            sprite = SpriteLoader.GetSprite("pale_stone")
         });
         all_gifts.Add(Giftname.shop_random_gift, new Gift(2)
         {
@@ -348,11 +294,11 @@ internal static class GiftFactory
             {
                 ItemManager.Instance.RandomOneSmall();
             },
-            name = "shop_random_gift_name".Localize(),
-            desc = "shop_random_gift_desc".Localize(),
+            name = "shop_random_gift_name",
+            desc = "shop_random_gift_desc",
             active = false,
             weight = 0,
-            sprite = AssemblyUtils.GetSpriteFromResources("witches_eye.png")
+            sprite = SpriteLoader.GetSprite("witches_eye")
 
         });
         all_gifts.Add(Giftname.shop_any_charm_1, new Gift(1)
@@ -413,13 +359,14 @@ internal static class GiftFactory
                     PlayerData.instance.charmSlots++;
                 }
             },
-            name = "shop_add_1_notch_name".Localize(),
-            desc = "shop_add_1_notch_desc".Localize(),
+            name = "shop_add_1_notch_name",
+            desc = "shop_add_1_notch_desc",
             weight = 1,
             getSprite = (giftname) =>
             {
                 return all_gifts[Giftname.shop_add_1_notch_1].sprite;
             }
+
         });
         all_gifts.Add(Giftname.shop_add_1_notch_3, new Gift(1)
         {
@@ -431,8 +378,8 @@ internal static class GiftFactory
                     PlayerData.instance.charmSlots++;
                 }
             },
-            name = "shop_add_1_notch_name".Localize(),
-            desc = "shop_add_1_notch_desc".Localize(),
+            name = "shop_add_1_notch_name",
+            desc = "shop_add_1_notch_desc",
             weight = 1,
             getSprite = (giftname) =>
             {
@@ -449,8 +396,8 @@ internal static class GiftFactory
                     PlayerData.instance.charmSlots++;
                 }
             },
-            name = "shop_add_1_notch_name".Localize(),
-            desc = "shop_add_1_notch_desc".Localize(),
+            name = "shop_add_1_notch_name",
+            desc = "shop_add_1_notch_desc",
             weight = 1,
             getSprite = (giftname) =>
             {
@@ -464,8 +411,8 @@ internal static class GiftFactory
             {
                 GameInfo.revive_num++;
             },
-            name = "shop_egg_name".Localize(),
-            desc = "shop_egg_desc".Localize(),
+            name = "shop_egg_name",
+            desc = "shop_egg_desc",
             weight = 3,
             getSprite = (giftname) =>
             {
@@ -484,7 +431,8 @@ internal static class GiftFactory
                 }
             }
         });
-        all_gifts.Add(Giftname.shop_super_dash, new Gift(1)
+        all_gifts.Add(Giftname.shop_super_dash, new Gift(1,
+         getName: () => Language.Language.Get("INV_NAME_SUPERDASH", "UI"), getDesc: () => Language.Language.Get("INV_DESC_SUPERDASH", "UI"))
         {
             price = 100,
             reward = (giftname) =>
@@ -499,7 +447,13 @@ internal static class GiftFactory
             {
                 try
                 {
-                    return GameCameras.instance.gameObject.FindGameObjectInChildren("HudCamera").FindGameObjectInChildren("Inventory").Find("Inv").FindGameObjectInChildren("Equipment").FindGameObjectInChildren("Super Dash").GetComponent<SpriteRenderer>().sprite;
+                    return GameCameras.instance.gameObject.
+                    FindGameObjectInChildren("HudCamera").
+                    FindGameObjectInChildren("Inventory").
+                    Find("Inv").
+                    FindGameObjectInChildren("Equipment").
+                    FindGameObjectInChildren("Super Dash").
+                    GetComponent<SpriteRenderer>().sprite;
                 }
                 catch
                 {
@@ -507,7 +461,8 @@ internal static class GiftFactory
                 }
             }
         });
-        all_gifts.Add(Giftname.shop_wall_jump, new Gift(1)
+        all_gifts.Add(Giftname.shop_wall_jump, new Gift(1,
+        getName: () => Language.Language.Get("INV_NAME_WALLJUMP", "UI"), getDesc: () => Language.Language.Get("INV_DESC_WALLJUMP", "UI"))
         {
             price = 200,
             reward = (giftname) =>
@@ -535,7 +490,8 @@ internal static class GiftFactory
                 }
             }
         });
-        all_gifts.Add(Giftname.shop_dream_nail, new Gift(1)
+        all_gifts.Add(Giftname.shop_dream_nail, new Gift(1,
+        getName: () => Language.Language.Get("INV_NAME_DREAMNAIL_A", "UI"), getDesc: () => Language.Language.Get("INV_DESC_DREAMNAIL_A", "UI"))
         {
             price = 100,
             reward = (giftname) =>
@@ -570,8 +526,8 @@ internal static class GiftFactory
             {
                 GiftHelper.GiveMask();
             },
-            name = "shop_add_1_mask_name".Localize(),
-            desc = "shop_add_1_mask_desc".Localize(),
+            name = "shop_add_1_mask_name",
+            desc = "shop_add_1_mask_desc",
             weight = 1.5f,
             getSprite = (giftname) =>
             {
@@ -599,8 +555,8 @@ internal static class GiftFactory
             {
                 GiftHelper.GiveVessel();
             },
-            name = "shop_add_1_vessel_name".Localize(),
-            desc = "shop_add_1_vessel_desc".Localize(),
+            name = "shop_add_1_vessel_name",
+            desc = "shop_add_1_vessel_desc",
             weight = 1.5f,
             getSprite = (giftname) =>
             {
@@ -620,7 +576,7 @@ internal static class GiftFactory
                 }
             }
         });
-        all_gifts.Add(Giftname.shop_prettey_key, new Gift(0)
+        all_gifts.Add(Giftname.shop_prettey_key, new Gift(0, getName: () => Language.Language.Get("INV_NAME_WHITEKEY", "UI"))
         {
             price = 8,
             reward = (giftname) =>
@@ -651,9 +607,9 @@ internal static class GiftFactory
 
             },
             name = Language.Language.Get("INV_NAME_WHITEKEY", "UI"),
-            desc = "shop_pretty_key_desc".Localize(),
+            desc = "shop_pretty_key_desc",
             weight = 0.1f,
-            sprite = AssemblyUtils.GetSpriteFromResources("Elegant_Key.png"),
+            sprite = SpriteLoader.GetSprite("elegant_key"),
         });
         all_gifts.Add(Giftname.shop_refresh, new Gift(1)
         {
@@ -662,12 +618,13 @@ internal static class GiftFactory
             {
                 GameInfo.refresh_num++;
             },
-            name = "shop_refresh_name".Localize(),
-            desc = "shop_refresh_desc".Localize(),
+            name = "shop_refresh_name",
+            desc = "shop_refresh_desc",
             weight = 2f,
-            sprite = AssemblyUtils.GetSpriteFromResources("easy_key.png"),
+            sprite = SpriteLoader.GetSprite("easy_key"),
         });
-        all_gifts.Add(Giftname.shop_acid_swim, new Gift(1)
+        all_gifts.Add(Giftname.shop_acid_swim, new Gift(1,
+        getName: () => Language.Language.Get("INV_NAME_ACIDARMOUR", "UI"), getDesc: () => Language.Language.Get("INV_DESC_ACIDARMOUR", "UI"))
         {
             price = 50,
             reward = (giftname) =>
@@ -694,7 +651,8 @@ internal static class GiftFactory
                 }
             }
         });
-        all_gifts.Add(Giftname.shop_double_jump, new Gift(3)
+        all_gifts.Add(Giftname.shop_double_jump, new Gift(3,
+        getName: () => Language.Language.Get("INV_NAME_DOUBLEJUMP", "UI"), getDesc: () => Language.Language.Get("INV_DESC_DOUBLEJUMP", "UI"))
         {
             price = 600,
             reward = (giftname) =>
@@ -737,8 +695,8 @@ internal static class GiftFactory
                     PlayerData.instance.canShadowDash = true;
                 }
             },
-            name = "shop_dash_name".Localize(),
-            desc = "shop_dash_desc".Localize(),
+            name = "shop_dash_name",
+            desc = "shop_dash_desc",
             weight = 0.4f,
             getSprite = (giftname) =>
             {
@@ -770,7 +728,7 @@ internal static class GiftFactory
                 GiftHelper.AddNailDamage();
 
             },
-            name = "warrior_name".Localize(),
+            name = "warrior_name",
             desc = "面具+2&骨钉+1",
             weight = 1f,
         });
@@ -787,7 +745,7 @@ internal static class GiftFactory
                     new ItemManager.OneReward() { mode = ItemManager.Mode.fix_gift, gifts = gifts2 }
                     );
             },
-            name = "mage_name".Localize(),
+            name = "mage_name",
             desc = "魂槽+1&法术+1",
             weight = 1f,
         });
@@ -811,10 +769,14 @@ internal static class GiftFactory
                     new ItemManager.OneReward() { mode = ItemManager.Mode.fix_select_small_gift, select = 1, gifts = gifts2 }
                     );
             },
-            name = "ranger_name".Localize(),
+            name = "ranger_name",
             desc = "剑技+1&位移+1",
             weight = 1f,
         });
+    }
+    private static void CustomItemInit()
+    {
+        all_gifts.Add(Giftname.refresh_dash, new RefreshDash());
     }
     private static void ItemInit()
     {
@@ -826,8 +788,8 @@ internal static class GiftFactory
                         GiftHelper.GiveMask();
                         GiftHelper.GiveMask();
                     },
-            name = "add_2_mask_name".Localize(),
-            desc = "add_2_mask_name".Localize(),
+            name = "add_2_mask_name",
+            desc = "add_2_mask_name",
             weight = 1f,
         });
         all_gifts.Add(Giftname.add_1_vessel, new Gift(0)
@@ -837,8 +799,8 @@ internal static class GiftFactory
                     {
                         GiftHelper.GiveVessel();
                     },
-            name = "add_1_vessel_name".Localize(),
-            desc = "add_1_vessel_name".Localize(),
+            name = "add_1_vessel_name",
+            desc = "add_1_vessel_name",
             weight = 1.1f,
         });
         all_gifts.Add(Giftname.nail_upgrade, new Gift(1)
@@ -848,7 +810,7 @@ internal static class GiftFactory
             {
                 GiftHelper.AddNailDamage();
             },
-            name = "nail_upgrade_name".Localize(),
+            name = "nail_upgrade_name",
             desc = "+1骨钉",
             weight = 1f,
         });
@@ -861,7 +823,7 @@ internal static class GiftFactory
                 if (PlayerData.instance.charmSlots > 11)
                     PlayerData.instance.charmSlots = 11;
             },
-            name = "add_3_notch_name".Localize(),
+            name = "add_3_notch_name",
             desc = "+3护符槽",
             weight = 1.1f,
         });
@@ -874,7 +836,7 @@ internal static class GiftFactory
                 if (PlayerData.instance.fireballLevel < 2)
                     PlayerData.instance.fireballLevel++;
             },
-            name = "get_fireball_name".Localize(),
+            name = "get_fireball_name",
             desc = "获得波法术",
             weight = 0.9f,
         });
@@ -887,7 +849,7 @@ internal static class GiftFactory
             if (PlayerData.instance.screamLevel < 2)
                 PlayerData.instance.screamLevel++;
         },
-            name = "get_scream_name".Localize(),
+            name = "get_scream_name",
             desc = "获得吼法术",
             weight = 0.9f,
         });
@@ -900,7 +862,7 @@ internal static class GiftFactory
                         if (PlayerData.instance.quakeLevel < 2)
                             PlayerData.instance.quakeLevel++;
                     },
-            name = "get_quake_name".Localize(),
+            name = "get_quake_name",
             desc = "获得砸法术",
             weight = 0.8f,
         });
@@ -920,11 +882,12 @@ internal static class GiftFactory
                 PlayerData.instance.canDash = true;
             }
         },
-            name = "get_dash_name".Localize(),
+            name = "get_dash_name",
             desc = "获得冲刺",
             weight = 0.8f,
         });
-        all_gifts.Add(Giftname.get_double_jump, new Gift(3)
+        all_gifts.Add(Giftname.get_double_jump, new Gift(3,
+        getName: () => Language.Language.Get("INV_NAME_DOUBLEJUMP", "UI"))
         {
             giftname = Giftname.get_double_jump,
             reward = (giftname) =>
@@ -935,7 +898,8 @@ internal static class GiftFactory
             desc = "获得二段跳",
             weight = 0.8f,
         });
-        all_gifts.Add(Giftname.get_zhua_lei_ding, new Gift(1)
+        all_gifts.Add(Giftname.get_zhua_lei_ding, new Gift(1,
+        getName: () => Language.Language.Get("INV_NAME_WALLJUMP", "UI") + "&" + Language.Language.Get("INV_NAME_SUPERDASH", "UI") + "&" + Language.Language.Get("INV_NAME_ACIDARMOUR", "UI") + "&" + Language.Language.Get("INV_NAME_DREAMNAIL_A", "UI"))
         {
             giftname = Giftname.get_zhua_lei_ding,
             reward = (giftname) =>
@@ -966,11 +930,11 @@ internal static class GiftFactory
             Rogue.Instance.itemManager.rewardsStack.Push(new ItemManager.OneReward() { select = 1, mode = ItemManager.Mode.fix_select_small_gift, gifts = gifts });
 
         },
-            name = "get_one_skill_up_name".Localize(),
+            name = "get_one_skill_up_name",
             desc = "选择一已有法术/冲刺/骨钉升级",
             weight = 0.8f,
         });
-        all_gifts.Add(Giftname.get_dash_slash, new Gift(0)
+        all_gifts.Add(Giftname.get_dash_slash, new Gift(0, getName: () => Language.Language.Get("INV_NAME_ART_UPPER", "UI"))
         {
             reward = (giftname) =>
             {
@@ -982,7 +946,7 @@ internal static class GiftFactory
             desc = "获得冲刺劈砍",
             weight = 1.1f,
         });
-        all_gifts.Add(Giftname.get_upward_slash, new Gift(0)
+        all_gifts.Add(Giftname.get_upward_slash, new Gift(0, getName: () => Language.Language.Get("INV_NAME_ART_DASH", "UI"))
         {
             reward = (giftname) =>
                     {
@@ -993,7 +957,7 @@ internal static class GiftFactory
             desc = "获得强力劈砍",
             weight = 1.1f,
         });
-        all_gifts.Add(Giftname.get_cyclone, new Gift(1)
+        all_gifts.Add(Giftname.get_cyclone, new Gift(1, getName: () => Language.Language.Get("INV_NAME_ART_CYCLONE", "UI"))
         {
             reward = (giftname) =>
                     {
@@ -1012,7 +976,7 @@ internal static class GiftFactory
             ItemManager.Instance.rewardsStack.Push(new ItemManager.OneReward() { select = 1, mode = ItemManager.Mode.fix_select_small_gift, gifts = gifts });
 
         },
-            name = "get_any_spell_name".Localize(),
+            name = "get_any_spell_name",
             desc = "获得任一法术",
             weight = 0f,
             active = false,
@@ -1025,7 +989,7 @@ internal static class GiftFactory
             ItemManager.Instance.rewardsStack.Push(new ItemManager.OneReward() { select = 1, mode = ItemManager.Mode.fix_select_small_gift, gifts = gifts });
 
         },
-            name = "get_any_shift_name".Localize(),
+            name = "get_any_shift_name",
             desc = "获得任一位移",
             weight = 0f,
             active = false,
@@ -1038,7 +1002,7 @@ internal static class GiftFactory
             ItemManager.Instance.rewardsStack.Push(new ItemManager.OneReward() { select = 1, mode = ItemManager.Mode.fix_select_small_gift, gifts = gifts });
 
         },
-            name = "get_any_nail_art_name".Localize(),
+            name = "get_any_nail_art_name",
             desc = "获得任一剑技",
             weight = 0f,
             active = false
@@ -1050,7 +1014,7 @@ internal static class GiftFactory
                 ItemManager.Instance.rewardsStack.Push(new ItemManager.OneReward() { select = 1, mode = ItemManager.Mode.one_big_gift });
                 all_gifts[Giftname.get_a_big_gift].now_weight = 0;
             },
-            name = "get_a_big_gift_name".Localize(),
+            name = "get_a_big_gift_name",
             desc = "随机一个大天赋",
             weight = 0.7f,
         });
@@ -1061,11 +1025,11 @@ internal static class GiftFactory
                 HeroController.instance.AddGeo(500);
                 all_gifts[Giftname.get_500_geo].now_weight = 0;
             },
-            name = "get_500_geo_name".Localize(),
+            name = "get_500_geo_name",
             desc = "获得500吉欧",
             weight = 1
         });
-        all_gifts.Add(Giftname.get_power, new Gift(2)
+        all_gifts.Add(Giftname.get_power, new Gift(2, getName: () => Language.Language.Get("CHARM_NAME_25_G", "UI"))
         {
             reward = (giftname) =>
             {
@@ -1075,7 +1039,7 @@ internal static class GiftFactory
             desc = "获得坚固力量",
             weight = 0.9f,
         });
-        all_gifts.Add(Giftname.get_saman, new Gift(3)
+        all_gifts.Add(Giftname.get_saman, new Gift(3, getName: () => Language.Language.Get("CHARM_NAME_19", "UI"))
         {
             reward = (giftname) =>
                     {
@@ -1085,7 +1049,7 @@ internal static class GiftFactory
             desc = "获得萨满之石",
             weight = 0.8f,
         });
-        all_gifts.Add(Giftname.get_quick_and_wenti, new Gift(2)
+        all_gifts.Add(Giftname.get_quick_and_wenti, new Gift(2, getName: () => Language.Language.Get("CHARM_NAME_14", "UI") + "&" + Language.Language.Get("CHARM_NAME_32", "UI"))
         {
             reward = (giftname) =>
         {
@@ -1097,7 +1061,7 @@ internal static class GiftFactory
             desc = "获得稳定之体&快速劈砍",
             weight = 0.9f,
         });
-        all_gifts.Add(Giftname.get_jiaoao, new Gift(1)
+        all_gifts.Add(Giftname.get_jiaoao, new Gift(1, getName: () => Language.Language.Get("CHARM_NAME_13", "UI"))
         {
             reward = (giftname) =>
                     {
@@ -1107,7 +1071,7 @@ internal static class GiftFactory
             desc = "获得骄傲印记",
             weight = 1f,
         });
-        all_gifts.Add(Giftname.get_faniu_and_bushou, new Gift(2)
+        all_gifts.Add(Giftname.get_faniu_and_bushou, new Gift(2, getName: () => Language.Language.Get("CHARM_NAME_33", "UI") + "&" + Language.Language.Get("CHARM_NAME_20", "UI"))
         {
             reward = (giftname) =>
             {
@@ -1118,7 +1082,7 @@ internal static class GiftFactory
             desc = "获得法术扭曲者&灵魂捕手",
             weight = 0.9f,
         });
-        all_gifts.Add(Giftname.get_shihun, new Gift(2)
+        all_gifts.Add(Giftname.get_shihun, new Gift(2, getName: () => Language.Language.Get("CHARM_NAME_21", "UI"))
         {
             reward = (giftname) =>
             {
@@ -1129,7 +1093,7 @@ internal static class GiftFactory
             desc = "获得噬魂者",
             weight = 0.9f,
         });
-        all_gifts.Add(Giftname.get_kuaiju_shenju_wuen, new Gift(1)
+        all_gifts.Add(Giftname.get_kuaiju_shenju_wuen, new Gift(1, getName: () => Language.Language.Get("CHARM_NAME_7", "UI") + "&" + Language.Language.Get("CHARM_NAME_34", "UI") + "&" + Language.Language.Get("CHARM_NAME_28", "UI"))
         {
             reward = (giftname) =>
             {
@@ -1142,7 +1106,7 @@ internal static class GiftFactory
             weight = 1f,
             active = true,
         });
-        all_gifts.Add(Giftname.get_badeer_yingke_wuyou, new Gift(0)
+        all_gifts.Add(Giftname.get_badeer_yingke_wuyou, new Gift(0, getName: () => Language.Language.Get("CHARM_NAME_5", "UI") + "&" + Language.Language.Get("CHARM_NAME_4", "UI") + "&" + Language.Language.Get("CHARM_NAME_40_N", "UI"))
         {
             reward = (giftname) =>
             {
@@ -1154,7 +1118,7 @@ internal static class GiftFactory
             desc = "获得巴德尔纸壳&坚硬外壳&无忧旋律",
             weight = 1.1f,
         });
-        all_gifts.Add(Giftname.get_zigong_bianzhizhe_chongge, new Gift(1)
+        all_gifts.Add(Giftname.get_zigong_bianzhizhe_chongge, new Gift(1, getName: () => Language.Language.Get("CHARM_NAME_22", "UI") + "&" + Language.Language.Get("CHARM_NAME_39", "UI") + "&" + Language.Language.Get("CHARM_NAME_3", "UI"))
         {
             reward = (giftname) =>
             {
@@ -1173,11 +1137,11 @@ internal static class GiftFactory
                 GameInfo.get_any_charm_num += 2;
                 all_gifts[Giftname.get_any_2_charms].now_weight = 0;
             },
-            name = "get_any_2_charms_name".Localize(),
+            name = "get_any_2_charms_name",
             desc = "自选任意两个护符",
             weight = 0.7f,
         });
-        all_gifts.Add(Giftname.get_one_egg, new Gift(1)
+        all_gifts.Add(Giftname.get_one_egg, new Gift(1, getName: () => Language.Language.Get("INV_NAME_RANCIDEGG", "UI"))
         {
             reward = (giftname) =>
             {
@@ -1187,7 +1151,7 @@ internal static class GiftFactory
             desc = "腐臭蛋+1",
             weight = 1f,
         });
-        all_gifts.Add(Giftname.get_xichong, new Gift(3)
+        all_gifts.Add(Giftname.get_xichong, new Gift(3, getName: () => Language.Language.Get("CHARM_NAME_11", "UI"))
         {
             reward = (giftname) =>
             {
@@ -1211,6 +1175,7 @@ internal static class GiftFactory
             active = false,
             force_active = true
         });
+        CustomItemInit();
 
     }
     internal static void Initialize()

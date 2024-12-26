@@ -373,15 +373,13 @@ public class ItemManager : MonoBehaviour
                     continue;
                 }
                 Gift charmgift = list[0];
-                good.name = charmgift.name;
-                goodstats.nameConvo = charmgift.name;
-                goodstats.descConvo = charmgift.desc;
+                good.name = charmgift.GetName();
+                goodstats.nameConvo = charmgift.GetName();
+                goodstats.descConvo = charmgift.GetDesc();
                 goodstats.priceConvo = charmgift.price.ToString();
                 goodstats.specialType = (int)charmgift.giftname + 18;
                 goodstats.cost = charmgift.price;
-                if (charmgift.sprite != null) render.sprite = charmgift.sprite;
-                else if (charmgift.getSprite != null) render.sprite = charmgift.getSprite(charmgift.giftname);
-                else render.sprite = null;
+                render.sprite = charmgift.GetSprite();
                 var item = good.FindGameObjectInChildren("Item Sprite");
                 if (charmgift.scale != Vector2.zero) item.transform.localScale = charmgift.scale;
                 if (select) goodstats.playerDataBoolName = selectname;
@@ -392,15 +390,13 @@ public class ItemManager : MonoBehaviour
             }
             else
             {
-                good.name = gift.name;
-                goodstats.nameConvo = gift.name;
-                goodstats.descConvo = gift.desc;
+                good.name = gift.GetName();
+                goodstats.nameConvo = gift.GetName();
+                goodstats.descConvo = gift.GetDesc();
                 goodstats.priceConvo = gift.price.ToString();
                 goodstats.specialType = (int)gift.giftname + 18;
                 goodstats.cost = gift.price;
-                if (gift.sprite != null) render.sprite = gift.sprite;
-                else if (gift.getSprite != null) render.sprite = gift.getSprite(gift.giftname);
-                else render.sprite = null;
+                render.sprite = gift.GetSprite();
                 var item = good.FindGameObjectInChildren("Item Sprite");
                 if (gift.scale != Vector2.zero) item.transform.localScale = gift.scale;
                 if (select) goodstats.playerDataBoolName = selectname;
@@ -785,7 +781,7 @@ public class ItemManager : MonoBehaviour
     private void SpwanItem(Gift gift, bool inSelect = false)
     {
         if (gift == null) return;
-        SpwanItem(gift.level, gift.name, gift.reward, gift.giftname);
+        SpwanItem(gift.level, gift.GetName(), gift.reward, gift.giftname);
         return;
 
     }
@@ -1106,18 +1102,7 @@ public class ItemManager : MonoBehaviour
             role.transform.SetParent(inventory_display_holder.transform);
             role.transform.localPosition = new Vector3(-14.3f, 7.6f, 0);
             var role_render = role.AddComponent<SpriteRenderer>();
-            if (GiftFactory.all_gifts[(Giftname)GameInfo.role].sprite != null)
-            {
-                role_render.sprite = GiftFactory.all_gifts[(Giftname)GameInfo.role].sprite;
-            }
-            else if (GiftFactory.all_gifts[(Giftname)GameInfo.role].getSprite != null)
-            {
-                role_render.sprite = GiftFactory.all_gifts[(Giftname)GameInfo.role].getSprite((Giftname)GameInfo.role);
-            }
-            else
-            {
-                role_render.sprite = null;
-            }
+            role_render.sprite = GiftFactory.all_gifts[(Giftname)GameInfo.role].GetSprite();
             if (GiftFactory.all_gifts[(Giftname)GameInfo.role].scale != Vector2.zero)
                 role.transform.localScale = GiftFactory.all_gifts[(Giftname)GameInfo.role].scale;
             role_render.color = new Color(1, 1, 1, alpha);

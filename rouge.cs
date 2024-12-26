@@ -16,6 +16,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
     public Rogue() : base("Rogue")
     {
         Instance = this;
+        GiftFactory.Initialize();
     }
 
     public override string GetVersion()
@@ -119,7 +120,6 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
 
     public override void Initialize(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
     {
-        base.Initialize(preloadedObjects);
         Lang.init();
         shiny_item = UnityEngine.Object.Instantiate(preloadedObjects[item_scene][item]);
         shiny_item.LocateMyFSM("Shiny Control").ChangeTransition("PD Bool?", "COLLECTED", "Fling?");
@@ -165,15 +165,19 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
 
 
         On.PlayMakerFSM.OnEnable += CharmsInit;
-        RewardInit();
+
         On.BossSequenceController.FinishLastBossScene += EndScene;
         On.BossSequenceController.SetupNewSequence += BeginScene;
 
         On.HeroController.Awake += OnSavegameLoad;
         ModHooks.SavegameSaveHook += TestSavaGame;
-
+        On.GameCameras.Awake += CameraAwake;
     }
 
+    private void CameraAwake(On.GameCameras.orig_Awake orig, GameCameras self)
+    {
+        Rogue.Instance.Log("CameraAwake");
+    }
     private void TestSavaGame(int obj)
     {
         Log("Save Game!!!");
@@ -201,7 +205,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 {
                     GiftFactory.all_gifts[type].GetGift();
                     itemManager.DisplayStates();
-                    if (GiftFactory.all_gifts[type].showConvo) ShowConvo(GiftFactory.all_gifts[type].desc);
+                    if (GiftFactory.all_gifts[type].showConvo) ShowConvo(GiftFactory.all_gifts[type].GetShowString());
                 }
                 GiftFactory.UpdateWeight();
             }, 1);
@@ -322,11 +326,6 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
 
     }
 
-    private void RewardInit()
-    {
-        Log("RewardInit");
-        GiftFactory.Initialize();
-    }
 
 
 
@@ -503,10 +502,9 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             gift_menus.Add(giftmenu);
             foreach (var gift in gifts.Value)
             {
-                Log(gift.name);
                 Gift g = gift;
-                if (g.name == null) continue;
-                var temp = Blueprints.ToggleButton(g.name.Replace('\n', '&'), "",
+                if (g.GetName() == null) continue;
+                var temp = Blueprints.ToggleButton(g.GetName().Replace('\n', '&'), "",
                 (act) =>
                 {
                     g.active = act;
