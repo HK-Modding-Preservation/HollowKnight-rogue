@@ -57,7 +57,6 @@ public class RoleGift<T> : Gift where T : Character
         string true_name = role_name.ToString().Replace("role_", "");
         name = true_name + "_name";
         desc = true_name + "_desc";
-        sprite = SpriteLoader.GetSprite(true_name);
         scale = CharacterInfo.role_sprite_scales.ContainsKey(role) ? CharacterInfo.role_sprite_scales[role] : new Vector2(1, 1);
     }
     CharacterRole role;
@@ -65,6 +64,11 @@ public class RoleGift<T> : Gift where T : Character
     {
         HeroController.instance?.gameObject.RemoveComponent<Character>();
         HeroController.instance?.gameObject.AddComponent<T>();
+    }
+    internal override Sprite GetSprite()
+    {
+        string true_name = this.giftname.ToString().Replace("role_", "");
+        return SpriteLoader.GetSprite(true_name);
     }
 
 
@@ -159,5 +163,8 @@ public abstract class Character : MonoBehaviour
         orig(self, hitInstance);
 
     }
-
+    protected virtual void Log(object msg)
+    {
+        Rogue.Instance.Log(msg);
+    }
 }

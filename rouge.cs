@@ -5,6 +5,7 @@ using Satchel.Futils;
 using UnityEngine.U2D;
 using rogue.Characters;
 using Mono.Security.Cryptography;
+using IL.tk2dRuntime.TileMap;
 
 namespace rogue;
 
@@ -16,6 +17,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
     public Rogue() : base("Rogue")
     {
         Instance = this;
+        SpriteLoader.Init();
         GiftFactory.Initialize();
     }
 
@@ -69,6 +71,15 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
     private string white_palace = "White_Palace_01";
 
     private string white_fly = "White Palace Fly";
+
+    internal const string card_scene = "RestingGrounds_09";
+    internal const string card_name = "Cornifer Card";
+
+    internal const string beam_scene = "GG_Radiance";
+    internal const string beam_name = "Boss Control/Radiant Beam";
+
+    internal const string butterfly_scene = "Cliffs_05";
+    internal const string butterfly_name = "Butterflies FG 1";
     public GameObject charms;
 
     public GameObject shiny_item = null;
@@ -104,7 +115,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
 
     public override List<(string, string)> GetPreloadNames()
     {
-        return new List<(string, string)>
+        var list = new List<(string, string)>
         {
             ("Tutorial_01","_Props/Chest/Item/Shiny Item (1)"),
             (shop_scene,shop_region),
@@ -114,13 +125,19 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             (bench_scene,bench),
             (bank_scene,bank),
             (bank_scene,banker),
-            (white_palace,white_fly)
+            (white_palace,white_fly),
+            (card_scene,card_name),
+            (beam_scene,beam_name),
+            (butterfly_scene,butterfly_name)
         };
+        return list.Concat(NPCManager.GetPreloadNames()).ToList();
     }
 
     public override void Initialize(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
     {
         Lang.init();
+
+
         shiny_item = UnityEngine.Object.Instantiate(preloadedObjects[item_scene][item]);
         shiny_item.LocateMyFSM("Shiny Control").ChangeTransition("PD Bool?", "COLLECTED", "Fling?");
         shiny_item.SetActive(false);
@@ -158,6 +175,37 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         shop_go.SetActive(false);
         UnityEngine.Object.DontDestroyOnLoad(shop_go);
 
+        Shaman.beam = UnityEngine.Object.Instantiate(preloadedObjects[beam_scene][beam_name]);
+        Shaman.beam.RemoveComponent<DamageHero>();
+        var de = Shaman.beam.AddComponent<DamageEnemies>();
+        de.attackType = AttackTypes.Spell;
+        de.damageDealt = 20;
+        de.ignoreInvuln = false;
+        Shaman.beam.layer = LayerMask.NameToLayer("Attack");
+        Shaman.beam.SetActive(false);
+        GameObject.DontDestroyOnLoad(Shaman.beam);
+
+        Shaman.butterfly = UnityEngine.Object.Instantiate(preloadedObjects[butterfly_scene][butterfly_name]);
+        var shape = Shaman.butterfly.GetComponent<ParticleSystem>().shape;
+        shape.scale = new Vector3(0.2f, 1, 1);
+        var main = Shaman.butterfly.GetComponent<ParticleSystem>().main;
+        main.duration = 0.5f;
+        main.startSpeed = 20;
+        main.loop = false;
+        var emiss = Shaman.butterfly.GetComponent<ParticleSystem>().emission;
+        emiss.burstCount = 8;
+        Shaman.butterfly.SetActive(false);
+        UnityEngine.Object.DontDestroyOnLoad(Shaman.butterfly);
+
+
+        RogueUIManager.DialogueUI.customDialogueManager = new(preloadedObjects[card_scene][card_name]);
+        RogueUIManager.DialogueUI.customDialogueManager.DialogManager.GetComponent<SpriteRenderer>().enabled = false;
+        RogueUIManager.DialogueUI.customDialogueManager.DialogManager.FindGameObjectInChildren("Shiny").SetActive(false);
+        preloadedObjects[card_scene][card_name].SetActive(false);
+        RogueUIManager.DialogueUI.initialized = true;
+
+        NPCManager.Init(preloadedObjects);
+
 
         GameObject rogue_go = new GameObject("rogue_go");
         UnityEngine.Object.DontDestroyOnLoad(rogue_go);
@@ -172,6 +220,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         On.HeroController.Awake += OnSavegameLoad;
         ModHooks.SavegameSaveHook += TestSavaGame;
         On.GameCameras.Awake += CameraAwake;
+        RogueUIManager.conversation = "132";
     }
 
     private void CameraAwake(On.GameCameras.orig_Awake orig, GameCameras self)
@@ -355,7 +404,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 self.RemoveAction("Deactivate UI", 2);
                 self.InsertCustomAction("Deactivate UI", (fsm) =>
                 {
-                    if (CharmHelper.can_stand_equip_charm_scene_names.Contains(itemManager.scenename) && GameInfo.in_rogue)
+                    if ((CharmHelper.can_stand_equip_charm_scene_names.Contains(itemManager.scenename) || CharmHelper.can_equip_everywhere) && GameInfo.in_rogue)
                     {
                     }
                     else
@@ -503,14 +552,44 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             foreach (var gift in gifts.Value)
             {
                 Gift g = gift;
+                Element temp;
                 if (g.GetName() == null) continue;
-                var temp = Blueprints.ToggleButton(g.GetName().Replace('\n', '&'), "",
-                (act) =>
+                if (g.giftname.ToString().StartsWith("custom_"))
                 {
-                    g.active = act;
-                },
-                () => g.active
-                );
+                    if (g is CustomGift customGift)
+                    {
+                        temp = Blueprints.ToggleButton(customGift.GetName().Replace('\n', '&'), "",
+                        (act) =>
+                        {
+                            customGift.Got = act;
+                        },
+                        () => customGift.Got
+                        );
+                    }
+                    else if (g is CustomOneOrTwoGift customOneOrTwoGift)
+                    {
+                        temp = new Satchel.BetterMenus.HorizontalOption(customOneOrTwoGift.GetName(),
+                        customOneOrTwoGift.GetDesc(),
+                        new string[] { "null", customOneOrTwoGift.GetName1(), customOneOrTwoGift.GetName2() },
+                        (num) =>
+                        {
+                            customOneOrTwoGift.Got_Which_Item = (CustomOneOrTwoGift.GotWhichItem)num;
+                        },
+                        () => (int)customOneOrTwoGift.Got_Which_Item
+                        );
+                    }
+                    else temp = new Satchel.BetterMenus.TextPanel("ERROR");
+                }
+                else
+                {
+                    temp = Blueprints.ToggleButton(g.GetName().Replace('\n', '&'), "",
+                    (act) =>
+                    {
+                        g.active = act;
+                    },
+                    () => g.active
+                    );
+                }
                 if (count == 2)
                 {
                     giftmenu.AddElement(new MenuRow(tempList, ""));

@@ -18,12 +18,24 @@ internal class NailMaster : Character
         PlayerData.instance.hasDashSlash = true;
         PlayerData.instance.hasUpwardSlash = true;
         PlayerData.instance.hasNailArt = true;
+        On.NailSlash.StartSlash += LongerNail;
         Rogue.Instance.ShowDreamConvo("nail_master_dream".Localize());
+        GetBirthright(1);
 
     }
+
+    private void LongerNail(On.NailSlash.orig_StartSlash orig, NailSlash self)
+    {
+        orig(self);
+        var scale = self.transform.localScale;
+        float mul = PlayerData.instance.nailDamage / 4 * 0.15f + 1;
+        self.transform.localScale = new Vector3(scale.x * mul, scale.y * mul, scale.z);
+    }
+
     public override void EndCharacter()
     {
         On.PlayerData.GetInt -= FreeNailGlory;
+        On.NailSlash.StartSlash -= LongerNail;
     }
     public override int GetBirthrightNum()
     {
@@ -37,8 +49,35 @@ internal class NailMaster : Character
                 PlayerData.instance.gotCharm_26 = true;
                 On.PlayerData.GetInt += FreeNailGlory;
                 break;
+            case 1:
+                On.PlayMakerFSM.OnEnable += InverWhenNailArt;
+                On.PlayMakerFSM.OnDisable += DisInverWhenNailArtEnd;
+                break;
+
+
         }
     }
+
+    private void DisInverWhenNailArtEnd(On.PlayMakerFSM.orig_OnDisable orig, PlayMakerFSM self)
+    {
+        if (self.FsmName == "nailart_damage")
+        {
+            Log("End No Damage");
+            HeroController.instance.SetDamageMode(0);
+        }
+        orig(self);
+    }
+
+    private void InverWhenNailArt(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
+    {
+        if (self.FsmName == "nailart_damage")
+        {
+            Log("Begin No Damage");
+            HeroController.instance.SetDamageMode(1);
+        }
+        orig(self);
+    }
+
     public override void RemoveBirthright(int num)
     {
         switch (num)
@@ -47,6 +86,12 @@ internal class NailMaster : Character
                 PlayerData.instance.gotCharm_26 = true;
                 On.PlayerData.GetInt -= FreeNailGlory;
                 break;
+            case 1:
+                On.PlayMakerFSM.OnEnable -= InverWhenNailArt;
+                On.PlayMakerFSM.OnDisable -= DisInverWhenNailArtEnd;
+                break;
+
+
         }
     }
     private int FreeNailGlory(On.PlayerData.orig_GetInt orig, PlayerData self, string intName)

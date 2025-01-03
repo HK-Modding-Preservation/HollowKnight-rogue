@@ -14,6 +14,7 @@ internal static class GameInfo
     internal static int refresh_num = 0;
     internal static int spa_count = 0;
     internal static float timer = 0;
+    internal static List<Giftname> got_items = new();
     internal static Dictionary<GiftVariety, List<Gift>> act_gifts = new()
     {
         {GiftVariety.item,new()},
@@ -21,6 +22,7 @@ internal static class GameInfo
         {GiftVariety.role,new()},
         {GiftVariety.shop,new()},
         {GiftVariety.charm,new()},
+        {GiftVariety.custom,new()},
     };
     internal static void Reset()
     {
@@ -59,7 +61,11 @@ internal static class GameInfo
     {
         in_rogue = false;
         get_birthright = false;
-        
+        foreach (var item in got_items)
+        {
+            GiftFactory.all_gifts[item].RemoveGift();
+        }
+        got_items.Clear();
         role = CharacterRole.no_role;
     }
 }

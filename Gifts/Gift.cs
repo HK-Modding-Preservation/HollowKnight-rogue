@@ -117,7 +117,18 @@ public enum Giftname
     shop_acid_swim,
     shop_double_jump,
     shop_dash,
-    refresh_dash,
+    custom_refresh_dash,
+    custom_one_two_dash_doublejump_refresh,
+    custom_nail_art_after_dash,
+    custom_one_mask_two_blue,
+    custom_gliding,
+    custom_another_jump,
+    custom_equip_charm_everywhere,
+    custom_always_parry,
+    custom_darkness,
+    custom_little_box,
+    custom_money_is_power,
+
 }
 public class Gift
 {
@@ -156,11 +167,10 @@ public class Gift
     [NonSerialized]
     public bool showConvo = true;
 
-    [NonSerialized]
-    internal protected Sprite sprite = null;
+
 
     [NonSerialized]
-    internal protected Func<Giftname, Sprite> getSprite = null;
+    internal protected Func<Sprite> getSprite = null;
     [NonSerialized]
     public bool force_active = true;
     [NonSerialized]
@@ -183,8 +193,7 @@ public class Gift
     }
     internal virtual Sprite GetSprite()
     {
-        if (sprite != null) return sprite;
-        if (getSprite != null) return getSprite(giftname);
+        if (getSprite != null) return getSprite();
         return null;
     }
 
@@ -197,6 +206,10 @@ public class Gift
     {
 
     }
+    internal virtual void Log(object msg)
+    {
+        Rogue.Instance.Log(msg);
+    }
 }
 
 public enum GiftVariety
@@ -205,7 +218,8 @@ public enum GiftVariety
     huge,
     role,
     shop,
-    charm
+    charm,
+    custom
 }
 internal static class GiftFactory
 {
@@ -224,6 +238,7 @@ internal static class GiftFactory
             if (i == 36) continue;
             all_gifts.Add((Giftname)i, new CharmGift((Giftname)i));
         }
+
     }
     private static void RoleInit()
     {
@@ -240,7 +255,7 @@ internal static class GiftFactory
         all_gifts.Add(Giftname.role_defender, new RoleGift<Defender>(Giftname.role_defender));
         all_gifts.Add(Giftname.role_mantis, new RoleGift<Mantis>(Giftname.role_mantis));
         all_gifts.Add(Giftname.role_collector, new RoleGift<Collector>(Giftname.role_collector));
-
+        Log("role is loaded");
     }
     private static void ShopInit()
     {
@@ -256,7 +271,7 @@ internal static class GiftFactory
             desc = "shop_keeper_key_desc",
             active = false,
             weight = 0,
-            sprite = SpriteLoader.GetSprite("keeper_key")
+            getSprite = () => SpriteLoader.GetSprite("keeper_key")
         });
         all_gifts.Add(Giftname.shop_add_1_notch_1, new Gift(1)
         {
@@ -272,7 +287,7 @@ internal static class GiftFactory
             desc = "shop_add_1_notch_desc",
             active = false,
             weight = 1,
-            sprite = SpriteLoader.GetSprite("charm_notch")
+            getSprite = () => SpriteLoader.GetSprite("charm_notch")
         });
         all_gifts.Add(Giftname.shop_nail_upgrade, new Gift(3)
         {
@@ -285,7 +300,7 @@ internal static class GiftFactory
             desc = "shop_nail_upgrade_desc",
             active = false,
             weight = 1,
-            sprite = SpriteLoader.GetSprite("pale_stone")
+            getSprite = () => SpriteLoader.GetSprite("pale_stone")
         });
         all_gifts.Add(Giftname.shop_random_gift, new Gift(2)
         {
@@ -298,7 +313,7 @@ internal static class GiftFactory
             desc = "shop_random_gift_desc",
             active = false,
             weight = 0,
-            sprite = SpriteLoader.GetSprite("witches_eye")
+            getSprite = () => SpriteLoader.GetSprite("witches_eye")
 
         });
         all_gifts.Add(Giftname.shop_any_charm_1, new Gift(1)
@@ -362,9 +377,9 @@ internal static class GiftFactory
             name = "shop_add_1_notch_name",
             desc = "shop_add_1_notch_desc",
             weight = 1,
-            getSprite = (giftname) =>
+            getSprite = () =>
             {
-                return all_gifts[Giftname.shop_add_1_notch_1].sprite;
+                return all_gifts[Giftname.shop_add_1_notch_1].GetSprite();
             }
 
         });
@@ -381,9 +396,9 @@ internal static class GiftFactory
             name = "shop_add_1_notch_name",
             desc = "shop_add_1_notch_desc",
             weight = 1,
-            getSprite = (giftname) =>
+            getSprite = () =>
             {
-                return all_gifts[Giftname.shop_add_1_notch_1].sprite;
+                return all_gifts[Giftname.shop_add_1_notch_1].GetSprite();
             }
         });
         all_gifts.Add(Giftname.shop_add_1_notch_4, new Gift(1)
@@ -399,9 +414,9 @@ internal static class GiftFactory
             name = "shop_add_1_notch_name",
             desc = "shop_add_1_notch_desc",
             weight = 1,
-            getSprite = (giftname) =>
+            getSprite = () =>
             {
-                return all_gifts[Giftname.shop_add_1_notch_1].sprite;
+                return all_gifts[Giftname.shop_add_1_notch_1].GetSprite();
             }
         });
         all_gifts.Add(Giftname.shop_egg, new Gift(1)
@@ -414,7 +429,7 @@ internal static class GiftFactory
             name = "shop_egg_name",
             desc = "shop_egg_desc",
             weight = 3,
-            getSprite = (giftname) =>
+            getSprite = () =>
             {
                 try
                 {
@@ -443,7 +458,7 @@ internal static class GiftFactory
             name = Language.Language.Get("INV_NAME_SUPERDASH", "UI"),
             desc = Language.Language.Get("INV_DESC_SUPERDASH", "UI"),
             weight = 0.8f,
-            getSprite = (giftname) =>
+            getSprite = () =>
             {
                 try
                 {
@@ -473,7 +488,7 @@ internal static class GiftFactory
             name = Language.Language.Get("INV_NAME_WALLJUMP", "UI"),
             desc = Language.Language.Get("INV_DESC_WALLJUMP", "UI"),
             weight = 0.8f,
-            getSprite = (giftname) =>
+            getSprite = () =>
             {
                 try
                 {
@@ -502,7 +517,7 @@ internal static class GiftFactory
             name = Language.Language.Get("INV_NAME_DREAMNAIL_A", "UI"),
             desc = Language.Language.Get("INV_DESC_DREAMNAIL_A", "UI"),
             weight = 0.8f,
-            getSprite = (giftname) =>
+            getSprite = () =>
             {
                 try
                 {
@@ -529,7 +544,7 @@ internal static class GiftFactory
             name = "shop_add_1_mask_name",
             desc = "shop_add_1_mask_desc",
             weight = 1.5f,
-            getSprite = (giftname) =>
+            getSprite = () =>
             {
                 try
                 {
@@ -558,7 +573,7 @@ internal static class GiftFactory
             name = "shop_add_1_vessel_name",
             desc = "shop_add_1_vessel_desc",
             weight = 1.5f,
-            getSprite = (giftname) =>
+            getSprite = () =>
             {
                 try
                 {
@@ -609,7 +624,7 @@ internal static class GiftFactory
             name = Language.Language.Get("INV_NAME_WHITEKEY", "UI"),
             desc = "shop_pretty_key_desc",
             weight = 0.1f,
-            sprite = SpriteLoader.GetSprite("elegant_key"),
+            getSprite = () => SpriteLoader.GetSprite("elegant_key"),
         });
         all_gifts.Add(Giftname.shop_refresh, new Gift(1)
         {
@@ -621,7 +636,7 @@ internal static class GiftFactory
             name = "shop_refresh_name",
             desc = "shop_refresh_desc",
             weight = 2f,
-            sprite = SpriteLoader.GetSprite("easy_key"),
+            getSprite = () => SpriteLoader.GetSprite("easy_key"),
         });
         all_gifts.Add(Giftname.shop_acid_swim, new Gift(1,
         getName: () => Language.Language.Get("INV_NAME_ACIDARMOUR", "UI"), getDesc: () => Language.Language.Get("INV_DESC_ACIDARMOUR", "UI"))
@@ -634,7 +649,7 @@ internal static class GiftFactory
             name = Language.Language.Get("INV_NAME_ACIDARMOUR", "UI"),
             desc = Language.Language.Get("INV_DESC_ACIDARMOUR", "UI"),
             weight = 0.8f,
-            getSprite = (giftname) =>
+            getSprite = () =>
             {
                 try
                 {
@@ -662,7 +677,7 @@ internal static class GiftFactory
             name = Language.Language.Get("INV_NAME_DOUBLEJUMP", "UI"),
             desc = Language.Language.Get("INV_DESC_DOUBLEJUMP", "UI"),
             weight = 0.4f,
-            getSprite = (giftname) =>
+            getSprite = () =>
             {
                 try
                 {
@@ -698,7 +713,7 @@ internal static class GiftFactory
             name = "shop_dash_name",
             desc = "shop_dash_desc",
             weight = 0.4f,
-            getSprite = (giftname) =>
+            getSprite = () =>
             {
                 try
                 {
@@ -715,7 +730,6 @@ internal static class GiftFactory
                 }
             }
         });
-
     }
     private static void HugeGiftInit()
     {
@@ -776,7 +790,17 @@ internal static class GiftFactory
     }
     private static void CustomItemInit()
     {
-        all_gifts.Add(Giftname.refresh_dash, new RefreshDash());
+        all_gifts.Add(Giftname.custom_refresh_dash, new RefreshDash());
+        all_gifts.Add(Giftname.custom_one_two_dash_doublejump_refresh, new DashDoubleRefresh());
+        all_gifts.Add(Giftname.custom_nail_art_after_dash, new NailArtAfterDash());
+        all_gifts.Add(Giftname.custom_one_mask_two_blue, new OneMaskTwoBlue());
+        all_gifts.Add(Giftname.custom_gliding, new Gliding());
+        all_gifts.Add(Giftname.custom_another_jump, new AnotherJump());
+        all_gifts.Add(Giftname.custom_equip_charm_everywhere, new EquipCharmEveryWhere());
+        all_gifts.Add(Giftname.custom_always_parry, new AlwaysParry());
+        all_gifts.Add(Giftname.custom_little_box, new LittleBox());
+        all_gifts.Add(Giftname.custom_money_is_power, new MoneyIsPower());
+        // all_gifts.Add(Giftname.custom_darkness, new Darkness());摸黑好难
     }
     private static void ItemInit()
     {
@@ -1199,6 +1223,12 @@ internal static class GiftFactory
             else if (type.StartsWith("charm_")) all_kind_of_gifts[GiftVariety.charm].Add(gift.Value);
             else if (type.StartsWith("huge_")) all_kind_of_gifts[GiftVariety.huge].Add(gift.Value);
             else if (type.StartsWith("shop_")) all_kind_of_gifts[GiftVariety.shop].Add(gift.Value);
+            else if (type.StartsWith("custom_"))
+            {
+                all_kind_of_gifts[GiftVariety.custom].Add(gift.Value);
+                if (!type.StartsWith("custom_one_two"))
+                    all_kind_of_gifts[GiftVariety.item].Add(gift.Value);
+            }
             else all_kind_of_gifts[GiftVariety.item].Add(gift.Value);
         }
         ResetWeight();

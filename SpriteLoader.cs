@@ -26,7 +26,7 @@ internal static class SpriteLoader
             Modding.Logger.Log(file);
             if (!file.EndsWith(".png")) continue;
             resource_sprites.Add(Path.GetFileNameWithoutExtension(file).Split('.').Last().ToLower(), LoadSprite(file));
-
+            Modding.Logger.Log(file + "is completed");
         }
     }
     internal static Sprite GetSprite(string name)

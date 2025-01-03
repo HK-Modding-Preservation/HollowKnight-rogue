@@ -17,6 +17,27 @@ internal class Mantis : Character
         Rogue.Instance.ShowDreamConvo("mantis_dream".Localize());
         On.PlayerData.GetInt += FreePrideMask;
     }
+    public override void GetBirthright(int num)
+    {
+        switch (num)
+        {
+            case 0:
+                PlayerData.instance.hasSpell = false;
+                if (nail_mul < 1.4f) nail_mul = 1.4f;
+                else nail_mul = 1.5f;
+                break;
+        }
+    }
+    public override void RemoveBirthright(int num)
+    {
+        switch (num)
+        {
+            case 0:
+                PlayerData.instance.hasSpell = true;
+                nail_mul = 1.25f;
+                break;
+        }
+    }
 
     private int FreePrideMask(On.PlayerData.orig_GetInt orig, PlayerData self, string intName)
     {

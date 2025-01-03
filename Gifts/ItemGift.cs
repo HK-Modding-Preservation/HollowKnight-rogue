@@ -8,7 +8,6 @@ internal class ItemGift : Gift
         this.name = name;
         this.desc = desc;
         this.weight = 1.1f - (0.1f * level);
-        sprite = null;
         getSprite = null;
         showConvo = true;
         active = true;

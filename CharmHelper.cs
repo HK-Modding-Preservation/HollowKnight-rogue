@@ -11,6 +11,7 @@ namespace rogue; internal static class CharmHelper
 
     };
     internal static Dictionary<int, int> custom_cost = new();
+    internal static bool can_equip_everywhere = false;
     internal static bool SetCantUnequip(int charm)
     {
         PlayerData.instance.SetBool("gotCharm_" + charm, true);

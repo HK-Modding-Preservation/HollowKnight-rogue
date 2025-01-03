@@ -90,7 +90,7 @@ public class ItemManager : MonoBehaviour
             Giftname.role_nail_master,
             Giftname.role_shaman,
             Giftname.role_hunter,
-            // Giftname.uunn,
+            Giftname.role_uunn,
             Giftname.role_joni,
             Giftname.role_moth,
             Giftname.role_grey_prince,
@@ -781,13 +781,13 @@ public class ItemManager : MonoBehaviour
     private void SpwanItem(Gift gift, bool inSelect = false)
     {
         if (gift == null) return;
-        SpwanItem(gift.level, gift.GetName(), gift.reward, gift.giftname);
+        SpwanItem(gift.level, gift.GetName(), gift.giftname);
         return;
 
     }
 
 
-    private void SpwanItem(int level, string name, Action<Giftname> action, Giftname giftname)
+    private void SpwanItem(int level, string name, Giftname giftname)
     {
         Log(giftname.ToString() + " spawn");
         knight = GameObject.Find("Knight");
@@ -883,7 +883,8 @@ public class ItemManager : MonoBehaviour
             reward.GetAction<SetTextMeshProText>(4).textString = name;
             reward.InsertCustomAction(() =>
             {
-                action(giftname);
+                Log(giftname);
+                GiftFactory.all_gifts[giftname].GetGift();
                 GiftFactory.UpdateWeight();
                 DisplayStates();
             }, 6);

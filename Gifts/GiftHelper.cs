@@ -20,18 +20,25 @@ static class GiftHelper
         {
             PlayerData.instance.maxHealth -= 1;
             PlayerData.instance.maxHealthBase -= 1;
-            if (!GameCameras.instance.hudCanvas.gameObject.activeInHierarchy)
-                GameCameras.instance.hudCanvas.gameObject.SetActive(true);
-            else
+            if (PlayerData.instance.health > PlayerData.instance.maxHealthBase)
             {
-                GameCameras.instance.hudCanvas.gameObject.SetActive(false);
-                GameCameras.instance.hudCanvas.gameObject.SetActive(true);
+                PlayerData.instance.health = PlayerData.instance.maxHealthBase;
             }
         }
+        if (!GameCameras.instance.hudCanvas.gameObject.activeInHierarchy)
+            GameCameras.instance.hudCanvas.gameObject.SetActive(true);
         else
         {
+            GameCameras.instance.hudCanvas.gameObject.SetActive(false);
+            GameCameras.instance.hudCanvas.gameObject.SetActive(true);
         }
     }
+
+    public static void AddBlueMask()
+    {
+        PlayMakerFSM.BroadcastEvent("ADD BLUE HEALTH");
+    }
+
 
     public static void AdjustMaskTo(int t)
     {
