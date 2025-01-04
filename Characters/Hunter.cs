@@ -22,8 +22,11 @@ internal class Hunter : Character
         PlayerData.instance.gotCharm_32 = true;
         GiftHelper.AddCharmSlot(1);
         Rogue.Instance.ShowDreamConvo("hunter_dream".Localize());
-        GetBirthright(0);
         heal_clip = (AudioClip)Resources.InstanceIDToObject(32826);
+    }
+    public override int GetBirthrightNum()
+    {
+        return 1;
     }
     public override void GetBirthright(int num)
     {

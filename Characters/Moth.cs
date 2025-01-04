@@ -20,7 +20,6 @@ internal class Moth : Character
         GiftHelper.AddCharmSlot(8);
         Rogue.Instance.ShowDreamConvo("moth_dream".Localize());
         On.EnemyDreamnailReaction.RecieveDreamImpact += DoDamage;
-        GetBirthright(0);
 
     }
 

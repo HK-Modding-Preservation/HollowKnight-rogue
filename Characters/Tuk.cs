@@ -17,7 +17,6 @@ internal class Tuk : Character
         GameInfo.revive_num = 5;
         Rogue.Instance.ShowDreamConvo("tuk_dream".Localize());
         ItemManager.Instance.after_revive_action += TukRevive;
-        GetBirthright(0);
     }
 
     private void TukRevive()
@@ -32,6 +31,10 @@ internal class Tuk : Character
             GiftHelper.GiveMask();
         }
 
+    }
+    public override int GetBirthrightNum()
+    {
+        return 1;
     }
     public override void GetBirthright(int num)
     {

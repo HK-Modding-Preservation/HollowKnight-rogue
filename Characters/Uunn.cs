@@ -18,8 +18,10 @@ internal class Uunn : Character
         PlayerData.instance.gotCharm_7 = true;
         PlayerData.instance.gotCharm_28 = true;
         ItemManager.Instance.after_scene_add_geo_num += UunnReward;
-        GetBirthright(0);
-        GetBirthright(1);
+    }
+    public override int GetBirthrightNum()
+    {
+        return 2;
     }
     public override void GetBirthright(int num)
     {

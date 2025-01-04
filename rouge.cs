@@ -80,6 +80,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
 
     internal const string butterfly_scene = "Cliffs_05";
     internal const string butterfly_name = "Butterflies FG 1";
+    internal const string hk_scene = "GG_Hollow_Knight";
+    internal const string hk_name = "Battle Scene/HK Prime";
     public GameObject charms;
 
     public GameObject shiny_item = null;
@@ -128,7 +130,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             (white_palace,white_fly),
             (card_scene,card_name),
             (beam_scene,beam_name),
-            (butterfly_scene,butterfly_name)
+            (butterfly_scene,butterfly_name),
+            (hk_scene,hk_name)
         };
         return list.Concat(NPCManager.GetPreloadNames()).ToList();
     }
@@ -196,6 +199,17 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         emiss.burstCount = 8;
         Shaman.butterfly.SetActive(false);
         UnityEngine.Object.DontDestroyOnLoad(Shaman.butterfly);
+
+        NailMaster.hk_shot = UnityEngine.Object.Instantiate(preloadedObjects[hk_scene][hk_name].LocateMyFSM("Control").GetAction<FlingObjectsFromGlobalPoolTime>("SmallShot LowHigh", 2).gameObject.Value);
+        NailMaster.hk_shot.SetActive(false);
+        UnityEngine.Object.DontDestroyOnLoad(NailMaster.hk_shot);
+        NailMaster.hk_shot.RemoveComponent<DamageHero>();
+        NailMaster.hk_shot.GetComponent<AudioSource>().enabled = false;
+        var shot_de = NailMaster.hk_shot.AddComponent<DamageEnemies>();
+        shot_de.attackType = AttackTypes.Nail;
+        shot_de.damageDealt = 20;
+        shot_de.ignoreInvuln = false;
+        NailMaster.hk_shot.layer = LayerMask.NameToLayer("Attack");
 
 
         RogueUIManager.DialogueUI.customDialogueManager = new(preloadedObjects[card_scene][card_name]);
