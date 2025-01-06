@@ -1,6 +1,7 @@
 using UnityEngine.UI;
 using rogue.Characters;
 using System.ComponentModel;
+using Newtonsoft.Json.Serialization;
 namespace rogue;
 
 public class ItemManager : MonoBehaviour
@@ -333,8 +334,9 @@ public class ItemManager : MonoBehaviour
             item_fly_go.SetActive(false);
         }
     }
-    public void SpwanShopItem(List<Gift> gifts, bool select = false)
+    GameObject Gift2ShopItem(Gift gift, ref int count, bool select = false)
     {
+        const string selectname = "rogue_select";
         if (shop_item_temp == null)
         {
             shop_item_temp = Instantiate(item_menu_go.GetComponent<ShopMenuStock>().stock[0]);
@@ -347,77 +349,57 @@ public class ItemManager : MonoBehaviour
             shopitem.priceConvo = "0";
             shop_item_temp.SetActive(false);
             DontDestroyOnLoad(shop_item_temp);
-
         }
-        List<GameObject> shop_items = new();
-        now_scene_items.Clear();
-        int count = 0;
-        string selectname = "rogue_select";
         List<Giftname> charms = new(){
                 Giftname.shop_any_charm_1,
                 Giftname.shop_any_charm_2,
                 Giftname.shop_any_charm_3,
                 Giftname.shop_any_charm_4
             };
+        if (charms.Contains(gift.giftname)) return null;
+        GameObject good = Instantiate(shop_item_temp);
+        var goodstats = good.GetComponent<ShopItemStats>();
+        var render = good.FindGameObjectInChildren("Item Sprite").GetComponent<SpriteRenderer>();
+        good.name = gift.GetName();
+        goodstats.nameConvo = gift.GetName();
+        goodstats.descConvo = gift.GetDesc();
+        goodstats.priceConvo = gift.price.ToString();
+        goodstats.specialType = (int)gift.giftname + 18;
+        goodstats.cost = gift.price;
+        render.sprite = gift.GetSprite();
+        var item = good.FindGameObjectInChildren("Item Sprite");
+        if (gift.scale != Vector2.zero) item.transform.localScale = gift.scale;
+        if (select) goodstats.playerDataBoolName = selectname;
+        else
+            goodstats.playerDataBoolName = gift.giftname.ToString() + count;
+        count++;
+        if (select)
+        {
+            if (!now_scene_items.ContainsKey(selectname))
+                now_scene_items.Add(selectname, false);
+        }
+        else
+        {
+            now_scene_items.Add(goodstats.playerDataBoolName, false);
+        }
+        return good;
+
+    }
+    public void SpwanShopItem(List<Gift> gifts, bool select = false)
+    {
+
+        List<GameObject> shop_items = new();
+        now_scene_items.Clear();
+        int count = 0;
+        string selectname = "rogue_select";
+
+
         foreach (var gift in gifts)
         {
-            GameObject good = Instantiate(shop_item_temp);
-            var goodstats = good.GetComponent<ShopItemStats>();
-            var render = good.FindGameObjectInChildren("Item Sprite").GetComponent<SpriteRenderer>();
-            if (charms.Contains(gift.giftname))
-            {
-                var list = RandomList(GameInfo.act_gifts[GiftVariety.charm], 1, false);
-                if (list.Count <= 0)
-                {
-                    Destroy(good);
-                    continue;
-                }
-                Gift charmgift = list[0];
-                good.name = charmgift.GetName();
-                goodstats.nameConvo = charmgift.GetName();
-                goodstats.descConvo = charmgift.GetDesc();
-                goodstats.priceConvo = charmgift.price.ToString();
-                goodstats.specialType = (int)charmgift.giftname + 18;
-                goodstats.cost = charmgift.price;
-                render.sprite = charmgift.GetSprite();
-                var item = good.FindGameObjectInChildren("Item Sprite");
-                if (charmgift.scale != Vector2.zero) item.transform.localScale = charmgift.scale;
-                if (select) goodstats.playerDataBoolName = selectname;
-                else
-                    goodstats.playerDataBoolName = charmgift.giftname.ToString() + count;
-                count++;
-
-            }
-            else
-            {
-                good.name = gift.GetName();
-                goodstats.nameConvo = gift.GetName();
-                goodstats.descConvo = gift.GetDesc();
-                goodstats.priceConvo = gift.price.ToString();
-                goodstats.specialType = (int)gift.giftname + 18;
-                goodstats.cost = gift.price;
-                render.sprite = gift.GetSprite();
-                var item = good.FindGameObjectInChildren("Item Sprite");
-                if (gift.scale != Vector2.zero) item.transform.localScale = gift.scale;
-                if (select) goodstats.playerDataBoolName = selectname;
-                else
-                    goodstats.playerDataBoolName = gift.giftname.ToString() + count;
-                count++;
-            }
-
-            //good.FindGameObjectInChildren("Item Sprite").GetComponent<SpriteRenderer>().sprite
-            shop_items.Add(good);
-            if (select)
-            {
-                if (!now_scene_items.ContainsKey(selectname))
-                    now_scene_items.Add(selectname, false);
-            }
-            else
-            {
-                now_scene_items.Add(goodstats.playerDataBoolName, false);
-            }
+            var item = Gift2ShopItem(gift, ref count, select);
+            if (item != null)
+                shop_items.Add(item);
         }
-
 
         var itemlist = item_menu_go.FindGameObjectInChildren("Item List");
         var menustock = itemlist.GetComponent<ShopMenuStock>();
@@ -432,13 +414,6 @@ public class ItemManager : MonoBehaviour
         }
         ReflectionHelper.SetField(item_menu_go.GetComponent<ShopMenuStock>(), "spawnedStock", Rogue.Instance.shop_items);
         ReflectionHelper.SetField(menustock, "spawnedStock", Rogue.Instance.shop_items);
-        // var menu = item_menu_go.FindGameObjectInChildren("Item List").GetComponent<ShopMenuStock>();
-        // menu.itemCount++;
-        // testinv.transform.SetParent(menu.gameObject.transform, worldPositionStays: false);
-        // testinv.transform.localPosition = new Vector3(0f, (menu.itemCount - 1) * yDistance, 0f);
-        // testinv.GetComponent<ShopItemStats>().itemNumber = menu.itemCount;
-        // menu.stockInv[menu.itemCount] = testinv;
-        // testinv.SetActive(value: true);
 
     }
     public void StartShopItem()
@@ -454,6 +429,7 @@ public class ItemManager : MonoBehaviour
     }
     public void NormalShopItem()
     {
+        GiftFactory.UpdateWeight();
         List<Gift> items = new List<Gift>();
         items.Add(GiftFactory.all_gifts[Giftname.shop_keeper_key]);
         if (GiftFactory.all_gifts[Giftname.shop_add_1_notch_1].weight > 0)
@@ -461,8 +437,19 @@ public class ItemManager : MonoBehaviour
         if (GiftFactory.all_gifts[Giftname.shop_nail_upgrade].weight > 0)
             items.Add(GiftFactory.all_gifts[Giftname.shop_nail_upgrade]);
         items.Add(GiftFactory.all_gifts[Giftname.shop_random_gift]);
+        List<Giftname> charms = new(){
+                Giftname.shop_any_charm_1,
+                Giftname.shop_any_charm_2,
+                Giftname.shop_any_charm_3,
+                Giftname.shop_any_charm_4
+            };
         var ranlist = RandomList(GameInfo.act_gifts[GiftVariety.shop], num: 9 - items.Count);
-        SpwanShopItem(items.Concat(ranlist).ToList());
+        int t = ranlist.Count((gift) => charms.Contains(gift.giftname));
+        ranlist.RemoveAll((gift) => charms.Contains(gift.giftname));
+        List<Gift> select_charms = RandomList(GameInfo.act_gifts[GiftVariety.charm], t, false);
+        foreach (var charm in charms) GiftFactory.all_gifts[charm].now_weight = 0;
+        ranlist = RandomList(GameInfo.act_gifts[GiftVariety.shop], 9 - items.Count - select_charms.Count, false);
+        SpwanShopItem(items.Concat(ranlist).Concat(select_charms).ToList());
 
 
     }
@@ -930,7 +917,7 @@ public class ItemManager : MonoBehaviour
     }
 
 
-    public void Next(bool start = false)
+    public void Next(bool start = false, bool force = true)
     {
         bool flag = false;
         if (!start)
@@ -962,6 +949,14 @@ public class ItemManager : MonoBehaviour
                     tempselect--;
                     if (tempselect <= 0) flag = true;
                     break;
+            }
+        }
+        if (items.Count > 0)
+        {
+            if (!force) return;
+            else
+            {
+                flag = true;
             }
         }
         if (flag || start)
@@ -1141,6 +1136,7 @@ public class ItemManager : MonoBehaviour
             render.sprite = (Sprite)Inv_Items.FindGameObjectInChildren("Spell Fireball").LocateMyFSM("Check Active").GetAction<SetSpriteRendererSprite>("Lv 2", 0).sprite.Value;
         }
         render.color = new Color(1, 1, 1, alpha);
+        if (PlayerData.instance.fireballLevel == 3) render.color = new Color(0, 0, 1, alpha);
         x += 1;
 
         GameObject scream = new GameObject("scream");
@@ -1157,6 +1153,7 @@ public class ItemManager : MonoBehaviour
             render.sprite = (Sprite)Inv_Items.FindGameObjectInChildren("Spell Scream").LocateMyFSM("Check Active").GetAction<SetSpriteRendererSprite>("Lv 2", 0).sprite.Value;
         }
         render.color = new Color(1, 1, 1, alpha);
+        if (PlayerData.instance.screamLevel == 3) render.color = new Color(0, 0, 1, alpha);
         x += 1;
 
         GameObject quake = new GameObject("quake");
@@ -1173,6 +1170,7 @@ public class ItemManager : MonoBehaviour
             render.sprite = (Sprite)Inv_Items.FindGameObjectInChildren("Spell Quake").LocateMyFSM("Check Active").GetAction<SetSpriteRendererSprite>("Lv 2", 0).sprite.Value;
         }
         render.color = new Color(1, 1, 1, alpha);
+        if (PlayerData.instance.quakeLevel == 3) render.color = new Color(0, 0, 1, alpha);
         x += 1;
 
         GameObject cyc_Slash = new GameObject("cyc_Slash");
@@ -1384,7 +1382,5 @@ public class ItemManager : MonoBehaviour
         charm_slot_num.GetComponent<TMPro.TextMeshPro>().text = PlayerData.instance.charmSlots.ToString();
         render.color = new Color(1, 1, 1, alpha);
         text.color = new Color(1, 1, 1, alpha);
-
-
     }
 }

@@ -11,18 +11,18 @@ internal static class RogueUIManager
     static int try_cnt = 0;
     private static void Test()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha0))
-        {
-            TestSelect();
-        }
-        if (Input.GetKeyDown(KeyCode.Keypad0))
-        {
-            TestDialogue();
-        }
-        if (Input.GetKeyDown(KeyCode.Keypad1))
-        {
-            NPCManager.npcs[typeof(ElderBug).Name].SetPosition(GameObject.Find("Knight").transform.position);
-        }
+        // if (Input.GetKeyDown(KeyCode.Alpha0))
+        // {
+        //     TestSelect();
+        // }
+        // if (Input.GetKeyDown(KeyCode.Keypad0))
+        // {
+        //     TestDialogue();
+        // }
+        // if (Input.GetKeyDown(KeyCode.Keypad1))
+        // {
+        //     NPCManager.npcs[typeof(ElderBug).Name].SetPosition(GameObject.Find("Knight").transform.position);
+        // }
     }
     static class SelectUI
     {

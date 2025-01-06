@@ -37,4 +37,13 @@ namespace rogue; internal static class CharmHelper
         }
         return false;
     }
+    internal static int GotCharmNum()
+    {
+        int count = 0;
+        for (int i = 1; i <= 40; i++)
+        {
+            if (PlayerData.instance.GetBool("gotCharm_" + i)) count++;
+        }
+        return count;
+    }
 }

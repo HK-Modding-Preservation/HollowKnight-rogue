@@ -1,3 +1,4 @@
+using System.Runtime.Remoting;
 using rogue.Characters;
 using UnityEngine.EventSystems;
 
@@ -307,7 +308,8 @@ internal static class GiftFactory
             price = 400,
             reward = (giftname) =>
             {
-                ItemManager.Instance.RandomOneSmall();
+                ItemManager.Instance.rewardsStack.Push(new ItemManager.OneReward() { mode = ItemManager.Mode.one_small_gift, give = 1, select = 1 });
+                ItemManager.Instance.Next(force: false);
             },
             name = "shop_random_gift_name",
             desc = "shop_random_gift_desc",
@@ -1292,6 +1294,16 @@ internal static class GiftFactory
             if (playerData.GetBool("gotCharm_" + i))
                 all_gifts[(Giftname)i].now_weight = 0;
         }
+        int t = CharmHelper.GotCharmNum();
+        all_gifts[Giftname.shop_any_charm_1].SetWeight(t <= 39);
+        all_gifts[Giftname.shop_any_charm_2].SetWeight(t <= 38);
+        all_gifts[Giftname.shop_any_charm_3].SetWeight(t <= 37);
+        all_gifts[Giftname.shop_any_charm_4].SetWeight(t <= 36);
+    }
+    static void SetWeight(this Gift gift, bool weight_not_zero)
+    {
+        if (weight_not_zero) gift.now_weight = gift.weight;
+        else gift.now_weight = 0;
     }
 
 
