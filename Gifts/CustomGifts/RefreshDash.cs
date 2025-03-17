@@ -1,12 +1,12 @@
 using rogue;
 internal class RefreshDash : CustomGift
 {
-    public RefreshDash() : base(Giftname.custom_refresh_dash, 3, "witches_eye")
+    public RefreshDash() : base(Giftname.custom_refresh_dash, 3, "b_alubab_aluba")
     {
         weight = 1f;
         price = 200;
-        name = "攻击刷新冲刺二段";
-        desc = "攻击刷新冲刺二段";
+        name = "飞翔的阿鲁巴";
+        desc = "生命不息，飞翔不止\n\n攻击到敌人时会刷新冲刺和二段跳";
     }
 
     protected override void _GetGift()
@@ -30,7 +30,7 @@ internal class RefreshDash : CustomGift
     {
         On.HealthManager.TakeDamage -= RefreshDashAndDoublejump;
         Rogue.Instance.Log("Remove refreshDash");
-        
+
     }
 
 

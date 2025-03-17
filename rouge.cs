@@ -82,6 +82,12 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
     internal const string butterfly_name = "Butterflies FG 1";
     internal const string hk_scene = "GG_Hollow_Knight";
     internal const string hk_name = "Battle Scene/HK Prime";
+
+    internal const string boss_scene_controler_scene = "GG_Vengefly_V";
+    internal const string boss_scene_controler_name = "Boss Scene Controller";
+
+    internal const string thk_scene = "Room_Final_Boss_Core";
+    internal const string thk_name = "Boss Control";
     public GameObject charms;
 
     public GameObject shiny_item = null;
@@ -112,6 +118,12 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
 
     public static int pretty_key_num = 0;
 
+    BossSequence bossSequence;
+
+    BossScene[] ori_boss_scenes = null;
+
+    internal BossScene[] boss_scenes = null;
+
 
 
 
@@ -131,15 +143,17 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             (card_scene,card_name),
             (beam_scene,beam_name),
             (butterfly_scene,butterfly_name),
-            (hk_scene,hk_name)
+            (hk_scene,hk_name),
+            (boss_scene_controler_scene,boss_scene_controler_name),
+            (thk_scene,thk_name)
         };
-        return list.Concat(NPCManager.GetPreloadNames()).ToList();
+        return list.Concat(NPCManager.GetPreloadNames()).Concat(PreloadManager.GetPreloadNames()).ToList();
     }
 
     public override void Initialize(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
     {
         Lang.init();
-
+        PreloadManager.Init(preloadedObjects);
 
         shiny_item = UnityEngine.Object.Instantiate(preloadedObjects[item_scene][item]);
         shiny_item.LocateMyFSM("Shiny Control").ChangeTransition("PD Bool?", "COLLECTED", "Fling?");
@@ -220,6 +234,11 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
 
         NPCManager.Init(preloadedObjects);
 
+        BossSceneManager.Init(preloadedObjects[boss_scene_controler_scene][boss_scene_controler_name]);
+        BossSceneManager.thk_bc = GameObject.Instantiate(preloadedObjects[thk_scene][thk_name]);
+        GameObject.DontDestroyOnLoad(BossSceneManager.thk_bc);
+
+
 
         GameObject rogue_go = new GameObject("rogue_go");
         UnityEngine.Object.DontDestroyOnLoad(rogue_go);
@@ -248,6 +267,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
 
     public void adjust_menu_go(GameObject menu_go)
     {
+
         menu_go.LocateMyFSM("shop_control").ChangeTransition("Stock?", "FINISHED", "Open Window");
         // menu_go.LocateMyFSM("shop_control").ChangeTransition("Stock?", "NO STOCK", "Open Window");
         menu_go.LocateMyFSM("shop_control").FsmVariables.FindFsmString("No Stock Event").Value = "ISELDA";
@@ -267,6 +287,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 if (GiftFactory.all_gifts.ContainsKey(type))
                 {
                     GiftFactory.all_gifts[type].GetGift();
+                    GameInfo.got_items.Add(type);
                     itemManager.DisplayStates();
                     if (GiftFactory.all_gifts[type].showConvo) ShowConvo(GiftFactory.all_gifts[type].GetShowString());
                 }
@@ -378,12 +399,24 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
 
     private void BeginScene(On.BossSequenceController.orig_SetupNewSequence orig, BossSequence sequence, BossSequenceController.ChallengeBindings bindings, string playerData)
     {
+        if (sequence.name == "Boss Sequence Tier 5")
+        {
+            bossSequence = sequence;
+            if (ori_boss_scenes == null)
+            {
+                ori_boss_scenes = ReflectionHelper.GetField<BossSequence, BossScene[]>(sequence, "bossScenes");
+                boss_scenes = new BossScene[ori_boss_scenes.Length];
+            }
+            ori_boss_scenes.CopyTo(boss_scenes, 0);
+            ReflectionHelper.SetField<BossSequence, BossScene[]>(sequence, "bossScenes", boss_scenes);
+            BossSceneManager.MoreBoss(sequence);
+
+        }
         orig(sequence, bindings, playerData);
     }
 
     private void EndScene(On.BossSequenceController.orig_FinishLastBossScene orig, BossSceneController self)
     {
-
         GameInfo.in_rogue = false;
         orig(self);
 
@@ -591,6 +624,14 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                         },
                         () => (int)customOneOrTwoGift.Got_Which_Item
                         );
+                    }
+                    else if (g is CustomCountedGift customCountedGift)
+                    {
+                        temp = new Satchel.BetterMenus.CustomSlider(customCountedGift.GetName(),
+                        (value) => customCountedGift.SetCount((int)value),
+                         () => (float)customCountedGift.count,
+                         0, 10,
+                         true);
                     }
                     else temp = new Satchel.BetterMenus.TextPanel("ERROR");
                 }

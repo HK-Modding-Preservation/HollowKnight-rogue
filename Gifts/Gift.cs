@@ -129,6 +129,20 @@ public enum Giftname
     custom_darkness,
     custom_little_box,
     custom_money_is_power,
+    custom_chaos_boss,
+    custom_better_fluke,
+    custom_double_scream,
+    custom_love_key,
+    custom_counted_trinket1,
+    custom_counted_trinket2,
+    custom_counted_trinket3,
+    custom_counted_trinket4,
+    custom_fast_shadow_dash,
+    custom_dont_move_when_damaged,
+    custom_better_dream_nail,
+    custom_sleep_knight,
+    custom_circle_super_dash,
+    custom_super_dash_tail
 
 }
 public class Gift
@@ -227,7 +241,7 @@ internal static class GiftFactory
     public static Dictionary<GiftVariety, List<Gift>> all_kind_of_gifts = new();
 
     public static Dictionary<Giftname, Gift> all_gifts = new();
-    public static Action before_update_weight = null;
+    public static Action after_update_weight = null;
     private static void Log(object msg)
     {
         Rogue.Instance.Log(msg);
@@ -754,9 +768,10 @@ internal static class GiftFactory
             {
                 GiftHelper.GiveVessel();
                 List<Gift> gifts2 = new();
-                if (PlayerData.instance.screamLevel < 2) gifts2.Add(all_gifts[Giftname.get_scream]);
-                if (PlayerData.instance.fireballLevel < 2) gifts2.Add(all_gifts[Giftname.get_fireball]);
-                if (PlayerData.instance.quakeLevel < 2) gifts2.Add(all_gifts[Giftname.get_quake]);
+                bool saman = GameInfo.role == CharacterRole.shaman;
+                if (PlayerData.instance.screamLevel < 2 || (saman && PlayerData.instance.screamLevel < 3)) gifts2.Add(all_gifts[Giftname.get_scream]);
+                if (PlayerData.instance.fireballLevel < 2 || (saman && PlayerData.instance.fireballLevel < 3)) gifts2.Add(all_gifts[Giftname.get_fireball]);
+                if (PlayerData.instance.quakeLevel < 2 || (saman && PlayerData.instance.quakeLevel < 3)) gifts2.Add(all_gifts[Giftname.get_quake]);
                 ItemManager.Instance.rewardsStack.Push(
                     new ItemManager.OneReward() { mode = ItemManager.Mode.fix_gift, gifts = gifts2 }
                     );
@@ -802,6 +817,19 @@ internal static class GiftFactory
         all_gifts.Add(Giftname.custom_always_parry, new AlwaysParry());
         all_gifts.Add(Giftname.custom_little_box, new LittleBox());
         all_gifts.Add(Giftname.custom_money_is_power, new MoneyIsPower());
+        all_gifts.Add(Giftname.custom_chaos_boss, new ChaosBoss());
+        all_gifts.Add(Giftname.custom_better_fluke, new BetterFluke());
+        all_gifts.Add(Giftname.custom_double_scream, new DoubleScream());
+        all_gifts.Add(Giftname.custom_love_key, new LoveKey());
+        all_gifts.Add(Giftname.custom_counted_trinket1, new Trinket1());
+        all_gifts.Add(Giftname.custom_counted_trinket2, new Trinket2());
+        all_gifts.Add(Giftname.custom_counted_trinket3, new Trinket3());
+        all_gifts.Add(Giftname.custom_counted_trinket4, new Trinket4());
+        all_gifts.Add(Giftname.custom_fast_shadow_dash, new FastShadowDash());
+        all_gifts.Add(Giftname.custom_better_dream_nail, new BetterDreamNail());
+        all_gifts.Add(Giftname.custom_sleep_knight, new SleepKnight());
+        all_gifts.Add(Giftname.custom_circle_super_dash, new CircleSuperDash());
+        all_gifts.Add(Giftname.custom_super_dash_tail, new SuperDashTail());
         // all_gifts.Add(Giftname.custom_darkness, new Darkness());摸黑好难
     }
     private static void ItemInit()
@@ -859,7 +887,8 @@ internal static class GiftFactory
             reward = (giftname) =>
             {
                 PlayerData.instance.hasSpell = true;
-                if (PlayerData.instance.fireballLevel < 2)
+                if (PlayerData.instance.fireballLevel < 2 ||
+                (GameInfo.role == CharacterRole.shaman && PlayerData.instance.fireballLevel < 3))
                     PlayerData.instance.fireballLevel++;
             },
             name = "get_fireball_name",
@@ -872,7 +901,8 @@ internal static class GiftFactory
             reward = (giftname) =>
         {
             PlayerData.instance.hasSpell = true;
-            if (PlayerData.instance.screamLevel < 2)
+            if (PlayerData.instance.screamLevel < 2 ||
+                (GameInfo.role == CharacterRole.shaman && PlayerData.instance.screamLevel < 3))
                 PlayerData.instance.screamLevel++;
         },
             name = "get_scream_name",
@@ -885,7 +915,8 @@ internal static class GiftFactory
             reward = (giftname) =>
                     {
                         PlayerData.instance.hasSpell = true;
-                        if (PlayerData.instance.quakeLevel < 2)
+                        if (PlayerData.instance.quakeLevel < 2 ||
+                (GameInfo.role == CharacterRole.shaman && PlayerData.instance.quakeLevel < 3))
                             PlayerData.instance.quakeLevel++;
                     },
             name = "get_quake_name",
@@ -1193,7 +1224,8 @@ internal static class GiftFactory
             {
                 GameInfo.get_birthright = true;
                 Character character = HeroController.instance?.gameObject.GetComponent<Character>();
-                character?.GetBirthright(0);
+                character?.SetGetBirthright();
+                character?.SelectBirthright();
             },
             name = "birthright",
             desc = "长子权",
@@ -1238,9 +1270,8 @@ internal static class GiftFactory
 
     public static void UpdateWeight()
     {
-        before_update_weight?.Invoke();
         PlayerData playerData = PlayerData.instance;
-        if (playerData.maxHealthBase >= 9) all_gifts[Giftname.add_2_mask].now_weight = 0;
+        all_gifts[Giftname.add_2_mask].SetWeight(playerData.maxHealthBase < 9);
         if (playerData.MPReserveMax >= 99) all_gifts[Giftname.add_1_vessel].now_weight = 0;
         if (playerData.nailDamage >= 21) all_gifts[Giftname.nail_upgrade].now_weight = 0;
         if (playerData.charmSlots >= 11) all_gifts[Giftname.add_3_notch].now_weight = 0;
@@ -1291,16 +1322,16 @@ internal static class GiftFactory
         for (int i = 1; i <= 40; i++)
         {
             if (i == 36) continue;
-            if (playerData.GetBool("gotCharm_" + i))
-                all_gifts[(Giftname)i].now_weight = 0;
+            all_gifts[(Giftname)i].SetWeight(!playerData.GetBool("gotCharm_" + i));
         }
         int t = CharmHelper.GotCharmNum();
         all_gifts[Giftname.shop_any_charm_1].SetWeight(t <= 39);
         all_gifts[Giftname.shop_any_charm_2].SetWeight(t <= 38);
         all_gifts[Giftname.shop_any_charm_3].SetWeight(t <= 37);
         all_gifts[Giftname.shop_any_charm_4].SetWeight(t <= 36);
+        after_update_weight?.Invoke();
     }
-    static void SetWeight(this Gift gift, bool weight_not_zero)
+    internal static void SetWeight(this Gift gift, bool weight_not_zero)
     {
         if (weight_not_zero) gift.now_weight = gift.weight;
         else gift.now_weight = 0;

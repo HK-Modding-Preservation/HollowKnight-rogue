@@ -3,11 +3,11 @@
 namespace rogue;
 internal class EquipCharmEveryWhere : CustomGift
 {
-    public EquipCharmEveryWhere() : base(Giftname.custom_equip_charm_everywhere, 4, "witches_eye")
+    public EquipCharmEveryWhere() : base(Giftname.custom_equip_charm_everywhere, 4, "throne")
     {
         name = "王座";
         desc = "欲践王座，必担其责\n\n随处可换护符，但收到双倍伤害";
-        weight = 1f;
+        weight = 0.5f;
     }
     protected override void _GetGift()
     {

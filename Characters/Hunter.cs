@@ -7,6 +7,10 @@ internal class Hunter : Character
     public Hunter()
     {
         this.Selfname = CharacterRole.hunter;
+        birthright_names = new(){
+            "嗜血",
+            "护符槽加3"
+        };
     }
     public override void BeginCharacter()
     {
@@ -24,16 +28,16 @@ internal class Hunter : Character
         Rogue.Instance.ShowDreamConvo("hunter_dream".Localize());
         heal_clip = (AudioClip)Resources.InstanceIDToObject(32826);
     }
-    public override int GetBirthrightNum()
-    {
-        return 1;
-    }
+
     public override void GetBirthright(int num)
     {
         switch (num)
         {
             case 0:
                 On.HealthManager.TakeDamage += AttackRandomAddhealth;
+                break;
+            case 1:
+                GiftHelper.AddCharmSlot(3);
                 break;
         }
     }
@@ -59,6 +63,8 @@ internal class Hunter : Character
         {
             case 0:
                 On.HealthManager.TakeDamage -= AttackRandomAddhealth;
+                break;
+            case 1:
                 break;
         }
     }

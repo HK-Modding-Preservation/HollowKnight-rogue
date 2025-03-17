@@ -5,7 +5,7 @@ internal class Gliding : CustomGift
     GameObject butterfly;
     internal Gliding() : base(Giftname.custom_gliding, 4, "health_butterfly")
     {
-        weight = 1f;
+        weight = 0.5f;
         price = 200;
         name = "滑翔";
         desc = "小骑士下落的时候可以滑翔";

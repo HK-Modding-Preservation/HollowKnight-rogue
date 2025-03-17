@@ -5,7 +5,7 @@ internal class OneMaskTwoBlue : CustomGift
 {
     public OneMaskTwoBlue() : base(Giftname.custom_one_mask_two_blue, 4, "witches_eye")
     {
-        weight = 1f;
+        weight = 0.5f;
         price = 200;
         name = "国王的戒指";
         desc = "每经过一场战斗，减少一滴白血上限，增加两滴蓝血";

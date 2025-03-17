@@ -28,6 +28,14 @@ internal static class SpriteLoader
             resource_sprites.Add(Path.GetFileNameWithoutExtension(file).Split('.').Last().ToLower(), LoadSprite(file));
             Modding.Logger.Log(file + "is completed");
         }
+        resource_sprites.Add("hunter_mask", (Sprite)Resources.InstanceIDToObject(8948));
+        resource_sprites.Add("love_key", (Sprite)Resources.InstanceIDToObject(8248));
+        resource_sprites.Add("map", (Sprite)Resources.InstanceIDToObject(8232));
+        resource_sprites.Add("map_with_quill", (Sprite)Resources.InstanceIDToObject(12928));
+        resource_sprites.Add("trinket1", (Sprite)Resources.InstanceIDToObject(8230));
+        resource_sprites.Add("trinket2", (Sprite)Resources.InstanceIDToObject(8420));
+        resource_sprites.Add("trinket3", (Sprite)Resources.InstanceIDToObject(8282));
+        resource_sprites.Add("trinket4", (Sprite)Resources.InstanceIDToObject(8242));
     }
     internal static Sprite GetSprite(string name)
     {

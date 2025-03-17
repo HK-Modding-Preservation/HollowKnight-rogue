@@ -1,6 +1,7 @@
+namespace rogue.NPCs;
 internal class ElderBug : NPC
 {
-    internal ElderBug(tk2dSpriteAnimation library) : base(library, KnightAction.LookUP)
+    internal ElderBug(tk2dSpriteAnimation library) : base(library, new(0, -0.2466f), KnightAction.LookUP)
     {
         name = "虫长者";
         name_sub = "test_sub";

@@ -2,6 +2,7 @@ using UnityEngine.UI;
 using rogue.Characters;
 using System.ComponentModel;
 using Newtonsoft.Json.Serialization;
+using rogue.NPCs;
 namespace rogue;
 
 public class ItemManager : MonoBehaviour
@@ -160,7 +161,7 @@ public class ItemManager : MonoBehaviour
     private void OnCharmUpdate(PlayerData data, HeroController controller)
     {
         DisplayEquipped();
-
+        GiftHelper.UpdateCharmsEffects();
     }
 
     private void OnSetBool(On.PlayerData.orig_SetBool orig, PlayerData self, string boolName, bool value)
@@ -265,6 +266,11 @@ public class ItemManager : MonoBehaviour
                 if (after_scene_add_geo_num != null) geo = after_scene_add_geo_num(geo, damaged_num);
                 HeroController.instance.AddGeo(geo);
             }
+            if (!nobossscene.Contains(arg1.name))
+            {
+                StartCoroutine(BossManager.AdjustBossHP(arg1.name));
+                StartCoroutine(BossManager.LoveKeyify(arg1.name));
+            }
         }
         damaged_num = 0;
         if (arg1.name == "GG_Engine")
@@ -308,7 +314,23 @@ public class ItemManager : MonoBehaviour
                 GiftFactory.UpdateWeight();
                 DestroyAllItems();
                 GiveReward(GameInfo.spa_count);
-                if (GameInfo.spa_count % 2 == 0 || GameInfo.spa_count == 7)
+                if (GameInfo.spa_count == 5)
+                {
+                    CharmShopItem();
+                    item_menu_go.SetActive(true);
+                    item_shop_go.transform.SetPosition2D(new Vector2(78, 16));
+                    item_shop_go.LocateMyFSM("Shop Region").FsmVariables.GetFsmFloat("Move To X").Value = 78f;
+                    item_shop_go.SetActive(true);
+                    var gou = item_shop_go.FindGameObjectInChildren("gou_Bro");
+                    var bank = item_shop_go.FindGameObjectInChildren("bank");
+                    var banker = item_shop_go.FindGameObjectInChildren("banker");
+                    gou.SetActive(false);
+                    bank.SetActive(false);
+                    banker.SetActive(false);
+                    NPCManager.npcs[typeof(CharmSlug).Name].SetPosition(new Vector3(78, 16, 0.1f));
+
+                }
+                else if (GameInfo.spa_count % 2 == 1)
                 {
                     NormalShopItem();
                     item_menu_go.SetActive(true);
@@ -316,13 +338,28 @@ public class ItemManager : MonoBehaviour
                     item_shop_go.LocateMyFSM("Shop Region").FsmVariables.GetFsmFloat("Move To X").Value = 78f;
                     item_shop_go.SetActive(true);
                     var gou = item_shop_go.FindGameObjectInChildren("gou_Bro");
-                    gou.SetActive(false);
                     var bank = item_shop_go.FindGameObjectInChildren("bank");
+                    var banker = item_shop_go.FindGameObjectInChildren("banker");
+                    gou.SetActive(false);
                     bank.SetActive(true);
                     bank.GetComponent<tk2dSpriteAnimator>().Play("Stand Idle");
-                    var banker = item_shop_go.FindGameObjectInChildren("banker");
                     banker.SetActive(true);
                     banker.GetComponent<tk2dSpriteAnimator>().Play("Idle");
+                }
+                if (GameInfo.spa_count == 2)
+                {
+                    NPCManager.npcs[typeof(Xun).Name].SetPosition(Xun.spa_pos);
+                }
+                if (GameInfo.spa_count == 4)
+                {
+                    NPCManager.npcs[typeof(Nailsmith).Name].SetPosition(Nailsmith.spa_pos);
+                }
+                if (GameInfo.spa_count == 6)
+                {
+                    if (UnityEngine.Random.Range(0, 2) == 0)
+                        NPCManager.npcs[typeof(Jiji).Name].SetPosition(Jiji.spa_pos);
+                    else
+                        NPCManager.npcs[typeof(Jinn).Name].SetPosition(Jinn.spa_pos);
                 }
             }
         }
@@ -391,9 +428,6 @@ public class ItemManager : MonoBehaviour
         List<GameObject> shop_items = new();
         now_scene_items.Clear();
         int count = 0;
-        string selectname = "rogue_select";
-
-
         foreach (var gift in gifts)
         {
             var item = Gift2ShopItem(gift, ref count, select);
@@ -453,6 +487,16 @@ public class ItemManager : MonoBehaviour
 
 
     }
+    public void CharmShopItem()
+    {
+        GiftFactory.UpdateWeight();
+        List<Gift> items = new List<Gift>();
+        items.Add(GiftFactory.all_gifts[Giftname.shop_add_1_notch_1]);
+        items.Add(GiftFactory.all_gifts[Giftname.shop_add_1_notch_2]);
+        items.Add(GiftFactory.all_gifts[Giftname.shop_add_1_notch_3]);
+        var ranlist = RandomList(GameInfo.act_gifts[GiftVariety.charm], 6);
+        SpwanShopItem(items.Concat(ranlist).ToList());
+    }
     private IEnumerator DelayGenerater(float delay)
     {
         yield return new WaitForSeconds(delay);
@@ -481,7 +525,7 @@ public class ItemManager : MonoBehaviour
             give = 3,
             gifts = null
         });
-        if (door % 2 == 1)
+        if (door % 2 == 0)
         {
             rewardsStack.Push(new OneReward
             {
@@ -624,8 +668,6 @@ public class ItemManager : MonoBehaviour
                     if (GameInfo.in_rogue && !GameInfo.get_birthright)
                     {
                         GiftFactory.all_gifts[Giftname.get_birthright].GetGift();
-                        GiftFactory.UpdateWeight();
-                        DisplayStates();
                     }
                 }, 1);
             }
@@ -872,6 +914,7 @@ public class ItemManager : MonoBehaviour
             {
                 Log(giftname);
                 GiftFactory.all_gifts[giftname].GetGift();
+                GameInfo.got_items.Add(giftname);
                 GiftFactory.UpdateWeight();
                 DisplayStates();
             }, 6);
@@ -1131,7 +1174,7 @@ public class ItemManager : MonoBehaviour
         {
             render.sprite = (Sprite)Inv_Items.FindGameObjectInChildren("Spell Fireball").LocateMyFSM("Check Active").GetAction<SetSpriteRendererSprite>("Lv 1", 0).sprite.Value;
         }
-        else if (PlayerData.instance.fireballLevel == 2)
+        else if (PlayerData.instance.fireballLevel >= 2)
         {
             render.sprite = (Sprite)Inv_Items.FindGameObjectInChildren("Spell Fireball").LocateMyFSM("Check Active").GetAction<SetSpriteRendererSprite>("Lv 2", 0).sprite.Value;
         }
@@ -1148,7 +1191,7 @@ public class ItemManager : MonoBehaviour
         {
             render.sprite = (Sprite)Inv_Items.FindGameObjectInChildren("Spell Scream").LocateMyFSM("Check Active").GetAction<SetSpriteRendererSprite>("Lv 1", 0).sprite.Value;
         }
-        else if (PlayerData.instance.screamLevel == 2)
+        else if (PlayerData.instance.screamLevel >= 2)
         {
             render.sprite = (Sprite)Inv_Items.FindGameObjectInChildren("Spell Scream").LocateMyFSM("Check Active").GetAction<SetSpriteRendererSprite>("Lv 2", 0).sprite.Value;
         }
@@ -1165,7 +1208,7 @@ public class ItemManager : MonoBehaviour
         {
             render.sprite = (Sprite)Inv_Items.FindGameObjectInChildren("Spell Quake").LocateMyFSM("Check Active").GetAction<SetSpriteRendererSprite>("Lv 1", 0).sprite.Value;
         }
-        else if (PlayerData.instance.quakeLevel == 2)
+        else if (PlayerData.instance.quakeLevel >= 2)
         {
             render.sprite = (Sprite)Inv_Items.FindGameObjectInChildren("Spell Quake").LocateMyFSM("Check Active").GetAction<SetSpriteRendererSprite>("Lv 2", 0).sprite.Value;
         }

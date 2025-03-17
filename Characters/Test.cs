@@ -5,6 +5,10 @@ internal class Test : Character
     public Test()
     {
         this.Selfname = CharacterRole.test;
+        birthright_names = new()
+        {
+            "贪婪"
+        };
     }
     bool get_birthright = false;
     public override void BeginCharacter()
@@ -33,10 +37,6 @@ internal class Test : Character
     public override void EndCharacter()
     {
         ItemManager.Instance.before_spawn_item -= OneMoreThing;
-    }
-    public override int GetBirthrightNum()
-    {
-        return 1;
     }
     public override void GetBirthright(int num)
     {

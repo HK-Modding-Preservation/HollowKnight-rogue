@@ -9,6 +9,12 @@ internal class NailMaster : Character
     public NailMaster()
     {
         this.Selfname = CharacterRole.nail_master;
+        birthright_names = new List<string>()
+        {
+            "0槽钉耀",
+            "无双",
+            "聚气"
+        };
     }
     public override void BeginCharacter()
     {
@@ -56,10 +62,6 @@ internal class NailMaster : Character
     {
         On.PlayerData.GetInt -= FreeNailGlory;
         On.NailSlash.StartSlash -= LongerNail;
-    }
-    public override int GetBirthrightNum()
-    {
-        return 3;
     }
     public override void GetBirthright(int num)
     {

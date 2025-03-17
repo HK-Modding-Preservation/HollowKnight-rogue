@@ -3,11 +3,11 @@
 namespace rogue;
 internal class AnotherJump : CustomGift
 {
-    public AnotherJump() : base(Giftname.custom_another_jump, 4, "witches_eye")
+    public AnotherJump() : base(Giftname.custom_another_jump, 4, "attack_projectile")
     {
         name = "三段跳";
         desc = "可以使用三段跳";
-        weight = 1f;
+        weight = 0.5f;
         price = 200;
     }
     bool can_another_jump = true;

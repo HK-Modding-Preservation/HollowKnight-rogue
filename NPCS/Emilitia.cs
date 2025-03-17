@@ -1,7 +1,7 @@
 namespace rogue.NPCs;
 internal class Emilitia : NPC
 {
-    internal Emilitia(tk2dSpriteAnimation library) : base(library, KnightAction.LookUP)
+    internal Emilitia(tk2dSpriteAnimation library) : base(library, new(0, -0.2466f), KnightAction.LookUP)
     {
         name = "艾米莉塔";
         name_sub = "";

@@ -6,33 +6,48 @@ internal class Shaman : Character
 {
     internal static GameObject beam;
     internal static GameObject butterfly;
+    Color spell_color = Color.blue;
     public Shaman()
     {
         this.Selfname = CharacterRole.shaman;
         nail_mul = 0.8f;
         spell_mul = 1.25f;
+        birthright_names = new()
+        {
+            "砸",
+            "吼",
+            "萨满之力"
+        };
     }
     public override void BeginCharacter()
     {
         GameInfo.role = CharacterRole.shaman;
         PlayerData.instance.gotCharm_19 = true;
-        PlayerData.instance.fireballLevel = 3;
-        PlayerData.instance.screamLevel = 3;
-        PlayerData.instance.quakeLevel = 3;
         GameInfo.refresh_num += 2;
         Rogue.Instance.ShowDreamConvo("shaman_dream".Localize());
         On.SpellFluke.OnEnable += OnFlukeDamage;
         AddFireball3();
         AddQuake3();
         AddScream3();
+        GiftFactory.after_update_weight += CanUpdateSpellLevel;
         beam.transform.SetParent(HeroController.instance.transform);
         beam.transform.localPosition = new Vector3(0, -1.4f, 0);
         beam.transform.localScale = new Vector3(10, 5, 0);
         beam.transform.SetRotation2D(90f);
-        beam.GetComponent<tk2dSprite>().color = Color.blue;
+        beam.GetComponent<tk2dSprite>().color = new Color(0, 0, 1, 0.5f);
         beam.SetActive(true);
+        PlayerData.instance.fireballLevel = 2;
+        PlayerData.instance.screamLevel = 2;
+        PlayerData.instance.quakeLevel = 2;
 
 
+    }
+
+    private void CanUpdateSpellLevel()
+    {
+        GiftFactory.all_gifts[Giftname.get_fireball].SetWeight(PlayerData.instance.fireballLevel != 3);
+        GiftFactory.all_gifts[Giftname.get_scream].SetWeight(PlayerData.instance.screamLevel != 3);
+        GiftFactory.all_gifts[Giftname.get_quake].SetWeight(PlayerData.instance.quakeLevel != 3);
     }
 
     public override void EndCharacter()
@@ -41,16 +56,23 @@ internal class Shaman : Character
         RemoveFireball3();
         RemoveQuake3();
         RemoveScream3();
+        GiftFactory.after_update_weight -= CanUpdateSpellLevel;
+        beam.transform.SetParent(null);
+        GameObject.DontDestroyOnLoad(beam);
+        beam.SetActive(false);
     }
     private void FireballLifeBloodify(PlayMakerFSM fbc)
     {
         fbc.RemoveAction("Recycle", 0);
         fbc.AddAction("Recycle", new DestroySelf());
-        fbc.gameObject.GetComponent<tk2dSprite>().color = Color.blue;
+        fbc.gameObject.GetComponent<tk2dSprite>().color = spell_color;
+        fbc.GetAction<Wait>("Idle", 0).time = 4f;
         fbc.GetAction<SetScale>("Set Damage", 0).x = 2.5f;
         fbc.GetAction<SetScale>("Set Damage", 0).y = 2.5f;
         fbc.GetAction<SetFsmInt>("Set Damage", 3).setValue = 40;
         fbc.GetAction<SetFsmInt>("Set Damage", 5).setValue = 55;
+        if (fbc.ActiveStateName != "Set Damage")
+            fbc.SetState("Set Damage");
     }
     private void AddFireball3()
     {
@@ -111,10 +133,13 @@ internal class Shaman : Character
         }, 0);
         fsm.InsertCustomAction("Q2 Land", () =>
         {
-            butterfly.SetActive(false);
-            butterfly.transform.position = HeroController.instance.transform.position;
-            butterfly.SetActive(true);
-            Shaman.beam.LocateMyFSM("Control").SendEvent("FIRE");
+            if (PlayerData.instance.quakeLevel == 3)
+            {
+                butterfly.SetActive(false);
+                butterfly.transform.position = HeroController.instance.transform.position;
+                butterfly.SetActive(true);
+                Shaman.beam.LocateMyFSM("Control").SendEvent("FIRE");
+            }
         }, 15);
         fsm.InsertCustomAction("Quake Finish", () =>
         {
@@ -151,8 +176,7 @@ internal class Shaman : Character
     {
         var fsm = HeroController.instance.gameObject.LocateMyFSM("Spell Control");
         fsm.RemoveAction("Level Check 3", 0);
-        fsm.RemoveAction("Quake Finish", 0);
-        fsm.RemoveAction("Q2 Land", 15);
+        fsm.RemoveAction("Scream End 2", 0);
     }
     void SetScream3()
     {
@@ -163,7 +187,7 @@ internal class Shaman : Character
         fsm.GetAction<SetVelocity2d>("Scream Antic2", 5).Enabled = false;
         fsm.GetAction<SetVelocity2d>("Scream Burst 2", 10).Enabled = false;
         var spells = HeroController.instance.gameObject.FindGameObjectInChildren("Spells");
-        spells.FindGameObjectInChildren("Scr Heads 2").GetComponent<tk2dSprite>().color = Color.blue;
+        spells.FindGameObjectInChildren("Scr Heads 2").GetComponent<tk2dSprite>().color = spell_color;
         List<GameObject> childs = new();
         spells.FindGameObjectInChildren("Scr Heads 2").FindAllChildren(childs);
         foreach (var child in childs)
@@ -176,7 +200,11 @@ internal class Shaman : Character
     {
 
         var fsm = HeroController.instance.gameObject.LocateMyFSM("Spell Control");
-        fsm.RemoveAction("Scream End 2", 2);
+        var wait = fsm.GetAction<Wait>("Scream End 2", 2);
+        if (wait != null)
+        {
+            fsm.RemoveAction("Scream End 2", 2);
+        }
         fsm.GetAction<SendMessage>("Scream Antic2", 0).Enabled = true;
         fsm.GetAction<SetVelocity2d>("Scream Antic2", 5).Enabled = true;
         fsm.GetAction<SetVelocity2d>("Scream Burst 2", 10).Enabled = true;
@@ -217,7 +245,7 @@ internal class Shaman : Character
         {
 
             var ani_go = spells.FindGameObjectInChildren(anime);
-            ani_go.GetComponent<tk2dSprite>().color = Color.blue;
+            ani_go.GetComponent<tk2dSprite>().color = spell_color;
             if (damages.Contains(anime))
             {
                 var hit_L = ani_go.FindGameObjectInChildren("Hit L");
@@ -295,22 +323,32 @@ internal class Shaman : Character
         }
     }
 
-
-    public override int GetBirthrightNum()
-    {
-        return 1;
-    }
     public override void GetBirthright(int num)
     {
         switch (num)
         {
             case 0:
                 PlayerData.instance.quakeLevel += 1;
-                if (PlayerData.instance.quakeLevel > 2) PlayerData.instance.quakeLevel = 2;
+                if (PlayerData.instance.quakeLevel > 3) PlayerData.instance.quakeLevel = 3;
+                break;
+            case 1:
+                PlayerData.instance.screamLevel += 1;
+                if (PlayerData.instance.screamLevel > 3) PlayerData.instance.screamLevel = 3;
+                break;
+            case 2:
+                base.gameObject.FindGameObjectInChildren("Spells").transform.localScale = new(1.2f, 1.2f, 1);
                 break;
         }
     }
     public override void RemoveBirthright(int num)
     {
+        switch (num)
+        {
+            case 0:
+            case 1:
+            case 2:
+                gameObject.FindGameObjectInChildren("Spells").transform.localScale = new(1f, 1f, 1);
+                break;
+        }
     }
 }

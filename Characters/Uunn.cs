@@ -8,6 +8,10 @@ internal class Uunn : Character
     public Uunn()
     {
         this.Selfname = CharacterRole.uunn;
+        birthright_names = new(){
+            "扩散",
+            "硬壳"
+        };
     }
 
     public override void BeginCharacter()
@@ -19,10 +23,7 @@ internal class Uunn : Character
         PlayerData.instance.gotCharm_28 = true;
         ItemManager.Instance.after_scene_add_geo_num += UunnReward;
     }
-    public override int GetBirthrightNum()
-    {
-        return 2;
-    }
+
     public override void GetBirthright(int num)
     {
         switch (num)
@@ -39,7 +40,6 @@ internal class Uunn : Character
                 break;
         }
     }
-
 
 
 

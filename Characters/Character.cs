@@ -80,21 +80,52 @@ public abstract class Character : MonoBehaviour
     protected float nail_mul = 1;
     protected float spell_mul = 1;
     protected List<int> got_birthright = new();
-    public virtual int GetBirthrightNum()
+    protected List<string> birthright_names = null;
+    protected bool can_get = false;
+
+    public virtual void SelectBirthright()
     {
-        return 0;
+        List<RogueUIManager.SelectItem> items = new();
+        for (int i = 0; i < GetBirthrightNum(); i++)
+        {
+            RogueUIManager.SelectItem item = new(birthright_names[i]);
+            item.not_select_info = "已经选择过";
+            item.selectable = !got_birthright.Contains(i);
+            if (!can_get) item.selectable = false;
+            item.select_action = ExecGetBirthright;
+            items.Add(item);
+        }
+        items.Add(new RogueUIManager.SelectItem("取消"));
+        RogueUIManager.StartSelection(0.3f, "选择一份礼物", items, items.Count);
+    }
+    public int GetBirthrightNum()
+    {
+        if (birthright_names == null) return 0;
+        return birthright_names.Count;
     }
     public virtual void ExecGetBirthright(int num)
     {
+        if (num >= birthright_names.Count) return;
+        else ResetGetBirthright();
         if (got_birthright.Contains(num)) return;
         GetBirthright(num);
         got_birthright.Add(num);
+        GiftFactory.UpdateWeight();
+        ItemManager.Instance.DisplayStates();
     }
     public virtual void ExecRemoveBirthright(int num)
     {
         if (!got_birthright.Contains(num)) return;
         RemoveBirthright(num);
         got_birthright.Remove(num);
+    }
+    internal virtual void SetGetBirthright()
+    {
+        can_get = true;
+    }
+    internal virtual void ResetGetBirthright()
+    {
+        can_get = false;
     }
     public virtual void GetBirthright(int num)
     {
@@ -135,6 +166,7 @@ public abstract class Character : MonoBehaviour
     }
     protected virtual void DamageMul(On.HealthManager.orig_TakeDamage orig, HealthManager self, HitInstance hitInstance)
     {
+
         if (!GameInfo.in_rogue)
         {
             orig(self, hitInstance);

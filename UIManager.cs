@@ -136,15 +136,26 @@ internal static class RogueUIManager
         public bool selectable;
         public string not_select;
         public string not_select_info;
+        public Action<int> select_action = null;
 
     }
-    internal static void StartSelection(float delay, List<SelectItem> items, int cancel_num)
+    internal static void StartSelection(float delay, string conversation, List<SelectItem> items, int cancel_num)
     {
-        ItemManager.Instance?.StartCoroutine(_StartSelection(delay, items, cancel_num));
+        ItemManager.Instance?.StartCoroutine(_StartSelection(delay, conversation, items, cancel_num));
     }
-
-    internal static IEnumerator _StartSelection(float delay, List<SelectItem> items, int cancel_num)
+    internal static void StartConversation(float delay, string conv_name)
     {
+        ItemManager.Instance?.StartCoroutine(_StartConversation(delay, conv_name));
+    }
+    internal static IEnumerator _StartConversation(float delay, string conv_name)
+    {
+        yield return new WaitForSeconds(delay);
+        DialogueUI.customDialogueManager.ShowDialogue(conv_name);
+
+    }
+    internal static IEnumerator _StartSelection(float delay, string conversation, List<SelectItem> items, int cancel_num)
+    {
+        RogueUIManager.conversation = conversation;
         yield return new WaitForSeconds(delay);
         if (!TryInit()) yield break;
         now_select_items = items;
@@ -195,6 +206,7 @@ internal static class RogueUIManager
     static void DoAfterSelection(int item_num)
     {
         Rogue.Instance.ShowDreamConvo("select " + item_num);
+        now_select_items[item_num - 1].select_action?.Invoke(item_num - 1);
         GetDialogueManager().LocateMyFSM("Box Open YN").SendEvent("BOX DOWN YN");
         HeroController.instance.RegainControl();
         InputHandler.Instance.StartUIInput();
@@ -227,9 +239,7 @@ internal static class RogueUIManager
             }
         });
         }
-        Log("Test Select" + try_cnt);
-        try_cnt++;
-        conversation = "敬请见证";
+        try_cnt++; ;
         List<SelectItem> items = new()
         {
         };
@@ -245,7 +255,7 @@ internal static class RogueUIManager
                 item.selectable = false;
             }
         }
-        StartSelection(0.3f, items, 1);
+        // StartSelection(0.3f, items, 1);
     }
     static void TestDialogue()
     {

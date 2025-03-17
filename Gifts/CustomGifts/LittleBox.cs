@@ -3,7 +3,7 @@ internal class LittleBox : CustomGift
 {
     public LittleBox() : base(Giftname.custom_little_box, 4, "health_butterfly")
     {
-        weight = 1f;
+        weight = 0.5f;
         price = 200;
         name = "变小";
         desc = "小骑士的受伤碰撞箱变小";

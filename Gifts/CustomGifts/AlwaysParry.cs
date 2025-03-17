@@ -4,14 +4,13 @@ using Mono.Cecil;
 namespace rogue;
 internal class AlwaysParry : CustomGift
 {
-    public AlwaysParry() : base(Giftname.custom_always_parry, 4, "witches_eye")
+    public AlwaysParry() : base(Giftname.custom_always_parry, 4, "blue_idle")
     {
         name = "只虫";
         desc = "所有骨钉攻击视为拼刀";
-        weight = 1f;
+        weight = 0.5f;
         price = 200;
     }
-    List<UnityEngine.Object> audioClips;
     AudioClip parry;
 
     protected override void _GetGift()
@@ -24,7 +23,7 @@ internal class AlwaysParry : CustomGift
     {
         if (hitInstance.DamageDealt > 0 && hitInstance.AttackType == AttackTypes.Nail)
         {
-            GameManager._instance.FreezeMoment(3);
+            GameManager._instance.FreezeMoment(1);
             HeroController.instance.NailParry();
             HeroController.instance.gameObject.GetComponent<AudioSource>().PlayOneShot(parry);
 

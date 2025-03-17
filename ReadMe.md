@@ -8,3 +8,8 @@ Stand in the atrium of the god home and press the start button to start playing.
 If you find that the unlocked easter egg character has disappeared, you can directly find the corresponding json file  and change the "owner" variable to true.
 
 
+
+hog extra 黑卵前辈
+debug
+
+

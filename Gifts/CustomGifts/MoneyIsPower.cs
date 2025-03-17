@@ -4,7 +4,7 @@ internal class MoneyIsPower : CustomGift
 {
     public MoneyIsPower() : base(Giftname.custom_money_is_power, 4, "witches_eye")
     {
-        weight = 1f;
+        weight = 0.5f;
         price = 200;
         name = "钱力";
         desc = "金钱就是力量";

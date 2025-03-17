@@ -21,7 +21,7 @@ internal class GreyPrince : Character
         PlayerData.instance.hasDreamNail = true;
         Rogue.Instance.ShowDreamConvo("grey_prince_dream".Localize());
         On.PlayerData.GetInt += FreeAllCharms;
-        GiftFactory.before_update_weight += KeepNailDamage;
+        GiftFactory.after_update_weight += KeepNailDamage;
     }
     private void KeepNailDamage()
     {
@@ -38,6 +38,6 @@ internal class GreyPrince : Character
     public override void EndCharacter()
     {
         On.PlayerData.GetInt -= FreeAllCharms;
-        GiftFactory.before_update_weight -= KeepNailDamage;
+        GiftFactory.after_update_weight -= KeepNailDamage;
     }
 }

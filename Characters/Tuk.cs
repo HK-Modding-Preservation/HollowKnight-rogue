@@ -6,6 +6,11 @@ internal class Tuk : Character
     public Tuk()
     {
         this.Selfname = CharacterRole.tuk;
+        birthright_names = new(){
+            "感染",
+            "+2腐臭蛋",
+            "使用腐臭蛋+200geo"
+        };
     }
     System.Random random = new System.Random();
 
@@ -30,11 +35,11 @@ internal class Tuk : Character
             GiftHelper.GiveMask();
             GiftHelper.GiveMask();
         }
+        if (got_birthright.Contains(3))
+        {
+            HeroController.instance.AddGeo(200);
+        }
 
-    }
-    public override int GetBirthrightNum()
-    {
-        return 1;
     }
     public override void GetBirthright(int num)
     {
@@ -44,6 +49,12 @@ internal class Tuk : Character
                 ModHooks.TakeDamageHook += MoreSelfDamage;
                 On.HealthManager.TakeDamage += MoreEnemyDamage;
                 break;
+            case 1:
+                GameInfo.revive_num += 2;
+                break;
+            case 2:
+                break;
+
         }
     }
     public override void RemoveBirthright(int num)
@@ -53,6 +64,9 @@ internal class Tuk : Character
             case 0:
                 ModHooks.TakeDamageHook -= MoreSelfDamage;
                 On.HealthManager.TakeDamage -= MoreEnemyDamage;
+                break;
+            case 1:
+            case 2:
                 break;
         }
     }

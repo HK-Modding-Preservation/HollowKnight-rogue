@@ -4,7 +4,7 @@ internal class NailArtAfterDash : CustomGift
 {
     public NailArtAfterDash() : base(Giftname.custom_nail_art_after_dash, 4, "witches_eye")
     {
-        weight = 1f;
+        weight = 0.5f;
         price = 200;
         name = "冲刺必定冲刺斩";
         desc = "冲刺必定冲刺斩";
@@ -17,7 +17,7 @@ internal class NailArtAfterDash : CustomGift
     protected override void _GetGift()
     {
         PlayerData.instance.hasNailArt = true;
-        PlayerData.instance.hasDashSlash = true;
+        PlayerData.instance.hasUpwardSlash = true;
         On.HeroController.HeroDash += DoNailArt;
         GetKnight().LocateMyFSM("Nail Arts").AddCustomAction("Has Dash?", () => { On.HeroController.CanNailArt -= MustNailArt; });
     }

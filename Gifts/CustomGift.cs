@@ -1,3 +1,5 @@
+using System.Diagnostics.PerformanceData;
+using System.Threading;
 using IL.TMPro;
 using rogue;
 
@@ -27,10 +29,12 @@ internal abstract class CustomGift : Gift
     internal override void GetGift()
     {
         Got = true;
+
     }
     internal override void RemoveGift()
     {
         Got = false;
+        now_weight = weight;
     }
 
     protected virtual string GetNameAndDesc(string key, string sheetTitle, string orig)
@@ -51,8 +55,16 @@ internal abstract class CustomGift : Gift
         {
             Log(value);
             if (got == value) return;
-            if (got) _RemoveGift();
-            else _GetGift();
+            if (got)
+            {
+                now_weight = weight;
+                _RemoveGift();
+            }
+            else
+            {
+                now_weight = weight;
+                _GetGift();
+            }
             got = value;
         }
     }
@@ -142,7 +154,7 @@ internal abstract class CustomOneOrTwoGift : Gift
                     RemoveGift2();
                     if (value == GotWhichItem.First)
                     {
-                        GetGift();
+                        GetGift1();
                     }
                     break;
             }
@@ -150,4 +162,46 @@ internal abstract class CustomOneOrTwoGift : Gift
             return;
         }
     }
+}
+
+internal abstract class CustomCountedGift : Gift
+{
+    internal CustomCountedGift(Giftname giftname, int level, string sprite_name) : base(level)
+    {
+        this.giftname = giftname;
+        name_convo = "rogue_" + giftname.ToString() + "_name";
+        desc_convo = "rogue_" + giftname.ToString() + "_desc";
+        int_convo = "rogue_" + giftname.ToString() + "_got";
+        ModHooks.LanguageGetHook += GetNameAndDesc;
+        ModHooks.GetPlayerIntHook += GetCount;
+        getSprite = () => SpriteLoader.GetSprite(sprite_name);
+        SFCore.ItemHelper.AddCountedItem(getSprite(), int_convo, name_convo, desc_convo);
+    }
+
+    private int GetCount(string name, int orig)
+    {
+        if (name == int_convo) return count;
+        return orig;
+    }
+
+    string name_convo;
+    string desc_convo;
+    string int_convo;
+    internal int count;
+    protected virtual string GetNameAndDesc(string key, string sheetTitle, string orig)
+    {
+        if (key == name_convo) { return GetName(); }
+        if (key == desc_convo) { return GetDesc(); }
+        return orig;
+    }
+    internal void SetCount(int t)
+    {
+        if (count == t) return;
+        int ori = count;
+        count = t;
+        _SetCount(ori, t);
+    }
+    protected abstract void _SetCount(int ori, int now);
+
+
 }

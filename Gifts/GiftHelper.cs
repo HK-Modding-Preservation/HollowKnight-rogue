@@ -137,7 +137,7 @@ static class GiftHelper
         }
     }
 
-    private static void UpdateCharmsEffects()
+    internal static void UpdateCharmsEffects()
     {
         PlayMakerFSM.BroadcastEvent("CHARM INDICATOR CHECK");
         PlayMakerFSM.BroadcastEvent("CHARM EQUIP CHECK");

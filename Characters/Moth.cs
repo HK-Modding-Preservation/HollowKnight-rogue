@@ -6,6 +6,9 @@ internal class Moth : Character
     public Moth()
     {
         this.Selfname = CharacterRole.moth;
+        birthright_names = new(){
+            "弑梦"
+        };
     }
 
     int dream_mul = 0;

@@ -6,7 +6,7 @@ internal class Darkness : CustomGift
     {
         name = "黑暗";
         desc = "万物皆虚，万事皆允";
-        weight = 1f;
+        weight = 0f;
     }
     private void Lighten()
     {
