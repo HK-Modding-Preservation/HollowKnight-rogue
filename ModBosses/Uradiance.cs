@@ -537,7 +537,6 @@ internal class Uradiance : MonoBehaviour
             {
                 bb.transform.SetRotation2D(angle);
                 yield return new WaitForSeconds(0.1f);
-                //TODO beam logic
             }
             SendEventToBB(bb, "END");
             fsm.SendEvent("OVER");
@@ -960,7 +959,6 @@ internal class Uradiance : MonoBehaviour
             ani.Play("Cast");
             _com.SendEvent("OVER");
         }
-        //TODO把前辈的三连斩搬过来并与辐光的两个动画相匹配
     }
 
     private void ModifySwordRain()

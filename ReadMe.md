@@ -9,7 +9,5 @@ If you find that the unlocked easter egg character has disappeared, you can dire
 
 
 
-hog extra 黑卵前辈
-debug
 
 
