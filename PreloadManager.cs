@@ -17,6 +17,15 @@ internal static class PreloadManager
     internal const string grimm_name = "Flamebearer Spawn";
     internal const string hk_scene = "GG_Hollow_Knight";
     internal const string hk_slash_effect_name = "Battle Scene/HK Prime/Slashes";
+    internal const string false_knight_scene = "GG_False_Knight";
+    internal const string false_knight_name = "Battle Scene/False Knight New";
+
+    internal const string GG_level_scene = "GG_Atrium";
+
+    internal const string GG_level_name = "gg_roof_door_pieces/GG_door_caps/gg_roof_lever/gg_roof_lever";
+
+
+
     internal static List<(string, string)> GetPreloadNames()
     {
         return new()
@@ -27,7 +36,9 @@ internal static class PreloadManager
             (mushroom_scene,bow_mushroom_name),
             (mushroom_scene,roller_mushroom_name),
             (grimm_scene,grimm_name),
-            (hk_scene,hk_slash_effect_name)
+            (hk_scene,hk_slash_effect_name),
+            (false_knight_scene,false_knight_name),
+            (GG_level_scene, GG_level_name)
 
         };
     }
@@ -36,6 +47,7 @@ internal static class PreloadManager
     {
         BossManager.Init(preloadedObjects);
         Uradiance.Init(preloadedObjects);
+        BattleChampions.Init(preloadedObjects);
     }
 
 }

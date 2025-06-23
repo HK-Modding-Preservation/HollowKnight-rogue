@@ -85,6 +85,8 @@ public class ItemManager : MonoBehaviour
     public GameObject item_restbench = null;
 
     public GameObject item_fly_go = null;
+
+    public GameObject item_level_go = null;
     public Action after_revive_action = null;
 
     internal List<Giftname> roleList = new List<Giftname>
@@ -248,6 +250,7 @@ public class ItemManager : MonoBehaviour
         time_display_text_pro.fontSize = 6;
         time_display_text_pro.color = new Color(1, 1, 1, alpha);
         if (all_font != null) time_display_text_pro.font = all_font;
+        DisplayManager.ShowScore(GameInfo.score);
 
     }
 

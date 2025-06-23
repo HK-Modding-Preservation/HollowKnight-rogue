@@ -43,7 +43,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
     }
 
 
-
+    internal bool Test = true;
     public setting _set = new();
     public static actions self_actions = new();
     private string item_scene = "Tutorial_01";
@@ -243,6 +243,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         GameObject rogue_go = new GameObject("rogue_go");
         UnityEngine.Object.DontDestroyOnLoad(rogue_go);
         itemManager = rogue_go.AddComponent<ItemManager>();
+        BugFixManager.Init();
 
 
         On.PlayMakerFSM.OnEnable += CharmsInit;
@@ -805,5 +806,12 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         playMakerFSM.SendEvent("DISPLAY ENEMY DREAM");
     }
 
+    internal static void TestLog(object msg)
+    {
+        if (Instance.Test)
+        {
+            Instance.Log(msg);
+        }
 
+    }
 }

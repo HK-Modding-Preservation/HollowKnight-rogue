@@ -5,6 +5,7 @@ using Satchel.Futils;
 using UnityEngine.UIElements;
 
 namespace rogue.ModBosses;
+
 internal class Uradiance : MonoBehaviour
 {
 
@@ -72,6 +73,7 @@ internal class Uradiance : MonoBehaviour
     GameObject slash_effect = null;
     static GameObject slash_go;
     GameObject slash_inst = null;
+    List<GameObject> final_beams = new();
 
 
     private void Awake()
@@ -94,6 +96,10 @@ internal class Uradiance : MonoBehaviour
         BeamAnticClip = _com.GetAction<AudioPlayerOneShotSingle>("Aim", 1).audioClip.Value as AudioClip;
         BeamFireClip = _com.GetAction<AudioPlayerOneShotSingle>("Aim", 3).audioClip.Value as AudioClip;
         orb = _com.GetAction<SpawnObjectFromGlobalPool>("Spawn Fireball", 1).gameObject.Value;
+        if (!BugFixManager.recycle_list.Contains(orb))
+        {
+            BugFixManager.recycle_list.Add(orb);
+        }
         sword = _com.GetAction<SpawnObjectFromGlobalPool>("CW Spawn", 0).gameObject.Value;
         glow = _com.FsmVariables.FindFsmGameObject("Eye Beam Glow").Value;
         beam = GameObject.Instantiate(gameObject.transform.parent.Find("Radiant Beam").gameObject);
@@ -122,8 +128,8 @@ internal class Uradiance : MonoBehaviour
 
 
 
-        // ModifyAcend();
-        // ModifyFinal();
+        ModifyAcend();
+        ModifyFinal();
         // ModifyScene();
 
         _con.InsertCustomAction("Tendrils1", () => { ModifyPlatsPhase(); }, 0);
@@ -160,11 +166,11 @@ internal class Uradiance : MonoBehaviour
         beam.SetActive(true);
         PlayMakerFSM beamFSM = beam.LocateMyFSM("Control");
         if (clip)
-            aus.PlayOneShot(BeamAnticClip, 0.5f * GameManager.instance.gameSettings.soundVolume / 10f);
+            aus.PlayOneShot(BeamAnticClip, 0.5f * GameManager.instance.gameSettings.masterVolume / 10f * GameManager.instance.gameSettings.soundVolume / 10f);
         beamFSM.SendEvent("ANTIC");
         yield return new WaitForSeconds(antic);
         if (clip)
-            aus.PlayOneShot(BeamFireClip, 0.5f * GameManager.instance.gameSettings.soundVolume / 10f);
+            aus.PlayOneShot(BeamFireClip, 0.5f * GameManager.instance.gameSettings.masterVolume / 10f * GameManager.instance.gameSettings.soundVolume / 10f);
         beamFSM.SendEvent("FIRE");
         yield return new WaitForSeconds(fire);
         beamFSM.SendEvent("END");
@@ -458,27 +464,35 @@ internal class Uradiance : MonoBehaviour
         }
         void Add3LittleOrb(PlayMakerFSM o_fsm)
         {
+            Log("Before Add3");
             float angle = UnityEngine.Random.Range(0, 360f);
             float v = 5f;
             for (int i = 0; i < 3; i++)
             {
+
                 float new_angle = angle + i * 120f;
                 GameObject new_little_orb = orb.Spawn(o_fsm.transform.position);
                 new_little_orb.LocateMyFSM("Orb Control").RemoveAction("Recycle", 0);
                 new_little_orb.LocateMyFSM("Orb Control").AddAction("Recycle", new DestroySelf());
+                new_little_orb.LocateMyFSM("Final Control").RemoveAction("Recycle", 0);
+                new_little_orb.LocateMyFSM("Final Control").AddAction("Recycle", new DestroySelf());
                 new_little_orb.LocateMyFSM("Orb Control").GetAction<SetDamageHeroAmount>("Init", 5).damageDealt = 1;
                 new_little_orb.LocateMyFSM("Orb Control").GetAction<SetScale>("Init", 2).x = 0.7f;
                 new_little_orb.LocateMyFSM("Orb Control").GetAction<SetScale>("Init", 2).y = 0.7f;
                 new_little_orb.LocateMyFSM("Orb Control").GetAction<SetIsKinematic2d>("Init", 1).isKinematic = false;
+                new_little_orb.LocateMyFSM("Orb Control").GetAction<ChaseObjectV2>("Chase Hero", 3).speedMax = 16f;
+                new_little_orb.LocateMyFSM("Orb Control").GetAction<ChaseObjectV2>("Chase Hero 2", 4).speedMax = 16f;
                 new_little_orb.SetActive(false);
                 new_little_orb.SetActive(true);
                 new_little_orb.GetComponent<Rigidbody2D>().velocity = new Vector2(v * Mathf.Cos(new_angle / 180f * Mathf.PI), v * Mathf.Sin(new_angle / 180f * Mathf.PI));
                 new_little_orb.LocateMyFSM("Orb Control").SendEvent("FIRE");
             }
+            Log("After Add3");
         }
 
         _com.InsertCustomAction("Spawn Fireball", (fsm) =>
         {
+            Log("Spawn a Fireball");
             var orb = fsm.FsmVariables.FindFsmGameObject("Projectile").Value;
             var final_fsm = orb.LocateMyFSM("Final Control");
             final_fsm.RemoveAction("Recycle", 0);
@@ -488,6 +502,7 @@ internal class Uradiance : MonoBehaviour
             orb_fsm.AddAction("Recycle", new DestroySelf());
             orb_fsm.InsertCustomAction("Impact", Add3LittleOrb, 0);
             orb_fsm.InsertCustomAction("Stop Particles", Add3LittleOrb, 0);
+            Log("Spawn a Fireball end");
         }, 2);
         //Orb2替代BeamSweepL
         var orb_wait_2 = _cho.CopyState("Orb Wait", "Orb Wait 2");
@@ -531,7 +546,7 @@ internal class Uradiance : MonoBehaviour
             float angle = UnityEngine.Random.Range(0, 360f);
             bb.transform.SetRotation2D(angle);
             SendEventToBB(bb, "ANTIC");
-            yield return new WaitForSeconds(0.425f);
+            yield return new WaitForSeconds(0.6f);
             SendEventToBB(bb, "FIRE");
             for (int i = 0; i < 10; i++, angle += 5f)
             {
@@ -620,6 +635,11 @@ internal class Uradiance : MonoBehaviour
             {
                 now_sword.GetComponent<tk2dSprite>().color = Color.Lerp(Color.white, Color.red, timer / 10f);
                 timer += Time.deltaTime;
+                if (_con.ActiveStateName == "Rage Comb" || _con.ActiveStateName == "Rage1 Loop")
+                {
+                    now_sword.LocateMyFSM("Control").SendEvent("NAIL END");
+                    yield break;
+                }
                 yield return null;
             }
             GameObject bb = GameObject.Instantiate(_com.FsmVariables.FindFsmGameObject("Eye Beam Burst2").Value);
@@ -695,7 +715,7 @@ internal class Uradiance : MonoBehaviour
         IEnumerator SwordAttack()
         {
             yield return null;
-            _tele.SendEvent("TELEPORT");
+            base.GetComponent<tk2dSpriteAnimator>().Play("Cast");
             float angle = DoGetAngle(glow.transform.position, knight.transform.position);
             angle -= 90f;
             bool cw = UnityEngine.Random.Range(0, 2) == 0;
@@ -710,27 +730,34 @@ internal class Uradiance : MonoBehaviour
                 angle -= 30f;
                 add = 30f;
             }
-            List<GameObject> swords = new();
-            for (int i = 0; i < 3; i++, angle += add)
+            for (int j = 0; j < 2; j++)
             {
-                var now_sword = sword.Spawn(glow.transform.position);
-                now_sword.SetActive(true);
-                now_sword.transform.SetRotation2D(angle);
-                swords.Add(now_sword);
-                yield return new WaitForFixedUpdate();
-                now_sword.LocateMyFSM("Control").SendEvent("FAN ANTIC");
-            }
-            yield return new WaitForSeconds(0.3f);
-            foreach (var sword in swords)
-            {
-                if (cw)
+                List<GameObject> swords = new();
+                for (int i = 0; i < 3; i++, angle += add)
                 {
-                    sword.LocateMyFSM("Control").SendEvent("FAN ATTACK CW");
+                    var now_sword = sword.Spawn(glow.transform.position);
+                    now_sword.SetActive(true);
+                    now_sword.transform.SetRotation2D(angle);
+                    swords.Add(now_sword);
+                    yield return new WaitForFixedUpdate();
+                    now_sword.LocateMyFSM("Control").SendEvent("FAN ANTIC");
                 }
-                else
+                yield return new WaitForSeconds(0.3f);
+                foreach (var sword in swords)
                 {
-                    sword.LocateMyFSM("Control").SendEvent("FAN ATTACK CCW");
+                    if (cw)
+                    {
+                        sword.LocateMyFSM("Control").SendEvent("FAN ATTACK CW");
+                    }
+                    else
+                    {
+                        sword.LocateMyFSM("Control").SendEvent("FAN ATTACK CCW");
+                    }
                 }
+                angle -= add;
+                add = -add;
+                cw = !cw;
+                if (j == 0) _tele.SendEvent("TELEPORT");
             }
             yield break;
         }
@@ -780,8 +807,10 @@ internal class Uradiance : MonoBehaviour
                 aus.clip = BeamAnticClip;
                 aus.Play();
             });
+
             var wait = t_nail.LocateMyFSM("Control").AddState("Wait");
-            wait.AddAction(new Wait() { time = 0.5f });
+            wait.AddAction(new Wait() { time = 0.5f, finishEvent = FsmEvent.Finished });
+
             wait.AddTransition("FINISHED", "Set Collider");
             t_nail.LocateMyFSM("Control").ChangeTransition("Appear", "FINISHED", "Wait");
             switch (i)
@@ -804,6 +833,22 @@ internal class Uradiance : MonoBehaviour
                         fsm.gameObject.transform.parent.gameObject.FindGameObjectInChildren("slash_effect").SetActive(true);
                         fsm.gameObject.SetActive(false);
                     }, 1);
+                    t_nail.LocateMyFSM("Control").AddCustomAction("Appear", (fsm) => { fsm.gameObject.transform.SetRotationZ(0); });
+                    wait.AddCustomAction((state) =>
+            {
+                IEnumerator SwordAntic()
+                {
+                    GameObject go = state.Fsm.GameObject;
+                    float timer = 0;
+                    while (timer < 0.3f)
+                    {
+                        timer += Time.deltaTime;
+                        go.transform.Rotate(0, 0, -40 * Time.deltaTime);
+                        yield return null;
+                    }
+                }
+                base.StartCoroutine(SwordAntic());
+            });
                     break;
                 case 2:
                     var collider = slash_effect.transform.parent.GetComponent<PolygonCollider2D>();
@@ -829,6 +874,22 @@ internal class Uradiance : MonoBehaviour
                         fsm.gameObject.transform.parent.gameObject.FindGameObjectInChildren("slash_effect").SetActive(true);
                         fsm.gameObject.SetActive(false);
                     }, 1);
+                    t_nail.LocateMyFSM("Control").AddCustomAction("Appear", (fsm) => { fsm.gameObject.transform.SetRotationZ(0); });
+                    wait.AddCustomAction((state) =>
+            {
+                IEnumerator SwordAntic()
+                {
+                    GameObject go = state.Fsm.GameObject;
+                    float timer = 0;
+                    while (timer < 0.3f)
+                    {
+                        timer += Time.deltaTime;
+                        go.transform.Rotate(0, 0, -120 * Time.deltaTime);
+                        yield return null;
+                    }
+                }
+                base.StartCoroutine(SwordAntic());
+            });
                     break;
                 case 3:
                     slash_effect.transform.localPosition = new Vector3(-0.4f, -0.4f, 0);
@@ -856,6 +917,23 @@ internal class Uradiance : MonoBehaviour
                         fsm.gameObject.transform.parent.gameObject.FindGameObjectInChildren("slash_effect").SetActive(true);
                         fsm.gameObject.SetActive(false);
                     }, 1);
+                    t_nail.LocateMyFSM("Control").AddCustomAction("Appear", (fsm) => { fsm.gameObject.transform.localEulerAngles = new Vector3(0, 0, -90); });
+                    wait.AddCustomAction((state) =>
+                    {
+                        IEnumerator SwordAntic()
+                        {
+                            GameObject go = state.Fsm.GameObject;
+                            float timer = 0;
+                            while (timer < 0.3f)
+                            {
+                                timer += Time.deltaTime;
+                                go.transform.parent.Translate(-10 * go.transform.parent.GetScaleX() * Time.deltaTime, 0, 0, Space.Self);
+                                yield return null;
+                            }
+                            // go.GetComponent<tk2dSpriteAnimator>().PlayFromFrame("Nail Antic", 4);
+                        }
+                        base.StartCoroutine(SwordAntic());
+                    });
                     break;
             }
             t_nail.SetActive(false);
@@ -883,7 +961,7 @@ internal class Uradiance : MonoBehaviour
                 var slash = slash_inst.FindGameObjectInChildren("Slash" + i);
                 if (slash != null)
                 {
-                    slash.transform.SetScaleX(-0.8625f * direction);
+                    slash.transform.SetScaleX(-1f * direction);
                     slash.transform.position = knight.transform.position + new Vector3(-4 * direction, 0, 0);
                     slash.FindGameObjectInChildren("sword").SetActive(true);
                     slash.FindGameObjectInChildren("sword").LocateMyFSM("Control").SetState("Appear");
@@ -976,7 +1054,6 @@ internal class Uradiance : MonoBehaviour
                     x = Random.Range(48f, 75f);
                     foreach (var lx in positions)
                     {
-                        Log(lx + " " + x);
                         if (Mathf.Abs(x - lx) < 3f)
                         {
                             flag = true;
@@ -1016,7 +1093,6 @@ internal class Uradiance : MonoBehaviour
         }
         _cho.InsertCustomAction("Nail Top Sweep", () =>
         {
-            Log("Nail Top Sweep");
             StartCoroutine(BeamRain());
         }, 0);
     }
@@ -1384,138 +1460,82 @@ internal class Uradiance : MonoBehaviour
     }
     private void ModifyAcend()
     {
-        gap = 0.5f;
-        height = 70f;
-        _com.InsertCustomAction("Comb Top 2", () =>
+        _con.AddCustomAction("Ascend Cast", () =>
         {
-            GameObject nails = _com.FsmVariables.FindFsmGameObject("Attack Obj").Value;
-            if (height < 160f) { height += 4.5f; }
-            else { gap = 1.2f; }
-            nails.LocateMyFSM("Control").GetAction<SetPosition>("Top 2", 0).y = height;
-            nails.LocateMyFSM("Control").GetAction<SetFloatValue>("Top 2", 2).floatValue = 8f;
-            nails.LocateMyFSM("Control").GetAction<iTweenMoveBy>("Tween", 0).vector = new Vector3(0, 150, 0);
-            nails.LocateMyFSM("Control").InsertCustomAction("Antic", () =>
+            StartCoroutine(AscendSlash());
+        });
+        IEnumerator AscendSlash()
+        {
+            int last_t = 0;
+            while (_con.ActiveStateName == "Ascend Cast")
             {
-                List<GameObject> nailist = new List<GameObject>();
-                nails.LocateMyFSM("Control").FsmVariables.FindFsmGameObject("Nails").Value.FindAllChildren(nailist);
-                foreach (var nail in nailist)
+                int t = general_random.Next(1, 4);
+                if (t == last_t)
                 {
-
-                    if (nail.name.Contains("Radiant Nail"))
-                    {
-                        nail.transform.SetPositionY(nail.transform.GetPositionY() + UnityEngine.Random.Range(-3f, 3f));
-                        nail.transform.SetPositionX(nail.transform.GetPositionX() + UnityEngine.Random.Range(-0.75f, 0.75f));
-                    }
+                    t += 1;
+                    t %= 3;
+                    t += 1;
                 }
-                nails.LocateMyFSM("Control").RemoveAction("Antic", 2);
-            }, 2);
-        }, 3);
+                last_t = t;
+                int direction = general_random.Next(0, 2) == 0 ? -1 : 1;
+                var slash = slash_inst.FindGameObjectInChildren("Slash" + t);
+                if (slash != null)
+                {
+                    slash.transform.SetScaleX(-1f * direction);
+                    slash.transform.position = knight.transform.position + new Vector3(-4 * direction, 0, 0);
+                    slash.FindGameObjectInChildren("sword").SetActive(true);
+                    slash.FindGameObjectInChildren("sword").LocateMyFSM("Control").SetState("Appear");
+                    direction *= -1;
+                    yield return new WaitForSeconds(0.75f);
+                }
 
-        _con.RemoveAction("Plat Setup", 4);
-        _con.RemoveAction("Plat Setup", 2);
-        _con.InsertCustomAction("Plat Setup", () =>
-        {
-            GameObject.Find("Radiant Plat Small (11)").LocateMyFSM("radiant_plat").SendEvent("APPEAR");
-            GameObject.Find("Radiant Plat Small (10)").LocateMyFSM("radiant_plat").SendEvent("APPEAR");
-            PlayerData.instance.SetHazardRespawn(new Vector3(59f, 46f, 0), true);
-
-            Clock = Instantiate(_com.GetAction<SpawnObjectFromGlobalPool>("Spawn Fireball", 1).gameObject.Value);
-            clock = Clock.GetComponent<AudioSource>();
-            clock.Stop();
-            Clock.transform.SetPosition2D(0f, 0f);
-            hourHand = Instantiate(oribeam);
-            clock = hourHand.GetComponent<AudioSource>();
-            if (clock != null)
-                clock.Stop();
-            hourHand.transform.SetRotation2D(0);
-            hourHand.transform.SetPosition2D(0f, 0f);
-            minuteHand = Instantiate(oribeam);
-            clock = minuteHand.GetComponent<AudioSource>();
-            if (clock != null)
-                clock.Stop();
-            minuteHand.transform.SetRotation2D(0);
-            minuteHand.transform.SetPosition2D(0f, 0f);
-            secondHand = Instantiate(oribeam);
-            clock = secondHand.GetComponent<AudioSource>();
-            if (clock != null)
-                clock.Stop();
-            clock = secondHand.GetAddComponent<AudioSource>();
-            secondHand.transform.SetRotation2D(0);
-            secondHand.transform.SetPosition2D(0f, 0f);
-
-
-            Clock.transform.SetParent(timeClock.transform);
-            hourHand.transform.SetParent(timeClock.transform);
-            minuteHand.transform.SetParent(timeClock.transform);
-            secondHand.transform.SetParent(timeClock.transform);
-            hourHand.transform.localScale = new Vector3(5f, 3f, 1f);
-            minuteHand.transform.localScale = new Vector3(10f, 2f, 1f);
-            secondHand.transform.SetScaleY(1f);
-            timeClock.transform.SetPosition2D(63f, 97.5f);
-            hourHand.transform.SetRotation2D(hour);
-            minuteHand.transform.SetRotation2D(minute);
-            secondHand.transform.SetRotation2D(second);
-            timeClock.SetActiveChildren(true);
-            StartCoroutine(BeamFire(hourHand, 5f, 9999f, 0));
-            StartCoroutine(BeamFire(minuteHand, 5f, 9999f, 0));
-            StartCoroutine(BeamFire(secondHand, 5f, 9999f, 0));
-
-
-
-
-        }, 2);
-        _con.GetAction<Wait>("Plat Setup", 5).time = 0.5f;
-        _con.GetAction<SendEventByName>("Ascend Cast", 1).sendEvent = "COMB TOP2";
-
-
-        _con.InsertCustomAction("Scream", () =>
-        {
-            _com.GetVariable<FsmGameObject>("Attack Obj").Value.LocateMyFSM("Control").SetState("Reset");
-            GameObject.Find("Abyss Pit").LocateMyFSM("Ascend").FsmVariables.FindFsmFloat("Hero Y").Value = knight.transform.position.y;
-            GameObject.Find("Abyss Pit").LocateMyFSM("Ascend").SendEvent("ASCEND");
-            global::PlayerData.instance.SetHazardRespawn(new Vector3(58, 153, 0), true);
-            timeClock.SetActive(false);
-            final = true;
-        }, 8);
-
-
+            }
+        }
+        _com.GetAction<Wait>("Aim", 11).time = 1.2f;
 
     }
 
     private void ModifyFinal()
     {
 
-        _com.RemoveTransition("Set Final Orbs", "FINISHED");
-        int num = 3;
-        float distance = 3f;
-        _con.InsertAction("Scream", new Wait() { time = 5f, realTime = false }, 8);
+
 
         _con.InsertCustomAction("Scream", () =>
         {
-
-            for (int i = 1; i < num + 1; i++)
+            final_beams.Clear();
+            for (int i = 0; i < 3; i++)
             {
-                useorbs[i].LocateMyFSM("Orb Control").GetAction<ChaseObjectV2>("Chase Hero", 3).target = gameObject;
-                useorbs[i].LocateMyFSM("Orb Control").GetAction<ChaseObjectV2>("Chase Hero 2", 4).target = gameObject;
-                useorbs[i].LocateMyFSM("Orb Control").RemoveAction("Chase Hero", 2);
-                useorbs[i].LocateMyFSM("Orb Control").RemoveAction("Chase Hero", 0);
-                useorbs[i].LocateMyFSM("Orb Control").RemoveAction("Chase Hero 2", 3);
-                useorbs[i].LocateMyFSM("Orb Control").RemoveAction("Chase Hero 2", 2);
-                useorbs[i].LocateMyFSM("Orb Control").RemoveAction("Chase Hero 2", 0);
-                useorbs[i].transform.position = gameObject.transform.position + distance * new Vector3(Mathf.Cos(i * (360f / num)), Mathf.Sin(i * (360f / num)), 0);
-                useorbs[i].LocateMyFSM("Orb Control").SetState("Init");
+                final_beams.Add(GameObject.Instantiate(oribeam));
             }
-            StartCoroutine(finalshow());
+            final_beams[0].transform.position = new Vector3(48, 163.8248f, 0.004f);
+            final_beams[0].transform.SetScaleX(30);
+            final_beams[0].transform.SetRotation2D(0);
+            final_beams[1].transform.position = new Vector3(50, 163.8248f, 0.004f);
+            final_beams[1].transform.SetScaleX(30);
+            final_beams[1].transform.SetRotation2D(270f);
+            final_beams[2].transform.position = new Vector3(77, 163.8248f, 0.004f);
+            final_beams[2].transform.SetScaleX(30);
+            final_beams[2].transform.SetRotation2D(270f);
+            StartCoroutine(BeamFire());
+
         }, 2);
-
-        _com.InsertCustomAction("Final Hit", () =>
+        IEnumerator BeamFire()
         {
-            for (int i = 1; i < num + 1; i++)
+            yield return new WaitForSeconds(0.5f);
+            foreach (var beam in final_beams)
             {
-                useorbs[i].LocateMyFSM("Orb Control").SendEvent("DESTROY");
-                useorbs[i].SetActive(false);
+                beam.SetActive(true);
+                beam.layer = LayerMask.NameToLayer("Terrain");
+                beam.LocateMyFSM("Control").SendEvent("ANTIC");
             }
-        }, 0);
+            yield return new WaitForSeconds(0.5f);
+            foreach (var beam in final_beams)
+            {
+                beam.LocateMyFSM("Control").SendEvent("FIRE");
+            }
+        }
+
+
 
     }
 
@@ -1559,6 +1579,7 @@ internal class Uradiance : MonoBehaviour
     }
 
     int update_count = 0;
+
     private void Update()
     {
         // update_count++;
@@ -1577,6 +1598,9 @@ internal class Uradiance : MonoBehaviour
         //Log(_com.GetVariable<FsmVector3>("Hero Pos"));
 
         // if (_con.ActiveStateName == "Ascend Cast")
+        // {
+
+        // }
         // {
         //     if (gapnow >= gap)
         //     {
