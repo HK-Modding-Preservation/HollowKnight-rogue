@@ -3,6 +3,7 @@
 
 
 namespace rogue.Characters;
+
 internal class Uunn : Character
 {
     public Uunn()
@@ -21,7 +22,7 @@ internal class Uunn : Character
         if (PlayerData.instance.charmSlots > 11) PlayerData.instance.charmSlots = 11;
         PlayerData.instance.gotCharm_7 = true;
         PlayerData.instance.gotCharm_28 = true;
-        ItemManager.Instance.after_scene_add_geo_num += UunnReward;
+        ProcessManager.Instance.after_scene_add_geo_num += UunnReward;
     }
 
     public override void GetBirthright(int num)
@@ -136,6 +137,6 @@ internal class Uunn : Character
 
     public override void EndCharacter()
     {
-        ItemManager.Instance.after_scene_add_geo_num -= UunnReward;
+        ProcessManager.Instance.after_scene_add_geo_num -= UunnReward;
     }
 }

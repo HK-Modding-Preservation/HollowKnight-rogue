@@ -1,3 +1,4 @@
+using System.Reflection;
 using rogue;
 using rogue.NPCs;
 using Unity.IO.LowLevel.Unsafe;
@@ -50,7 +51,7 @@ internal static class NPCManager
     }
     internal static void Init(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
     {
-        NPC.template = GameObject.Instantiate(preloadedObjects[Rogue.card_scene][Rogue.card_name]);
+        NPC.template = GameObject.Instantiate(PreloadManager.getGO(RogueUIManager.card_scene, RogueUIManager.card_name));
         NPC.template.SetActive(false);
         GameObject.DontDestroyOnLoad(NPC.template);
         npcs.Add(typeof(ElderBug).Name, new ElderBug(preloadedObjects[elderbug_scene][elderbug_go].GetComponent<tk2dSpriteAnimator>().Library));
@@ -61,6 +62,23 @@ internal static class NPCManager
         npcs.Add(typeof(QuirrelNail).Name, new QuirrelNail(preloadedObjects[quirrel_nail_scene][quirrel_nail_name].GetComponent<SpriteRenderer>().sprite));
         npcs.Add(typeof(CharmSlug).Name, new CharmSlug(preloadedObjects[charm_slug_scene][charm_slug_name].GetComponent<tk2dSpriteAnimator>().Library, GameObject.Instantiate(preloadedObjects[charm_slug_scene][charm_slug_desk])));
         npcs.Add(typeof(Nailsmith).Name, new Nailsmith(preloadedObjects[nailsmith_scene][nailsmith_name].GetComponent<tk2dSpriteAnimator>().Library));
+        npcs.Add(typeof(Leveler).Name, new Leveler(preloadedObjects[RogueSceneManager.GG_level_scene][RogueSceneManager.GG_level_name].GetComponent<tk2dSpriteAnimator>().Library));
     }
-
+    internal static void GameLoadInit()
+    {
+        foreach (var npc in npcs.Values)
+        {
+            PlayMakerFSM fsm = npc.go.LocateMyFSM("npc_control");
+            foreach (var state in fsm.FsmStates)
+            {
+                foreach (var action in state.Actions)
+                {
+                    if (action is CallMethodProper callMethod)
+                    {
+                        ReflectionHelper.SetField<CallMethodProper, MethodInfo>(callMethod, "cachedMethodInfo", null);
+                    }
+                }
+            }
+        }
+    }
 }

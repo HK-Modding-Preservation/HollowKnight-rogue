@@ -1,5 +1,6 @@
 
 namespace rogue;
+
 internal static class BugFixManager
 {
     internal static List<GameObject> recycle_list = new();
@@ -16,5 +17,9 @@ internal static class BugFixManager
             Rogue.TestLog(prefab.name + "still has" + ObjectPool.CountPooled(prefab));
             ObjectPool.DestroyPooled(prefab);
         }
+    }
+    internal static void GameLoadInit()
+    {
+
     }
 }

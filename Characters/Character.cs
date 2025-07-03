@@ -4,6 +4,7 @@ using System.Configuration;
 using Unity.IO.LowLevel.Unsafe;
 
 namespace rogue.Characters;
+
 public enum CharacterRole
 {
 
@@ -111,7 +112,7 @@ public abstract class Character : MonoBehaviour
         GetBirthright(num);
         got_birthright.Add(num);
         GiftFactory.UpdateWeight();
-        ItemManager.Instance.DisplayStates();
+        DisplayManager.DisplayStates();
     }
     public virtual void ExecRemoveBirthright(int num)
     {
@@ -144,7 +145,7 @@ public abstract class Character : MonoBehaviour
         BeginCharacter();
         On.HealthManager.TakeDamage += DamageMul;
         ItemManager.Instance.after_revive_action += AfterRevive;
-        ItemManager.Instance.DisplayStates();
+        DisplayManager.DisplayStates();
     }
 
     protected virtual void AfterRevive()

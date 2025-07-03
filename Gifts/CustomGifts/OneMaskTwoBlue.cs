@@ -1,6 +1,7 @@
 
 
 namespace rogue;
+
 internal class OneMaskTwoBlue : CustomGift
 {
     public OneMaskTwoBlue() : base(Giftname.custom_one_mask_two_blue, 4, "witches_eye")
@@ -14,7 +15,7 @@ internal class OneMaskTwoBlue : CustomGift
 
     protected override void _GetGift()
     {
-        ItemManager.Instance.after_scene_add_geo_num += RemoveMaskAddBlue;
+        ProcessManager.Instance.after_scene_add_geo_num += RemoveMaskAddBlue;
         On.PlayerData.UpdateBlueHealth += AddTwoBlue;
     }
 
@@ -34,7 +35,7 @@ internal class OneMaskTwoBlue : CustomGift
 
     protected override void _RemoveGift()
     {
-        ItemManager.Instance.after_scene_add_geo_num -= RemoveMaskAddBlue;
+        ProcessManager.Instance.after_scene_add_geo_num -= RemoveMaskAddBlue;
         On.PlayerData.UpdateBlueHealth -= AddTwoBlue;
     }
 }

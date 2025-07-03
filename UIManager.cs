@@ -65,6 +65,8 @@ internal static class RogueUIManager
     }
 
     static bool initialized = false;
+    internal const string card_scene = "RestingGrounds_09";
+    internal const string card_name = "Cornifer Card";
 
     //Toll Cost 显示吉欧数
 
@@ -72,6 +74,14 @@ internal static class RogueUIManager
     {
         internal static bool initialized = false;
         internal static Satchel.CustomDialogueManager customDialogueManager;
+    }
+    internal static void Init()
+    {
+        DialogueUI.customDialogueManager = new(PreloadManager.getGO(card_scene, card_name));
+        DialogueUI.customDialogueManager.DialogManager.GetComponent<SpriteRenderer>().enabled = false;
+        DialogueUI.customDialogueManager.DialogManager.FindGameObjectInChildren("Shiny").SetActive(false);
+        DialogueUI.initialized = true;
+        conversation = "132";
     }
 
     internal static string conversation = "";
@@ -152,7 +162,7 @@ internal static class RogueUIManager
         yield return new WaitForSeconds(delay);
         DialogueUI.customDialogueManager.ShowDialogue(conv_name);
 
-    }
+        }
     internal static IEnumerator _StartSelection(float delay, string conversation, List<SelectItem> items, int cancel_num)
     {
         RogueUIManager.conversation = conversation;

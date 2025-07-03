@@ -2,6 +2,7 @@ using System.Data;
 using Steamworks;
 
 namespace rogue;
+
 internal static class BossManager
 {
     static GameObject big_bee;
@@ -146,7 +147,30 @@ internal static class BossManager
         }
         yield break;
     }
+    internal static IEnumerator Replacify(string scene_name)
+    {
+        On.ObjectPool.Spawn_GameObject_Transform_Vector3_Quaternion += SetActive;
+        switch (scene_name)
+        {
+            case "GG_Vengefly_V":
+                yield return null;
+                yield return ItemManager.Instance.StartCoroutine(ReplacifyVengefly());
+                break;
 
+            case "GG_Hive_Knight":
+                yield return null;
+                break;
+            case "GG_Ghost_Hu":
+                yield return null;
+                break;
+            case "GG_Grimm":
+                yield return null;
+                break;
+            default:
+                break;
+        }
+        On.ObjectPool.Spawn_GameObject_Transform_Vector3_Quaternion -= SetActive;
+    }
     internal static IEnumerator LoveKeyify(string sceneName)
     {
         On.ObjectPool.Spawn_GameObject_Transform_Vector3_Quaternion += SetActive;
@@ -169,6 +193,19 @@ internal static class BossManager
         }
         On.ObjectPool.Spawn_GameObject_Transform_Vector3_Quaternion -= SetActive;
     }
+    static IEnumerator ReplacifyVengefly()
+    {
+        can_self_over = true;
+        bossleft = 2;
+        GameObject.Find("Giant Buzzer Col (1)").SetActive(false);
+        GameObject.Find("Giant Buzzer Col").SetActive(false);
+        yield return new WaitForSeconds(3f);
+        float breakY = HeroController.instance.transform.position.y;
+        ItemManager.Instance.StartCoroutine(EnemyAppear(big_bee, new Vector3(HeroController.instance.transform.position.x, breakY + 8), 250));
+        yield return new WaitForSeconds(1f);
+        ItemManager.Instance.StartCoroutine(EnemyAppear(big_bee, new Vector3(HeroController.instance.transform.position.x, breakY + 8), 250));
+        yield break;
+    }
 
     private static IEnumerator LoveKeyifyGrimm()
     {
@@ -180,7 +217,7 @@ internal static class BossManager
         {
             var cur_jar = jar.Spawn();
             cur_jar.transform.position = new Vector3(HeroController.instance.transform.position.x, breakY + 8);
-            if (ItemManager.Instance.scenename.Contains("GG_Collector"))
+            if (ProcessManager.scene_name.Contains("GG_Collector"))
             {
                 cur_jar.GetComponent<SpawnJarControl>().breakY = 94.55f;
                 cur_jar.GetComponent<SpawnJarControl>().spawnY = 106.52f;
@@ -205,7 +242,7 @@ internal static class BossManager
         {
             var cur_jar = jar.Spawn();
             cur_jar.transform.position = new Vector3(HeroController.instance.transform.position.x, breakY + 8);
-            if (ItemManager.Instance.scenename.Contains("GG_Collector"))
+            if (ProcessManager.scene_name.Contains("GG_Collector"))
             {
                 cur_jar.GetComponent<SpawnJarControl>().breakY = 94.55f;
                 cur_jar.GetComponent<SpawnJarControl>().spawnY = 106.52f;
@@ -234,7 +271,7 @@ internal static class BossManager
         {
             var cur_jar = jar.Spawn();
             cur_jar.transform.position = new Vector3(HeroController.instance.transform.position.x, breakY + 8);
-            if (ItemManager.Instance.scenename.Contains("GG_Collector"))
+            if (ProcessManager.scene_name.Contains("GG_Collector"))
             {
                 cur_jar.GetComponent<SpawnJarControl>().breakY = 94.55f;
                 cur_jar.GetComponent<SpawnJarControl>().spawnY = 106.52f;
@@ -306,10 +343,44 @@ internal static class BossManager
                 FsmVariables.GlobalVariables.FindFsmGameObject("HUD Canvas").Value.LocateMyFSM("Slide Out").SendEvent("IN");
                 ModifyTHK();
                 break;
+
             default:
                 break;
         }
     }
+    internal static IEnumerator EnemyAppear(GameObject enemy, Vector3 pos, int health)
+    {
+        if (enemy == null) yield break;
+        var res = GameObject.Instantiate(enemy);
+        if (spawn_health_gos.Contains(enemy))
+        {
+            res.GetComponent<HealthManager>().OnDeath -= DeathCount;
+            res.GetComponent<HealthManager>().OnDeath += DeathCount;
+        }
+        res.transform.position = pos;
+        res.SetActive(true);
+        res.GetComponent<HealthManager>().hp = health;
+        var da = res.GetComponent<DamageHero>();
+        if (da != null)
+        {
+            da.enabled = false;
+        }
+        var sprite = res.GetComponent<tk2dSprite>();
+        float delay = 1f;
+        while (delay > 0)
+        {
+            delay -= Time.deltaTime;
+            sprite.color = new Color(1, 1, 1, 1 - delay);
+            yield return null;
+        }
+        sprite.color = Color.white;
+        if (da != null)
+        {
+            da.enabled = true;
+        }
+        yield break;
+    }
+
 
 
     private static void ModifyTHK()

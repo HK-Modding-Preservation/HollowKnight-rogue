@@ -1,5 +1,6 @@
 
 namespace rogue.NPCs;
+
 internal abstract class NPC
 {
     internal static GameObject template;
@@ -142,9 +143,10 @@ internal abstract class NPC
             go.SetActive(false);
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= DeactivateSelf;
         }
+        
     }
 
-    void ShowTitle()
+    protected virtual void ShowTitle()
     {
         var title = HutongGames.PlayMaker.FsmVariables.GlobalVariables.FindFsmGameObject("AreaTitle").Value;
         title.SetActive(true);

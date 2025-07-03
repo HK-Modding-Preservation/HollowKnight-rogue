@@ -6,11 +6,13 @@ using UnityEngine.U2D;
 using rogue.Characters;
 using Mono.Security.Cryptography;
 using IL.tk2dRuntime.TileMap;
+using System.Diagnostics;
+using rogue.NPCs;
 
 namespace rogue;
 
 
-public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
+public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
 {
     internal static Rogue Instance;
 
@@ -44,79 +46,21 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
 
 
     internal bool Test = true;
-    public setting _set = new();
+    public Setting _set = new();
     public static actions self_actions = new();
-    private string item_scene = "Tutorial_01";
-    private string item = "_Props/Chest/Item/Shiny Item (1)";
-
-    private string shop_scene = "Room_shop";
-
-    private string shop_region = "Basement Closed/Shop Region";
-
-    private string shop_menu = "Shop Menu";
-    private string shop_counter = "_Scenery/Shop Counter";
-
-    private string gouBro_scene = "Mines_18_boss";
-
-    private string gouBro = "Mega Zombie Beam Miner (1)";
-
-    private string bench_scene = "Mines_18";
-
-    private string bench = "_Props/RestBench";
-
-    private string bank_scene = "Fungus3_35";
-    private string bank = "Bank Stand";
-    private string banker = "Banker";
-
-    private string white_palace = "White_Palace_01";
-
-    private string white_fly = "White Palace Fly";
-
-    internal const string card_scene = "RestingGrounds_09";
-    internal const string card_name = "Cornifer Card";
-
-    internal const string beam_scene = "GG_Radiance";
-    internal const string beam_name = "Boss Control/Radiant Beam";
-
-    internal const string butterfly_scene = "Cliffs_05";
-    internal const string butterfly_name = "Butterflies FG 1";
-    internal const string hk_scene = "GG_Hollow_Knight";
-    internal const string hk_name = "Battle Scene/HK Prime";
-
-    internal const string boss_scene_controler_scene = "GG_Vengefly_V";
-    internal const string boss_scene_controler_name = "Boss Scene Controller";
-
-    internal const string thk_scene = "Room_Final_Boss_Core";
-    internal const string thk_name = "Boss Control";
+    public GameObject rogue_go = null;
     public GameObject charms;
 
     public GameObject shiny_item = null;
-
-    public GameObject menu_go = null;
-
-    public GameObject shop_go = null;
-
-    public GameObject fly_go = null;
     public string charmString;
 
     public bool ToggleButtonInsideMenu => true;
 
-    public ItemManager itemManager;
+    public ItemManager itemManager => ItemManager.Instance;
 
     public Dictionary<GameObject, GameObject> shop_items = new();
 
     public SpriteAtlas all_sprites;
-
-
-
-    public tk2dSpriteAnimation gou_animation = null;
-
-    public tk2dSpriteAnimation bank_animation = null;
-    public tk2dSpriteAnimation banker_animation = null;
-
-    public GameObject bench_go = null;
-
-    public static int pretty_key_num = 0;
 
     BossSequence bossSequence;
 
@@ -126,135 +70,36 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
 
 
 
-
     public override List<(string, string)> GetPreloadNames()
     {
-        var list = new List<(string, string)>
-        {
-            ("Tutorial_01","_Props/Chest/Item/Shiny Item (1)"),
-            (shop_scene,shop_region),
-            (shop_scene,shop_menu),
-            (shop_scene,shop_counter),
-            (gouBro_scene,gouBro),
-            (bench_scene,bench),
-            (bank_scene,bank),
-            (bank_scene,banker),
-            (white_palace,white_fly),
-            (card_scene,card_name),
-            (beam_scene,beam_name),
-            (butterfly_scene,butterfly_name),
-            (hk_scene,hk_name),
-            (boss_scene_controler_scene,boss_scene_controler_name),
-            (thk_scene,thk_name)
-        };
-        return list.Concat(NPCManager.GetPreloadNames()).Concat(PreloadManager.GetPreloadNames()).ToList();
+
+        return NPCManager.GetPreloadNames().Concat(PreloadManager.GetPreloadNames()).ToList();
     }
 
     public override void Initialize(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
     {
+        rogue_go = new GameObject("rogue_go");
+        UnityEngine.Object.DontDestroyOnLoad(rogue_go);
         Lang.init();
         PreloadManager.Init(preloadedObjects);
-
-        shiny_item = UnityEngine.Object.Instantiate(preloadedObjects[item_scene][item]);
-        shiny_item.LocateMyFSM("Shiny Control").ChangeTransition("PD Bool?", "COLLECTED", "Fling?");
-        shiny_item.SetActive(false);
-        UnityEngine.Object.DontDestroyOnLoad(shiny_item);
-
-        var gou_go = preloadedObjects[gouBro_scene][gouBro];
-        gou_animation = UnityEngine.Object.Instantiate(gou_go.GetComponent<tk2dSpriteAnimator>().Library);
-        UnityEngine.Object.DontDestroyOnLoad(gou_animation);
-        gou_go.SetActive(false);
-
-        var bank_go = preloadedObjects[bank_scene][bank];
-        bank_animation = UnityEngine.Object.Instantiate(bank_go.GetComponent<tk2dSpriteAnimator>().Library);
-        UnityEngine.Object.DontDestroyOnLoad(bank_animation);
-        bank_go.SetActive(false);
-
-        var banker_go = preloadedObjects[bank_scene][banker];
-        banker_animation = UnityEngine.Object.Instantiate(banker_go.GetComponent<tk2dSpriteAnimator>().Library);
-        UnityEngine.Object.DontDestroyOnLoad(banker_animation);
-        banker_go.SetActive(false);
-
-        fly_go = UnityEngine.Object.Instantiate(preloadedObjects[white_palace][white_fly]);
-        UnityEngine.Object.DontDestroyOnLoad(fly_go);
-        fly_go.SetActive(false);
-
-        bench_go = UnityEngine.Object.Instantiate(preloadedObjects[bench_scene][bench]);
-        UnityEngine.Object.DontDestroyOnLoad(bench_go);
-        bench_go.SetActive(false);
-
-        menu_go = UnityEngine.Object.Instantiate(preloadedObjects[shop_scene][shop_menu]);
-        menu_go.SetActive(false);
-        UnityEngine.Object.DontDestroyOnLoad(menu_go);
-
-        shop_go = UnityEngine.Object.Instantiate(preloadedObjects[shop_scene][shop_region]);
-        shop_go.AddComponent<SpriteRenderer>().sprite = preloadedObjects[shop_scene][shop_counter].GetComponent<SpriteRenderer>().sprite;
-        shop_go.SetActive(false);
-        UnityEngine.Object.DontDestroyOnLoad(shop_go);
-
-        Shaman.beam = UnityEngine.Object.Instantiate(preloadedObjects[beam_scene][beam_name]);
-        Shaman.beam.RemoveComponent<DamageHero>();
-        var de = Shaman.beam.AddComponent<DamageEnemies>();
-        de.attackType = AttackTypes.Spell;
-        de.damageDealt = 20;
-        de.ignoreInvuln = false;
-        Shaman.beam.layer = LayerMask.NameToLayer("Attack");
-        Shaman.beam.SetActive(false);
-        GameObject.DontDestroyOnLoad(Shaman.beam);
-
-        Shaman.butterfly = UnityEngine.Object.Instantiate(preloadedObjects[butterfly_scene][butterfly_name]);
-        var shape = Shaman.butterfly.GetComponent<ParticleSystem>().shape;
-        shape.scale = new Vector3(0.2f, 1, 1);
-        var main = Shaman.butterfly.GetComponent<ParticleSystem>().main;
-        main.duration = 0.5f;
-        main.startSpeed = 20;
-        main.loop = false;
-        var emiss = Shaman.butterfly.GetComponent<ParticleSystem>().emission;
-        emiss.burstCount = 8;
-        Shaman.butterfly.SetActive(false);
-        UnityEngine.Object.DontDestroyOnLoad(Shaman.butterfly);
-
-        NailMaster.hk_shot = UnityEngine.Object.Instantiate(preloadedObjects[hk_scene][hk_name].LocateMyFSM("Control").GetAction<FlingObjectsFromGlobalPoolTime>("SmallShot LowHigh", 2).gameObject.Value);
-        NailMaster.hk_shot.SetActive(false);
-        UnityEngine.Object.DontDestroyOnLoad(NailMaster.hk_shot);
-        NailMaster.hk_shot.RemoveComponent<DamageHero>();
-        NailMaster.hk_shot.GetComponent<AudioSource>().enabled = false;
-        var shot_de = NailMaster.hk_shot.AddComponent<DamageEnemies>();
-        shot_de.attackType = AttackTypes.Nail;
-        shot_de.damageDealt = 20;
-        shot_de.ignoreInvuln = false;
-        NailMaster.hk_shot.layer = LayerMask.NameToLayer("Attack");
-
-
-        RogueUIManager.DialogueUI.customDialogueManager = new(preloadedObjects[card_scene][card_name]);
-        RogueUIManager.DialogueUI.customDialogueManager.DialogManager.GetComponent<SpriteRenderer>().enabled = false;
-        RogueUIManager.DialogueUI.customDialogueManager.DialogManager.FindGameObjectInChildren("Shiny").SetActive(false);
-        preloadedObjects[card_scene][card_name].SetActive(false);
-        RogueUIManager.DialogueUI.initialized = true;
-
+        RogueSceneManager.Init();
+        ItemManager.Init();
+        Shaman.Init();
+        NailMaster.Init();
+        RogueUIManager.Init();
         NPCManager.Init(preloadedObjects);
-
-        BossSceneManager.Init(preloadedObjects[boss_scene_controler_scene][boss_scene_controler_name]);
-        BossSceneManager.thk_bc = GameObject.Instantiate(preloadedObjects[thk_scene][thk_name]);
-        GameObject.DontDestroyOnLoad(BossSceneManager.thk_bc);
-
-
-
-        GameObject rogue_go = new GameObject("rogue_go");
-        UnityEngine.Object.DontDestroyOnLoad(rogue_go);
-        itemManager = rogue_go.AddComponent<ItemManager>();
+        BossSceneManager.Init();
         BugFixManager.Init();
+        DisplayManager.Init();
+        ProcessManager.Init();
 
 
         On.PlayMakerFSM.OnEnable += CharmsInit;
-
         On.BossSequenceController.FinishLastBossScene += EndScene;
         On.BossSequenceController.SetupNewSequence += BeginScene;
-
         On.HeroController.Awake += OnSavegameLoad;
         ModHooks.SavegameSaveHook += TestSavaGame;
         On.GameCameras.Awake += CameraAwake;
-        RogueUIManager.conversation = "132";
     }
 
     private void CameraAwake(On.GameCameras.orig_Awake orig, GameCameras self)
@@ -266,134 +111,19 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         Log("Save Game!!!");
     }
 
-    public void adjust_menu_go(GameObject menu_go)
-    {
-
-        menu_go.LocateMyFSM("shop_control").ChangeTransition("Stock?", "FINISHED", "Open Window");
-        // menu_go.LocateMyFSM("shop_control").ChangeTransition("Stock?", "NO STOCK", "Open Window");
-        menu_go.LocateMyFSM("shop_control").FsmVariables.FindFsmString("No Stock Event").Value = "ISELDA";
-        menu_go.LocateMyFSM("shop_control").GetAction<SetFsmString>("Iselda", 4).setValue = "rouge_introduction";
-        menu_go.LocateMyFSM("shop_control").GetAction<CallMethodProper>("Iselda", 5).parameters[0].stringValue = "rouge_introduction";
-        menu_go.LocateMyFSM("shop_control").GetAction<CallMethodProper>("Iselda", 5).parameters[1].stringValue = "rouge";
-        var fsm = menu_go.FindGameObjectInChildren("Item List").LocateMyFSM("Item List Control");
-        fsm.GetAction<SetTextMeshProText>("Get Details Init", 2).textString = fsm.FsmVariables.GetFsmString("Item Name Convo");
-        fsm.GetAction<SetTextMeshProText>("Get Details Init", 6).textString = fsm.FsmVariables.GetFsmString("Item Desc Convo");
-        fsm.GetAction<SetTextMeshProText>("Get Details", 3).textString = fsm.FsmVariables.GetFsmString("Item Name Convo");
-        fsm.GetAction<SetTextMeshProText>("Get Details", 6).textString = fsm.FsmVariables.GetFsmString("Item Desc Convo");
-        if (menu_go.FindGameObjectInChildren("Confirm").FindGameObjectInChildren("UI List").LocateMyFSM("Confirm Control").GetState("Special Type?").Actions.Length < 3)
-        {
-            menu_go.FindGameObjectInChildren("Confirm").FindGameObjectInChildren("UI List").LocateMyFSM("Confirm Control").InsertCustomAction("Special Type?", (fsm) =>
-            {
-                Giftname type = (Giftname)(fsm.FsmVariables.GetFsmInt("Special Type").Value - 18);
-                if (GiftFactory.all_gifts.ContainsKey(type))
-                {
-                    GiftFactory.all_gifts[type].GetGift();
-                    GameInfo.got_items.Add(type);
-                    itemManager.DisplayStates();
-                    if (GiftFactory.all_gifts[type].showConvo) ShowConvo(GiftFactory.all_gifts[type].GetShowString());
-                }
-                GiftFactory.UpdateWeight();
-            }, 1);
-        }
-    }
-    public void adjust_shop_go(GameObject shop_go)
-    {
-        shop_go.LocateMyFSM("Shop Region").ChangeTransition("Intro Convo?", "YES", "Shop Up");
-        shop_go.LocateMyFSM("Shop Region").ChangeTransition("Intro Convo?", "NO", "Shop Up");
-        shop_go.LocateMyFSM("Shop Region").ChangeTransition("Check Facing", "TURN RIGHT", "Turn Hero Left");
-        shop_go.LocateMyFSM("Shop Region").ChangeTransition("Check Facing", "FINISHED", "Turn Hero Left");
-        if (shop_go.LocateMyFSM("Shop Region").GetState("Out Of Range").Actions.Length == 2)
-        {
-            shop_go.LocateMyFSM("Shop Region").InsertCustomAction("Out Of Range", (fsm) =>
-            {
-                fsm.gameObject.FindGameObjectInChildren("gou_Bro").GetComponent<tk2dSpriteAnimator>().Play("Sleep");
-            }, 2);
-        }
-        if (shop_go.LocateMyFSM("Shop Region").GetState("Shop Up").Actions.Length == 2)
-        {
-            shop_go.LocateMyFSM("Shop Region").InsertCustomAction("Shop Up", (fsm) =>
-            {
-                fsm.gameObject.FindGameObjectInChildren("gou_Bro").GetComponent<tk2dSpriteAnimator>().Play("Wake");
-            }, 2);
-        }
-        GameObject gou = new("gou_Bro");
-        gou.transform.SetParent(shop_go.transform);
-        gou.transform.localPosition = new Vector3(-0.1f, 0.3f, -0.009f);
-        gou.AddComponent<tk2dSprite>();
-        gou.AddComponent<tk2dSpriteAnimator>().Library = gou_animation;
 
 
-        GameObject bank = new("bank");
-        bank.transform.SetParent(shop_go.transform);
-        bank.transform.localPosition = new Vector3(0.1f, 1.2f, 0);
-        bank.AddComponent<tk2dSprite>();
-        bank.AddComponent<tk2dSpriteAnimator>().Library = bank_animation;
-
-        GameObject banker = new("banker");
-        banker.transform.SetParent(shop_go.transform);
-        banker.transform.localPosition = new Vector3(0, 0, 0);
-        banker.AddComponent<tk2dSprite>();
-        banker.AddComponent<tk2dSpriteAnimator>().Library = banker_animation;
-    }
-    public void adjust_bench_go(GameObject bench_go)
-    {
-        bench_go.LocateMyFSM("Bench Control").FsmVariables.FindFsmVector3("Adjust Vector").Value = new Vector3(-0.5f, 0.1f, 0);
-        bench_go.transform.position = new Vector3(128.8f, 61.7f, 0.1f);
-        bench_go.name = "RestBench (1)";
-    }
 
 
 
     private void OnSavegameLoad(On.HeroController.orig_Awake orig, HeroController self)
     {
         orig(self);
+        ItemManager.GameLoadInit();
+        RogueSceneManager.GameLoadInit();
+        NPCManager.GameLoadInit();
+        BugFixManager.GameLoadInit();
         // PlayerData.instance.respawnMarkerName = "RestBench (1)";
-        if (itemManager == null)
-        {
-            Log("ERR   itemmanager is null!");
-            return;
-        }
-        if (itemManager.item_menu_go != null)
-        {
-            itemManager.item_menu_go.SetActive(false);
-            GameObject.DestroyImmediate(itemManager.item_menu_go);
-        }
-
-        itemManager.item_menu_go = GameObject.Instantiate(menu_go);
-        adjust_menu_go(itemManager.item_menu_go);
-        GameObject.DontDestroyOnLoad(itemManager.item_menu_go);
-        itemManager.item_menu_go.SetActive(false);
-
-        if (itemManager.item_shop_go != null)
-        {
-            itemManager.item_shop_go.SetActive(false);
-            GameObject.DestroyImmediate(itemManager.item_shop_go);
-        }
-        itemManager.item_shop_go = GameObject.Instantiate(shop_go);
-        adjust_shop_go(itemManager.item_shop_go);
-        GameObject.DontDestroyOnLoad(itemManager.item_shop_go);
-        itemManager.item_shop_go.SetActive(false);
-
-        if (itemManager.item_fly_go != null)
-        {
-            itemManager.item_fly_go.SetActive(false);
-            GameObject.DestroyImmediate(itemManager.item_fly_go);
-        }
-        itemManager.item_fly_go = GameObject.Instantiate(fly_go);
-        GameObject.DontDestroyOnLoad(itemManager.item_fly_go);
-        itemManager.item_fly_go.SetActive(false);
-
-        if (itemManager.item_restbench != null)
-        {
-            itemManager.item_restbench.SetActive(false);
-            GameObject.DestroyImmediate(itemManager.item_restbench);
-        }
-        HeroController.instance.Respawn();
-        itemManager.item_restbench = GameObject.Instantiate(bench_go);
-        adjust_bench_go(itemManager.item_restbench);
-        GameObject.DontDestroyOnLoad(itemManager.item_restbench);
-        itemManager.item_shop_go.SetActive(false);
-        Log("reload  shop and menu");
 
     }
 
@@ -409,8 +139,12 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 boss_scenes = new BossScene[ori_boss_scenes.Length];
             }
             ori_boss_scenes.CopyTo(boss_scenes, 0);
+            foreach (var boss_scene in ori_boss_scenes)
+            {
+                Log(boss_scene.sceneName);
+            }
             ReflectionHelper.SetField<BossSequence, BossScene[]>(sequence, "bossScenes", boss_scenes);
-            BossSceneManager.MoreBoss(sequence);
+            // BossSceneManager.MoreBoss(sequence);
 
         }
         orig(sequence, bindings, playerData);
@@ -452,7 +186,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
                 self.RemoveAction("Deactivate UI", 2);
                 self.InsertCustomAction("Deactivate UI", (fsm) =>
                 {
-                    if ((CharmHelper.can_stand_equip_charm_scene_names.Contains(itemManager.scenename) || CharmHelper.can_equip_everywhere) && GameInfo.in_rogue)
+                    if ((CharmHelper.can_stand_equip_charm_scene_names.Contains(ProcessManager.scene_name) || CharmHelper.can_equip_everywhere) && GameInfo.in_rogue)
                     {
                     }
                     else
@@ -507,7 +241,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         GiftFactory.ResetWeight();
 
         List<GameObject> childlist = new();
-        GameObject itemlist = itemManager.item_menu_go.FindGameObjectInChildren("Item List");
+        GameObject itemlist = ItemManager.menu_go.FindGameObjectInChildren("Item List");
         itemlist.FindAllChildren(childlist);
         foreach (var child in childlist)
         {
@@ -529,7 +263,6 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         if (itemManager != null)
         {
             GameObject.Destroy(itemManager.gameObject);
-            itemManager = null;
         }
     }
     public void Rogue_Start()
@@ -544,7 +277,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             itemManager.rewardsStack.Push(new ItemManager.OneReward() { mode = ItemManager.Mode.select_small_gift, select = 1, give = 3 });
             itemManager.rewardsStack.Push(new ItemManager.OneReward() { mode = ItemManager.Mode.fix_select_big_gift, select = 1, gifts = GameInfo.act_gifts[GiftVariety.huge] });
             itemManager.Next(true);
-            itemManager.BeginDisplay();
+            DisplayManager.BeginDisplay();
             HeroController.instance.geoCounter.gameObject.GetComponent<DeactivateIfPlayerdataTrue>().enabled = false;
             HeroController.instance.geoCounter.gameObject.SetActive(true);
             HeroController.instance.TakeGeo(PlayerData.instance.geo);
@@ -570,7 +303,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
             GiftHelper.GiveAllSkills();
 
 
-            itemManager.DisplayStates();
+            DisplayManager.DisplayStates();
         }
     }
 
@@ -687,6 +420,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
         setting.AddElement(new Satchel.BetterMenus.CustomSlider("ui_transparency".Localize(), (alpha) => { _set.UI_alpha = alpha; }, () => _set.UI_alpha, 0, 1));
         setting.AddElement(Blueprints.IntInputField("reroll_num".Localize(), (num) => { _set.reroll_num = num; }, () => _set.reroll_num, 3));
         setting.AddElement(new Satchel.BetterMenus.MenuButton("default", "turn all to default", (but) => { _set.item_font_size = 6.67f; _set.UI_alpha = 0.6f; _set.reroll_num = 3; setting.Update(); }));
+        setting.AddElement(Blueprints.ToggleButton("details".Localize(), "", (value) => { _set.details = value; }, () => _set.details));
         var ss = setting.GetMenuScreen(setting.returnScreen);
         menu.AddElement(new MenuButton("Settings", "", (but) =>
         {
@@ -700,7 +434,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
 
     }
 
-    public void OnLoadGlobal(setting s)
+    public void OnLoadGlobal(Setting s)
     {
         Log("Onload");
         _set = s;
@@ -745,7 +479,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<setting>
 
     }
 
-    public setting OnSaveGlobal()
+    public Setting OnSaveGlobal()
     {
         if (self_actions.refresh.Bindings.Count > 0)
         {

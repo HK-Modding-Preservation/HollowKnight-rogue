@@ -17,12 +17,12 @@ internal static class GameInfo
     internal static int get_any_charm_num = 0;
 
     internal static int revive_num = 0;
+    internal static StatsData data = null;
 
     internal static bool get_birthright = false;
     internal static int pretty_key_num = 0;
     internal static int refresh_num = 0;
     internal static int spa_count = 0;
-    internal static float timer = 0;
     internal static float score = 0;
     internal static List<Giftname> got_items = new();
     internal static Dictionary<GiftVariety, List<Gift>> act_gifts = new()
@@ -44,8 +44,9 @@ internal static class GameInfo
         pretty_key_num = 0;
         refresh_num = 0;
         spa_count = 0;
-        timer = 0;
         score = 0;
+        data?.EndCount();
+        data = new();
         foreach (var gifts in act_gifts)
         {
             gifts.Value.Clear();
@@ -67,6 +68,7 @@ internal static class GameInfo
         get_any_charm_num = 0;
         revive_num = 1;
         refresh_num = Rogue.Instance._set.reroll_num;
+        data.StartCount();
     }
     internal static void Over()
     {
@@ -76,6 +78,7 @@ internal static class GameInfo
         {
             GiftFactory.all_gifts[item].RemoveGift();
         }
+        data?.EndCount();
         got_items.Clear();
         role = CharacterRole.no_role;
     }

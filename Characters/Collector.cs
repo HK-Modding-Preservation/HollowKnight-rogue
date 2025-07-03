@@ -1,6 +1,7 @@
 
 
 namespace rogue.Characters;
+
 internal class Collector : Character
 {
     readonly List<int> spawn_charms = new List<int>() { 22, 38, 39, 40 };
@@ -485,7 +486,7 @@ internal class Collector : Character
         if (PlayerData.instance.equippedCharm_11) damage *= 0.7f;
         if (PlayerData.instance.equippedCharm_40) damage *= 0.7f;
         de.damage = (int)damage;
-        if (GameInfo.get_birthright && ItemManager.Instance.scenename != "GG_Spa")
+        if (GameInfo.get_birthright && ProcessManager.scene_name != "GG_Spa")
         {
             self.damageEnemies.attackType = AttackTypes.SharpShadow;
         }

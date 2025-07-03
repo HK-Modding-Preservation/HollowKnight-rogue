@@ -5,6 +5,8 @@ namespace rogue.Characters;
 
 internal class NailMaster : Character
 {
+    internal const string hk_scene = "GG_Hollow_Knight";
+    internal const string hk_name = "Battle Scene/HK Prime";
     internal static GameObject hk_shot;
     public NailMaster()
     {
@@ -15,6 +17,22 @@ internal class NailMaster : Character
             "无双",
             "聚气"
         };
+    }
+    internal static void Init()
+    {
+        hk_shot = Instantiate(PreloadManager.getGO(hk_scene, hk_name).
+                  LocateMyFSM("Control").
+                  GetAction<FlingObjectsFromGlobalPoolTime>("SmallShot LowHigh", 2).
+                  gameObject.Value);
+        hk_shot.SetActive(false);
+        hk_shot.RemoveComponent<DamageHero>();
+        hk_shot.GetComponent<AudioSource>().enabled = false;
+        var shot_de = NailMaster.hk_shot.AddComponent<DamageEnemies>();
+        shot_de.attackType = AttackTypes.Nail;
+        shot_de.damageDealt = 20;
+        shot_de.ignoreInvuln = false;
+        hk_shot.layer = LayerMask.NameToLayer("Attack");
+        DontDestroyOnLoad(hk_shot);
     }
     public override void BeginCharacter()
     {
@@ -301,7 +319,7 @@ internal class NailMaster : Character
             if (nailChargeTimer - Time.deltaTime < 2 * nailChargeTime)
             {
                 accu_nail_art_effect.GetComponent<AudioSource>().pitch = 1.5f;
-                accu_nail_art_effect?.GetComponent<AudioSource>().PlayOneShot(nail_charge_ready);
+                accu_nail_art_effect?.GetComponent<AudioSource>().PlayOneShot(nail_charge_ready, Setting.SoundScale());
                 HeroController.instance.artChargedEffectAnim.PlayFromFrame(0);
             }
             NailChargeLevel = 2;
@@ -311,7 +329,7 @@ internal class NailMaster : Character
             if (nailChargeTimer - Time.deltaTime < 3 * nailChargeTime)
             {
                 accu_nail_art_effect.GetComponent<AudioSource>().pitch = 2.0f;
-                accu_nail_art_effect?.GetComponent<AudioSource>().PlayOneShot(nail_charge_ready);
+                accu_nail_art_effect?.GetComponent<AudioSource>().PlayOneShot(nail_charge_ready, Setting.SoundScale());
                 HeroController.instance.artChargedEffectAnim.PlayFromFrame(0);
             }
             NailChargeLevel = 3;

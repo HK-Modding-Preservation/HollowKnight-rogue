@@ -166,11 +166,11 @@ internal class Uradiance : MonoBehaviour
         beam.SetActive(true);
         PlayMakerFSM beamFSM = beam.LocateMyFSM("Control");
         if (clip)
-            aus.PlayOneShot(BeamAnticClip, 0.5f * GameManager.instance.gameSettings.masterVolume / 10f * GameManager.instance.gameSettings.soundVolume / 10f);
+            aus.PlayOneShot(BeamAnticClip, 0.5f * Setting.SoundScale());
         beamFSM.SendEvent("ANTIC");
         yield return new WaitForSeconds(antic);
         if (clip)
-            aus.PlayOneShot(BeamFireClip, 0.5f * GameManager.instance.gameSettings.masterVolume / 10f * GameManager.instance.gameSettings.soundVolume / 10f);
+            aus.PlayOneShot(BeamFireClip, 0.5f * Setting.SoundScale());
         beamFSM.SendEvent("FIRE");
         yield return new WaitForSeconds(fire);
         beamFSM.SendEvent("END");
@@ -828,7 +828,7 @@ internal class Uradiance : MonoBehaviour
                     t_nail.LocateMyFSM("Control").InsertCustomAction("Set Collider", (fsm) =>
                     {
                         fsm.GetComponent<AudioSource>().Stop();
-                        fsm.GetComponent<AudioSource>().PlayOneShot(BeamFireClip);
+                        fsm.GetComponent<AudioSource>().PlayOneShot(BeamFireClip, Setting.SoundScale());
                         fsm.gameObject.transform.parent.GetComponent<PolygonCollider2D>().enabled = true;
                         fsm.gameObject.transform.parent.gameObject.FindGameObjectInChildren("slash_effect").SetActive(true);
                         fsm.gameObject.SetActive(false);
@@ -869,7 +869,7 @@ internal class Uradiance : MonoBehaviour
                     t_nail.LocateMyFSM("Control").InsertCustomAction("Set Collider", (fsm) =>
                     {
                         fsm.GetComponent<AudioSource>().Stop();
-                        fsm.GetComponent<AudioSource>().PlayOneShot(BeamFireClip);
+                        fsm.GetComponent<AudioSource>().PlayOneShot(BeamFireClip, Setting.SoundScale());
                         fsm.gameObject.transform.parent.GetComponent<PolygonCollider2D>().enabled = true;
                         fsm.gameObject.transform.parent.gameObject.FindGameObjectInChildren("slash_effect").SetActive(true);
                         fsm.gameObject.SetActive(false);
@@ -912,7 +912,7 @@ internal class Uradiance : MonoBehaviour
                     t_nail.LocateMyFSM("Control").InsertCustomAction("Set Collider", (fsm) =>
                     {
                         fsm.GetComponent<AudioSource>().Stop();
-                        fsm.GetComponent<AudioSource>().PlayOneShot(BeamFireClip);
+                        fsm.GetComponent<AudioSource>().PlayOneShot(BeamFireClip, Setting.SoundScale());
                         fsm.gameObject.transform.parent.GetComponent<PolygonCollider2D>().enabled = true;
                         fsm.gameObject.transform.parent.gameObject.FindGameObjectInChildren("slash_effect").SetActive(true);
                         fsm.gameObject.SetActive(false);

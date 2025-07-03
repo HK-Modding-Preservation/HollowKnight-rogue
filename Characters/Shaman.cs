@@ -1,10 +1,17 @@
 
 using System.Security.Cryptography;
+using UnityEngine.PlayerLoop;
 
 namespace rogue.Characters;
+
 internal class Shaman : Character
 {
+    internal const string beam_scene = "GG_Radiance";
+    internal const string beam_name = "Boss Control/Radiant Beam";
     internal static GameObject beam;
+    internal const string butterfly_scene = "Cliffs_05";
+    internal const string butterfly_name = "Butterflies FG 1";
+
     internal static GameObject butterfly;
     Color spell_color = Color.blue;
     public Shaman()
@@ -18,6 +25,31 @@ internal class Shaman : Character
             "吼",
             "萨满之力"
         };
+    }
+
+    internal static void Init()
+    {
+        beam = Instantiate(PreloadManager.getGO(beam_scene, beam_name));
+        beam.RemoveComponent<DamageHero>();
+        var de = beam.AddComponent<DamageEnemies>();
+        de.attackType = AttackTypes.Spell;
+        de.damageDealt = 20;
+        de.ignoreInvuln = false;
+        beam.layer = LayerMask.NameToLayer("Attack");
+        beam.SetActive(false);
+        DontDestroyOnLoad(beam);
+
+        butterfly = Instantiate(PreloadManager.getGO(butterfly_scene, butterfly_name));
+        var shape = butterfly.GetComponent<ParticleSystem>().shape;
+        shape.scale = new Vector3(0.2f, 1, 1);
+        var main = butterfly.GetComponent<ParticleSystem>().main;
+        main.duration = 0.5f;
+        main.startSpeed = 20;
+        main.loop = false;
+        var emiss = butterfly.GetComponent<ParticleSystem>().emission;
+        emiss.burstCount = 8;
+        butterfly.SetActive(false);
+        DontDestroyOnLoad(butterfly);
     }
     public override void BeginCharacter()
     {

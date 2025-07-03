@@ -14,11 +14,11 @@ internal class Trinket1 : CustomCountedGift
     {
         if (ori > 0 && t == 0)
         {
-            ItemManager.Instance.after_scene_add_geo_num -= GetAnotherDiary;
+            ProcessManager.Instance.after_scene_add_geo_num -= GetAnotherDiary;
         }
         else if (ori == 0 && t > 0)
         {
-            ItemManager.Instance.after_scene_add_geo_num += GetAnotherDiary;
+            ProcessManager.Instance.after_scene_add_geo_num += GetAnotherDiary;
         }
     }
     internal override string GetName()
@@ -129,7 +129,7 @@ internal class Trinket4 : CustomGift
 
     private void GiveEgg(On.HeroController.orig_AddHealth orig, HeroController self, int amount)
     {
-        if (ItemManager.Instance.scenename != "GG_Spa")
+        if (ProcessManager.scene_name != "GG_Spa")
         {
             int t = amount;
             t -= Math.Min(amount, max - count);
