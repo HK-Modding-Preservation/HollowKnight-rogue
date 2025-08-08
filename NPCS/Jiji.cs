@@ -1,7 +1,12 @@
+using rogue.Characters;
+
 namespace rogue.NPCs;
+
 internal class Jiji : NPC
 {
     internal static Vector3 spa_pos = new Vector3(104, 16.54f, 0.1f);
+    int num_birthright;
+    bool get_birthright = false;
     internal Jiji(tk2dSpriteAnimation library) : base(library, new(0, -2f), KnightAction.LookUP)
     {
         name = "吉吉";
@@ -11,7 +16,7 @@ internal class Jiji : NPC
         talk_animation_name = "Idle";
         AddConversation("初遇", "你好啊，我不知道怎么就来到了这里<page>这里没有遗憾，但我也捡到了一些稀罕的东西");
         OnConvoEnd("初遇", () => { ShowDialogue("交易"); });
-        AddConversation("交易", "给我一点食物，我把这个东西给你，怎么样？");
+        AddConversation("交易", "给我一点食物，我把捡到的东西给你，怎么样？");
         OnConvoEnd("交易", TryEggSwap);
         AddConversation("接受", "好了，如果需要调整，我应该也能帮上忙");
         AddConversation("拒绝", "好吧，那就只好饿一会肚子了");
@@ -26,7 +31,19 @@ internal class Jiji : NPC
         {
             ShowDialogue("接受");
             GameInfo.revive_num -= 2;
-            ((DashDoubleRefresh)GiftFactory.all_gifts[Giftname.custom_one_two_dash_doublejump_refresh]).Got_Which_Item = CustomOneOrTwoGift.GotWhichItem.First;
+            if (!get_birthright)
+            {
+                get_birthright = true;
+                GiftFactory.all_gifts[Giftname.custom_one_two_dash_doublejump_refresh].GetGift();
+            }
+            else
+            {
+                var gifts = GameInfo.act_gifts[GiftFactory.CustomVariety()];
+                var gift = ItemManager.RandomList(gifts, 1)[0];
+                gift.GetGift();
+            }
+
+
         };
         yes.not_select_info = "腐臭蛋数量不足";
         yes.selectable = GameInfo.revive_num >= 2;
@@ -49,25 +66,25 @@ internal class Jiji : NPC
         selectItems.Add(item3);
         RogueUIManager.StartSelection(0.3f, "调整功能", selectItems, 3);
     }
+    internal override void SetPosition(Vector3 pos)
+    {
+        base.SetPosition(pos);
+        var role = HeroController.instance.GetComponent<Character>();
+        num_birthright = role.GotBirthrightNum();
+
+    }
     internal override void BeginConvo()
     {
-        if (((DashDoubleRefresh)GiftFactory.all_gifts[Giftname.custom_one_two_dash_doublejump_refresh]).Got_Which_Item == CustomOneOrTwoGift.GotWhichItem.None)
+        if (!meet)
         {
-            if (!meet)
-            {
-                meet = true;
-                ShowDialogue("初遇");
-            }
-            else
-            {
-                ShowDialogue("交易");
-            }
-
+            meet = true;
+            ShowDialogue("初遇");
         }
         else
         {
-            ShowDialogue("调整");
+            ShowDialogue("交易");
         }
+
 
     }
 

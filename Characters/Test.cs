@@ -1,5 +1,6 @@
 
 namespace rogue.Characters;
+
 internal class Test : Character
 {
     public Test()
@@ -20,17 +21,18 @@ internal class Test : Character
 
     private ItemManager.OneReward OneMoreThing(ItemManager.OneReward reward)
     {
-        if (reward.mode == ItemManager.Mode.select_small_gift)
+        int whole = 0;
+
+        if (reward.give_mode == ItemManager.OneReward.GiveMode.fix)
         {
-            if (reward.select < reward.give)
-            {
-                reward.select++;
-            }
+            whole = reward.gifts.Count;
         }
-        if (reward.mode == ItemManager.Mode.fix_select_small_gift && get_birthright)
+        else if (reward.give_mode == ItemManager.OneReward.GiveMode.random)
         {
-            reward.select++;
+            whole = reward.give;
         }
+        int add = get_birthright ? 2 : 1;
+        reward.select = Mathf.Max(reward.select + add, whole);
         return reward;
     }
 

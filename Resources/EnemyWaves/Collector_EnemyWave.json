@@ -1,0 +1,197 @@
+{
+    "GG_Hive_Knight": {
+        "whole_wave": {
+         "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Big Bee",
+                                "hp": 450,
+                                "num": 1
+                            },
+                            {
+                                "name": "Bee Stinger",
+                                "hp": 350,
+                                "num": 1
+                            },
+                            {
+                                "name": "Super Spitter",
+                                "hp": 150,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Blobble",
+                                "hp": 300,
+                                "num": 2
+                            },
+                            {
+                                "name": "Colosseum Grass Hopper",
+                                "hp": 400,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ]   
+        }
+    },
+    "GG_Ghost_Hu": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Giant Hopper",
+                                "hp": 500,
+                                "num": 2
+                            },
+                            {
+                                "name": "Hopper",
+                                "hp": 100,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Giant Hopper",
+                                "hp": 500,
+                                "num": 1
+                            },
+                            {
+                                "name": "Bee Stinger",
+                                "hp": 400,
+                                "num": 1
+                            },
+                            {
+                                "name": "Hopper",
+                                "hp": 100,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Collector_V": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Colosseum_Armoured_Roller",
+                                "hp": 400,
+                                "num": 2
+                            },
+                            {
+                                "name": "Colosseum_Armoured_Mosquito",
+                                "hp": 300,
+                                "num": 1
+                            },
+                            {
+                                "name": "Super Spitter",
+                                "hp": 200,
+                                "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Colosseum_Armoured_Roller",
+                                "hp": 400,
+                                "num": 1
+                            },
+                            {
+                                "name": "Colosseum_Armoured_Mosquito",
+                                "hp": 300,
+                                "num": 2
+                            },
+                            {
+                                "name": "Super Spitter",
+                                "hp": 200,
+                                "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Colosseum_Armoured_Roller",
+                                "hp": 400,
+                                "num": 1
+                            },
+                            {
+                                "name": "Colosseum_Armoured_Mosquito",
+                                "hp": 300,
+                                "num": 1
+                            },
+                            {
+                                "name": "Super Spitter",
+                                "hp": 200,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_God_Tamer": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Colosseum_Worm",
+                                "hp": 600,
+                                "num": 1
+                            },
+                            {
+                                "name": "Colosseum_Shield_Zombie",
+                                "hp": 300,
+                                "num": 1
+                            },
+                            {
+                                "name": "Colosseum_Miner",
+                                "hp": 400,
+                                "num": 1
+                            },
+                            {
+                                "name": "Colosseum_Flying_Sentry",
+                                "hp": 400,
+                                "num": 1
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+}

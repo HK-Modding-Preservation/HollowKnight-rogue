@@ -32,12 +32,15 @@ internal class Uunn : Character
             case 0:
 
                 On.PlayMakerFSM.OnEnable += BiggerSpore;
+                PlayerData.instance.gotCharm_17 = true;
+
                 break;
             case 1:
                 ModHooks.GetPlayerIntHook += InfinityBlocker;
                 HeroController.instance.gameObject.FindGameObjectInChildren("Charm Effects").
                                                     FindGameObjectInChildren("Blocker Shield").LocateMyFSM("Control")
                                                     .InsertCustomAction("Blocker Hit", DamageAll, 0);
+                PlayerData.instance.gotCharm_5 = true;
                 break;
         }
     }

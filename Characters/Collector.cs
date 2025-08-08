@@ -312,7 +312,7 @@ internal class Collector : Character
             }
 
         }
-
+        orig(self);
     }
 
     private void ChangeHatchOnSceneChanged(Scene arg0, Scene arg1)

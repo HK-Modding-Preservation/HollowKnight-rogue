@@ -2,6 +2,7 @@ using System.Reflection;
 using System.IO;
 
 namespace rogue;
+
 internal static class SpriteLoader
 {
     private static Sprite LoadSprite(string name, float PPU = 64)
@@ -36,6 +37,7 @@ internal static class SpriteLoader
         resource_sprites.Add("trinket2", (Sprite)Resources.InstanceIDToObject(8420));
         resource_sprites.Add("trinket3", (Sprite)Resources.InstanceIDToObject(8282));
         resource_sprites.Add("trinket4", (Sprite)Resources.InstanceIDToObject(8242));
+        resource_sprites.Add("tram_pass", (Sprite)Resources.InstanceIDToObject(8256));
     }
     internal static Sprite GetSprite(string name)
     {

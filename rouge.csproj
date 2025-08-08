@@ -71,6 +71,7 @@
 <ItemGroup>
 <EmbeddedResource Include="Resources\*"/>
 <EmbeddedResource Include="Resources\lang\*"/>
+<EmbeddedResource Include="Resources\EnemyWaves\*"/>
 </ItemGroup>
 
 <ItemGroup>

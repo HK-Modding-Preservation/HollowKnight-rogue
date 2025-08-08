@@ -28,6 +28,12 @@ internal class DisplayManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Tab)) { ShowScore(); }
         if (Input.GetKeyUp(KeyCode.Tab)) { HideScore(); }
+        // if (Input.GetKeyUp(KeyCode.End))
+        // {
+        //     BossSceneController.Instance?.EndBossScene();
+        //     ItemManager.Instance.StopCoroutine("EnemyWaves");
+        // }
+        // if (Input.GetKeyUp(KeyCode.Home)) { BossManager.bossleft = 0; }
         if (GameInfo.in_rogue && BossSequenceController.IsInSequence && (ProcessManager.scene_name != "GG_Spa") && (ProcessManager.scene_name! != "GG_Atrium_Roof" || ProcessManager.scene_name != "GG_Engine"))
         {
             if (!GameManager.instance.isPaused)

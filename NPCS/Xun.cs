@@ -1,5 +1,6 @@
 
 namespace rogue.NPCs;
+
 internal class Xun : NPC
 {
     internal static Vector3 spa_pos = new Vector3(104, 17.54f, 0.1f);
@@ -29,7 +30,7 @@ internal class Xun : NPC
     }
     internal override void BeginConvo()
     {
-        if (!PlayerData.instance.hasXunFlower) ShowDialogue("遇见");
+        if (!(PlayerData.instance.hasXunFlower && !PlayerData.instance.xunFlowerBroken)) ShowDialogue("遇见");
         else ShowDialogue("已经有花");
     }
 

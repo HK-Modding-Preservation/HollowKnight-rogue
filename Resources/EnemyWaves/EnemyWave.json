@@ -1,0 +1,1958 @@
+{
+    "GG_Vengefly_V": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                               "name": "Buzzer",
+                                "hp": 8,
+                               "num": 4
+                            },
+                            {
+                                "name": "Hatcher",
+                                "hp": 50,
+                               "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 3.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Spitter",
+                                "hp": 15,
+                                "num": 3
+                            },
+                            {
+                                "name": "Buzzer",
+                                "hp": 8,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Angry Buzzer",
+                                "hp": 60,
+                                "num": 1
+                            },
+                            {
+                                "name": "Buzzer",
+                                "hp": 8,
+                                "num": 2
+                            },
+                            {
+                                "name": "Hatcher",
+                                "hp": 50,
+                               "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Spitter",
+                                "hp": 15,
+                                "num": 2
+                            },
+                            {
+                                "name": "Angry Buzzer",
+                                "hp": 40,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Gruz_Mother_V": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Fly",
+                                "hp": 20,
+                                "num": 3
+                            },
+                            {
+                                "name": "Bursting Bouncer",
+                                "hp": 40,
+                                "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Fly",
+                                "hp": 20,
+                                "num": 1
+                            },
+                            {
+                                "name": "Bursting Bouncer",
+                                "hp": 40,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Bursting Bouncer",
+                                "hp": 100,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Bursting Bouncer",
+                                "hp": 60,
+                                "num": 3
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_False_Knight": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Zombie Guard",
+                                "hp": 70,
+                                "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Zombie Hornhead",
+                                "hp": 30,
+                                "num": 2
+                            },
+                            {
+                                "name": "Zombie Leaper",
+                                "hp": 30,
+                                "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Zombie Hornhead",
+                                "hp": 30,
+                                "num": 1
+                            },
+                            {
+                                "name": "Zombie Shield",
+                                "hp": 15,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Zombie Guard",
+                                "hp": 300,
+                                "num": 1
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Mega_Moss_Charger": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Moss Walker",
+                                "hp": 10,
+                                "num": 2
+                            },
+                            {
+                                "name": "Moss Flyer",
+                                "hp": 30,
+                                "num": 3
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Mossman_Runner",
+                                "hp": 30,
+                                "num": 2
+                            },
+                            {
+                                "name": "Mossman_Shaker",
+                                "hp": 50,
+                                "num": 1
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Moss Walker",
+                                "hp": 10,
+                                "num": 1
+                            },
+                            {
+                                "name": "Moss Charger",
+                                "hp": 15,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Moss Knight",
+                                "hp": 80,
+                                "num": 1
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Ghost_Gorb_V": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Ruins Flying Sentry Javelin",
+                                "hp": 75,
+                                "num": 1
+                            },
+                            {
+                                "name": "Ruins Flying Sentry",
+                                "hp": 75,
+                                "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Ruins Flying Sentry",
+                                "hp": 75,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Angry Buzzer",
+                                "hp": 40,
+                                "num": 1
+                            },
+                            {
+                                "name": "Flamebearer Med",
+                                "hp": 80,
+                                "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Flamebearer Small",
+                                "hp": 50,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Dung_Defender": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Ceiling Dropper",
+                                "hp": 1,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Flukeman",
+                                "hp": 55,
+                                "num": 2
+                            },
+                            {
+                                "name": "Fluke Fly",
+                                "hp": 30,
+                                "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Flip Hopper",
+                                "hp": 80,
+                                "num": 2
+                            },
+                            {
+                                "name": "Inflater",
+                                "hp": 50,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Fat Fluke",
+                                "hp": 180,
+                                "num": 1
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Mage_Knight_V": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Mage Blob",
+                                "hp": 100,
+                                "num": 1
+                            },
+                            {
+                                "name": "Mage Balloon",
+                                "hp": 50,
+                                "num": 3
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Mage Blob",
+                                "hp": 50,
+                                "num": 3
+                            },
+                            {
+                                "name": "Mage Balloon",
+                                "hp": 100,
+                                "num": 1
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Mage",
+                                "hp": 100,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Mage",
+                                "hp": 150,
+                                "num": 1
+                            },
+                            {
+                                "name": "Ruins Sentry",
+                                "hp": 60,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Brooding_Mawlek_V": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Lesser Mawlek",
+                                "hp": 100,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Lesser Mawlek",
+                                "hp": 100,
+                                "num": 1
+                            },
+                            {
+                                "name": "Colosseum_Flying_Sentry",
+                                "hp": 60,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Mawlek Turret",
+                                "hp": 200,
+                                "num": 1
+                            },
+                            {
+                                "name": "Colosseum_Worm",
+                                "hp": 150,
+                                "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Lesser Mawlek",
+                                "hp": 100,
+                                "num": 3
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Ghost_Xero_V": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Mantis Heavy Flyer",
+                                "hp": 80,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Mantis Flyer Child",
+                                "hp": 60,
+                                "num": 3
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Ruins Flying Sentry Javelin",
+                                "hp": 100,
+                                "num": 1
+                            },
+                            {
+                                "name": "Colosseum_Armoured_Mosquito",
+                                "hp": 80,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Ruins Flying Sentry Javelin",
+                                "hp": 100,
+                                "num": 1
+                            },
+                            {
+                                "name": "Ruins Flying Sentry",
+                                "hp": 100,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Crystal_Guardian": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Zombie Beam Miner",
+                                "hp": 120,
+                                "num": 1
+                            },
+                            {
+                                "name": "Crystal Crawler",
+                                "hp": 100,
+                                "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Zombie Beam Miner",
+                                "hp": 120,
+                                "num": 1
+                            },
+                            {
+                                "name": "Zombie Miner",
+                                "hp": 80,
+                                "num": 1
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Zombie Beam Miner",
+                                "hp": 120,
+                                "num": 1
+                            },
+                            {
+                                "name": "Mines Crawler",
+                                "hp": 30,
+                                "num": 2
+                            },
+                            {
+                                "name": "Crystal Flyer",
+                                "hp": 80,
+                                "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Zombie Miner",
+                                "hp": 100,
+                                "num": 3
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Crystal Flyer",
+                                "hp": 80,
+                                "num": 3
+                            },
+                            {
+                                "name": "Mines Crawler",
+                                "hp": 30,
+                                "num": 1
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Soul_Master": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Mage",
+                                "hp": 150,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Mage",
+                                "hp": 150,
+                                "num": 1
+                            },
+                            {
+                                "name": "Ruins Sentry",
+                                "hp": 100,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Mage Blob",
+                                "hp": 300,
+                                "num": 1
+                            },
+                            {
+                                "name": "Mage Balloon",
+                                "hp": 50,
+                                "num": 3
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Mage Balloon",
+                                "hp": 300,
+                                "num": 1
+                            },
+                            {
+                                "name": "Mage Blob",
+                                "hp": 50,
+                                "num": 3
+                            }
+                        ]
+                    }
+                }
+            ],
+            "3": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Mage",
+                                "hp": 200,
+                                "num": 1
+                            },
+                            {
+                                "name": "Electric Mage New",
+                                "hp": 300,
+                                "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Electric Mage New",
+                                "hp": 300,
+                                "num": 1
+                            },
+                            {
+                                "name": "Ruins Sentry",
+                                "hp": 100,
+                                "num": 1
+                            },
+                            {
+                                "name": "Ruins Sentry Fat",
+                                "hp": 200,
+                                "num": 1
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Oblobbles": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Fat Fly",
+                                "hp": 60,
+                                "num": 3
+                            },
+                            {
+                                "name": "Ruins Sentry Fat",
+                                "hp": 150,
+                                "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Fat Fly",
+                                "hp": 60,
+                                "num": 2
+                            },
+                            {
+                                "name": "Colosseum_Flying_Sentry",
+                                "hp": 100,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Blobble",
+                                "hp": 100,
+                                "num": 2
+                            },
+                            {
+                                "name": "Ruins Sentry Fat",
+                                "hp": 150,
+                                "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Blobble",
+                                "hp": 100,
+                                "num": 2
+                            },
+                            {
+                                "name": "Colosseum_Shield_Zombie",
+                                "hp": 150,
+                                "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Blobble",
+                                "hp": 100,
+                                "num": 4
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Flukemarm": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Fluke Fly",
+                                "hp": 300,
+                                "num": 1
+                            },
+                            {
+                                "name": "Inflater",
+                                "hp": 60,
+                                "num": 3
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Fluke Fly",
+                                "hp": 200,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Broken_Vessel": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Lesser Mawlek",
+                                "hp": 150,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Lesser Mawlek",
+                                "hp": 150,
+                                "num": 1
+                            },
+                            {
+                                "name": "Parasite Balloon",
+                                "hp": 100,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Mawlek Turret",
+                                "hp": 300,
+                                "num": 1
+                            },
+                            {
+                                "name": "Lesser Mawlek",
+                                "hp": 150,
+                                "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Mawlek Turret",
+                                "hp": 300,
+                                "num": 1
+                            },
+                            {
+                                "name": "Parasite Balloon",
+                                "hp": 100,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Ghost_Galien": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Centipede Hatcher",
+                                "hp": 150,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Centipede Hatcher",
+                                "hp": 150,
+                                "num": 1
+                            },
+                            {
+                                "name": "Zombie Shield",
+                                "hp": 80,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Slash Spider",
+                                "hp": 200,
+                                "num": 1
+                            },
+                            {
+                                "name": "Grass Hopper",
+                                "hp": 80,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Colosseum Grass Hopper",
+                                "hp": 150,
+                                "num": 3
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Hive_Knight": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Bee Stinger",
+                                "hp": 120,
+                                "num": 3
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Bee Stinger",
+                                "hp": 120,
+                                "num": 1
+                            },
+                            {
+                                "name": "Big Bee",
+                                "hp": 250,
+                                "num": 1
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Big Bee",
+                                "hp": 250,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Big Bee",
+                                "hp": 250,
+                                "num": 1
+                            },
+                            {
+                                "name": "Bee Stinger",
+                                "hp": 120,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Ghost_Hu": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Mushroom Brawler",
+                                "hp": 450,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Mushroom Roller",
+                                "hp": 300,
+                                "num": 2
+                            },
+                            {
+                                "name": "Fungus Flyer",
+                                "hp": 200,
+                                "num": 1
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_God_Tamer": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Colosseum_Shield_Zombie",
+                                "hp": 200,
+                                "num": 2
+                            },
+                            {
+                                "name": "Colosseum_Miner",
+                                "hp": 200,
+                                "num": 1
+                            },
+                            {
+                                "name": "Colosseum_Flying_Sentry",
+                                "hp": 200,
+                                "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Colosseum_Worm",
+                                "hp": 500,
+                                "num": 1
+                            },
+                            {
+                                "name": "Colosseum_Armoured_Roller",
+                                "hp": 250,
+                                "num": 1
+                            },
+                            {
+                                "name": "Colosseum_Armoured_Mosquito",
+                                "hp": 200,
+                                "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Colosseum_Worm",
+                                "hp": 500,
+                                "num": 1
+                            },
+                            {
+                                "name": "Colosseum_Flying_Sentry",
+                                "hp": 200,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Colosseum Grass Hopper",
+                                "hp": 200,
+                                "num": 2
+                            },
+                            {
+                                "name": "Colosseum_Miner",
+                                "hp": 250,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Grimm": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Flamebearer Small",
+                                "hp": 150,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Flamebearer Med",
+                                "hp": 400,
+                                "num": 1
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Watcher_Knights": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Ruins Sentry",
+                                "hp": 200,
+                                "num": 2
+                            },
+                            {
+                                "name": "Ruins Flying Sentry",
+                                "hp": 150,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Ruins Sentry Fat",
+                                "hp": 350,
+                                "num": 1
+                            },
+                            {
+                                "name": "Ruins Flying Sentry",
+                                "hp": 150,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Ruins Sentry Fat",
+                                "hp": 350,
+                                "num": 1
+                            },
+                            {
+                                "name": "Ruins Flying Sentry Javelin",
+                                "hp": 150,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Great Shield Zombie",
+                                "hp": 500,
+                                "num": 1
+                            }
+                        ]
+                    }
+                }
+            ],
+            "3": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Great Shield Zombie",
+                                "hp": 500,
+                                "num": 1
+                            },
+                            {
+                                "name": "Ruins Flying Sentry Javelin",
+                                "hp": 150,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Uumuu_V": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Electric Mage New",
+                                "hp": 300,
+                                "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Jellyfish",
+                                "hp": 1,
+                                "num": 3
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Electric Mage New",
+                                "hp": 300,
+                                "num": 1
+                            },
+                            {
+                                "name": "Jellyfish",
+                                "hp": 1,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Jellyfish",
+                                "hp": 1,
+                                "num": 4
+                            }
+                        ]
+                    }
+                }
+            ],
+            "3": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Electric Mage New",
+                                "hp": 300,
+                                "num": 1
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Hornet_2": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Hopper",
+                                "hp": 100,
+                                "num": 3
+                            },
+                            {
+                                "name": "Super Spitter",
+                                "hp": 100,
+                                "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Super Spitter",
+                                "hp": 100,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Giant Hopper",
+                                "hp": 400,
+                                "num": 1
+                            },
+                            {
+                                "name": "Super Spitter",
+                                "hp": 150,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Giant Hopper",
+                                "hp": 300,
+                                "num": 2
+                            },
+                            {
+                                "name": "Colosseum_Armoured_Roller",
+                                "hp": 300,
+                                "num": 1
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Crystal_Guardian_2": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Zombie Beam Miner",
+                                "hp": 200,
+                                "num": 2
+                            },
+                            {
+                                "name": "Crystal Crawler",
+                                "hp": 200,
+                                "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Zombie Beam Miner",
+                                "hp": 200,
+                                "num": 1
+                            },
+                            {
+                                "name": "Zombie Miner",
+                                "hp": 300,
+                                "num": 1
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Zombie Miner",
+                                "hp": 300,
+                                "num": 1
+                            },
+                            {
+                                "name": "Zombie Beam Miner",
+                                "hp": 200,
+                                "num": 1
+                            },
+                            {
+                                "name": "Crystal Flyer",
+                                "hp": 200,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Zombie Miner",
+                                "hp": 300,
+                                "num": 2
+                            },
+                            {
+                                "name": "Crystal Flyer",
+                                "hp": 200,
+                                "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Zombie Miner",
+                                "hp": 300,
+                                "num": 1
+                            },
+                            {
+                                "name": "Crystal Flyer",
+                                "hp": 200,
+                                "num": 3
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Traitor_Lord": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Mantis Heavy",
+                                "hp": 350,
+                                "num": 1
+                            },
+                            {
+                                "name": "Garden Zombie",
+                                "hp": 100,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Mantis Heavy",
+                                "hp": 350,
+                                "num": 1
+                            },
+                            {
+                                "name": "Mantis Heavy Flyer",
+                                "hp": 250,
+                                "num": 1
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Mantis Heavy",
+                                "hp": 350,
+                                "num": 2
+                            },
+                            {
+                                "name": "Mantis Heavy Flyer",
+                                "hp": 250,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Soul_Tyrant": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Mage",
+                                "hp": 350,
+                                "num": 3
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Electric Mage New",
+                                "hp": 500,
+                                "num": 1
+                            },
+                            {
+                                "name": "Mage",
+                                "hp": 350,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Ruins Sentry",
+                                "hp": 200,
+                                "num": 2
+                            },
+                            {
+                                "name": "Mage Blob",
+                                "hp": 50,
+                                "num": 3
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Ruins Sentry",
+                                "hp": 200,
+                                "num": 2
+                            },
+                            {
+                                "name": "Mage Balloon",
+                                "hp": 50,
+                                "num": 3
+                            }
+                        ]
+                    }
+                }
+            ],
+            "3": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Great Shield Zombie",
+                                "hp": 600,
+                                "num": 1
+                            },
+                            {
+                                "name": "Mage",
+                                "hp": 350,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Great Shield Zombie",
+                                "hp": 600,
+                                "num": 1
+                            },
+                            {
+                                "name": "Electric Mage New",
+                                "hp": 500,
+                                "num": 1
+                            },
+                            {
+                                "name": "Ruins Sentry Fat",
+                                "hp": 250,
+                                "num": 1
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Failed_Champion": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Great Shield Zombie",
+                                "hp": 500,
+                                "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Slash Spider",
+                                "hp": 500,
+                                "num": 1
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Grave Zombie",
+                                "hp": 300,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ],
+            "3": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Zombie Guard",
+                                "hp": 750,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Grimm_Nightmare": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Flamebearer Small",
+                                "hp": 250,
+                                "num": 3
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Flamebearer Med",
+                                "hp": 350,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Flamebearer Med",
+                                "hp": 350,
+                                "num": 1
+                            }
+                        ]
+                    }
+                }
+            ],
+            "3": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Flamebearer Large",
+                                "hp": 400,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Flamebearer Large",
+                                "hp": 500,
+                                "num": 1
+                            },
+                            {
+                                "name": "Flamebearer Med",
+                                "hp": 300,
+                                "num": 1
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Flamebearer Large",
+                                "hp": 400,
+                                "num": 1
+                            },
+                            {
+                                "name": "Flamebearer Small",
+                                "hp": 250,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+}

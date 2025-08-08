@@ -39,32 +39,48 @@ public class ItemManager : MonoBehaviour
 
 
 
-    public enum Mode
+    internal class GiftMode
     {
-        one_big_gift,
-        one_small_gift,
-        select_big_gift,
-        select_small_gift,
-        fix_gift,
-        fix_select_big_gift,
-        fix_select_small_gift
+        internal enum GiveMode
+        {
+            no,
+            one,
+            select,
+            fix
+        }
+        internal GiveMode give_mode = GiveMode.one;
+        internal GiftVariety gift_variety;
+        internal GiftMode(GiftVariety gift_variety, GiveMode give_mode)
+        {
+            this.gift_variety = gift_variety;
+            this.give_mode = give_mode;
+        }
 
     }
+    internal static GiftMode now_gift_mode = null;
 
-    public Mode nowMode;
+    internal static OneReward now_reward = null;
 
-    public int tempselect;
+    public int can_select;
 
     Sprite sprite = null;
 
-    public class OneReward
+    internal class OneReward
     {
-        public Mode mode;
+        public enum GiveMode
+        {
+            fix,
+            random
+        }
+        public GiveMode give_mode;
+        public List<GiftVariety> giftVarieties = null;
+        public GiftVariety gift_variety;
         public int give;
 
         public int select;
 
         public List<Gift> gifts;
+        public List<GameObject> instance_items = new List<GameObject>();
     }
 
     internal Stack<OneReward> rewardsStack = new();
@@ -96,7 +112,7 @@ public class ItemManager : MonoBehaviour
     public bool hatchscene = false;
 
     Action<PlayMakerFSM> fsm_enable = null;
-    public Func<OneReward, OneReward> before_spawn_item = null;
+    internal Func<OneReward, OneReward> before_spawn_item = null;
 
     System.Random item_random;
     internal static GameObject menu_go;
@@ -361,45 +377,64 @@ public class ItemManager : MonoBehaviour
         {
             roles.Add(GiftFactory.all_gifts[role]);
         }
-        if (Rogue.Instance._set.owner) roles = roles.Append(GiftFactory.all_gifts[Giftname.role_test]).ToList();
+        if (Rogue.Instance._set.owner) roles.Add(GiftFactory.all_gifts[Giftname.role_test]);
         SpwanShopItem(roles, select: true);
 
     }
     public void NormalShopItem()
     {
         GiftFactory.UpdateWeight();
-        List<Gift> items = new List<Gift>();
-        items.Add(GiftFactory.all_gifts[Giftname.shop_keeper_key]);
-        if (GiftFactory.all_gifts[Giftname.shop_add_1_notch_1].weight > 0)
-            items.Add(GiftFactory.all_gifts[Giftname.shop_add_1_notch_1]);
-        if (GiftFactory.all_gifts[Giftname.shop_nail_upgrade].weight > 0)
-            items.Add(GiftFactory.all_gifts[Giftname.shop_nail_upgrade]);
-        items.Add(GiftFactory.all_gifts[Giftname.shop_random_gift]);
+        List<Gift> shop_items = new List<Gift>();
+        shop_items.Add(GiftFactory.all_gifts[Giftname.shop_keeper_key]);
+        if (GameInfo.spa_count == 3 && !GameInfo.Branch.collector)
+        {
+            shop_items.Add(GiftFactory.all_gifts[Giftname.custom_love_key]);
+        }
+        if (GameInfo.spa_count == 6 && !GameInfo.Branch.modboss && GameInfo.gameMode == GameInfo.GameMode.MODE0)
+        {
+            shop_items.Add(GiftFactory.all_gifts[Giftname.custom_city_crest]);
+        }
+        if (GameInfo.spa_count == 7 && !GameInfo.Branch.radiance && GameInfo.gameMode == GameInfo.GameMode.MODE0)
+        {
+            shop_items.Add(GiftFactory.all_gifts[Giftname.custom_mender_key]);
+        }
+        if (GiftFactory.all_gifts[Giftname.shop_add_1_notch_1].now_weight > 0)
+            shop_items.Add(GiftFactory.all_gifts[Giftname.shop_add_1_notch_1]);
+        if (GiftFactory.all_gifts[Giftname.shop_nail_upgrade].now_weight > 0)
+            shop_items.Add(GiftFactory.all_gifts[Giftname.shop_nail_upgrade]);
+        shop_items.Add(GiftFactory.all_gifts[Giftname.shop_random_gift]);
         List<Giftname> charms = new(){
                 Giftname.shop_any_charm_1,
                 Giftname.shop_any_charm_2,
                 Giftname.shop_any_charm_3,
                 Giftname.shop_any_charm_4
             };
-        var ranlist = RandomList(GameInfo.act_gifts[GiftVariety.shop], num: 9 - items.Count);
+        var ranlist = RandomList(GameInfo.act_gifts[GiftVariety.shop], num: 9 - shop_items.Count);
         int t = ranlist.Count((gift) => charms.Contains(gift.giftname));
         ranlist.RemoveAll((gift) => charms.Contains(gift.giftname));
         List<Gift> select_charms = RandomList(GameInfo.act_gifts[GiftVariety.charm], t, false);
         foreach (var charm in charms) GiftFactory.all_gifts[charm].now_weight = 0;
-        ranlist = RandomList(GameInfo.act_gifts[GiftVariety.shop], 9 - items.Count - select_charms.Count, false);
-        SpwanShopItem(items.Concat(ranlist).Concat(select_charms).ToList());
+        ranlist = RandomList(GameInfo.act_gifts[GiftVariety.shop], 9 - shop_items.Count - select_charms.Count, false);
+        SpwanShopItem(shop_items.Concat(ranlist).Concat(select_charms).ToList());
 
 
     }
     public void CharmShopItem()
     {
         GiftFactory.UpdateWeight();
-        List<Gift> items = new List<Gift>();
-        items.Add(GiftFactory.all_gifts[Giftname.shop_add_1_notch_1]);
-        items.Add(GiftFactory.all_gifts[Giftname.shop_add_1_notch_2]);
-        items.Add(GiftFactory.all_gifts[Giftname.shop_add_1_notch_3]);
+        List<Gift> charm_shop_items = new List<Gift>();
+        if (GameInfo.spa_count == 5 && !GameInfo.Branch.lost_kin)
+        {
+            charm_shop_items.Add(GiftFactory.all_gifts[Giftname.custom_tram_pass]);
+        }
+        if (GiftFactory.all_gifts[Giftname.shop_add_1_notch_1].now_weight > 0)
+        {
+            charm_shop_items.Add(GiftFactory.all_gifts[Giftname.shop_add_1_notch_1]);
+            charm_shop_items.Add(GiftFactory.all_gifts[Giftname.shop_add_1_notch_2]);
+            charm_shop_items.Add(GiftFactory.all_gifts[Giftname.shop_add_1_notch_3]);
+        }
         var ranlist = RandomList(GameInfo.act_gifts[GiftVariety.charm], 6);
-        SpwanShopItem(items.Concat(ranlist).ToList());
+        SpwanShopItem(charm_shop_items.Concat(ranlist).ToList());
     }
     private IEnumerator DelayGenerater(float delay)
     {
@@ -418,33 +453,125 @@ public class ItemManager : MonoBehaviour
 
     public void GiveReward(int door)
     {
-        rewardsStack.Push(new OneReward
+        switch (door)
         {
-            mode = Mode.select_small_gift,
-            select = 1,
-            give = 3,
-            gifts = null
-        });
-        if (door % 2 == 0)
-        {
-            rewardsStack.Push(new OneReward
-            {
-                mode = Mode.fix_select_big_gift,
-                select = 1,
-                gifts = GameInfo.act_gifts[GiftVariety.huge]
-            });
+            case 0:
+                rewardsStack.Push(new OneReward
+                {
+                    give_mode = OneReward.GiveMode.random,
+                    gift_variety = GiftVariety.item,
+                    select = 1,
+                    give = 3
+                });
+                break;
+            case 1:
+                rewardsStack.Push(new OneReward
+                {
+                    give_mode = OneReward.GiveMode.fix,
+                    gift_variety = GiftVariety.huge,
+                    select = 1,
+                    gifts = GameInfo.act_gifts[GiftVariety.huge]
+                });
+                break;
+            case 2:
+                rewardsStack.Push(new OneReward
+                {
+                    give_mode = OneReward.GiveMode.random,
+                    gift_variety = GiftFactory.CustomVariety(),
+                    select = 1,
+                    give = 3
+                });
+                break;
+            case 3:
+                rewardsStack.Push(new OneReward
+                {
+                    give_mode = OneReward.GiveMode.random,
+                    gift_variety = GiftVariety.item,
+                    select = 1,
+                    give = 3
+                });
+                rewardsStack.Push(new OneReward
+                {
+                    give_mode = OneReward.GiveMode.fix,
+                    gift_variety = GiftVariety.huge,
+                    select = 1,
+                    gifts = GameInfo.act_gifts[GiftVariety.huge]
+                });
+                break;
+            case 4:
+                rewardsStack.Push(new OneReward
+                {
+                    give_mode = OneReward.GiveMode.random,
+                    gift_variety = GiftVariety.item,
+                    select = 1,
+                    give = 3
+                });
+                break;
+            case 5:
+                rewardsStack.Push(new OneReward
+                {
+                    give_mode = OneReward.GiveMode.random,
+                    gift_variety = GiftVariety.item,
+                    select = 1,
+                    give = 3
+                });
+                rewardsStack.Push(new OneReward
+                {
+                    give_mode = OneReward.GiveMode.fix,
+                    gift_variety = GiftVariety.huge,
+                    select = 1,
+                    gifts = GameInfo.act_gifts[GiftVariety.huge]
+                });
+                break;
+            case 6:
+                rewardsStack.Push(new OneReward
+                {
+                    give_mode = OneReward.GiveMode.random,
+                    gift_variety = GiftFactory.CustomVariety(),
+                    select = 1,
+                    give = 3
+                });
+                break;
+            case 7:
+                rewardsStack.Push(new OneReward
+                {
+                    give_mode = OneReward.GiveMode.random,
+                    gift_variety = GiftVariety.item,
+                    select = 1,
+                    give = 3
+                });
+                break;
+            default:
+                break;
+
         }
         StartCoroutine(DelayGenerater(1f));
     }
 
 
+    void RefreshGift()
+    {
+        if (GameInfo.refresh_num <= 0) return;
+        if (now_reward == null) return;
+        if (now_reward.give_mode == OneReward.GiveMode.fix) return;
+        else if (now_reward.give_mode == OneReward.GiveMode.random)
+        {
+            now_reward.give = items.Count;
+            now_reward.select = can_select;
+            DestroyAllItems();
+            GameInfo.refresh_num--;
+            SpawnReward(now_reward);
+        }
+
+
+    }
     public void Update()
     {
         refreshgap -= Time.deltaTime;
         overgap -= Time.deltaTime;
         startgap -= Time.deltaTime;
         if (HeroController.instance == null) return;
-        if (Rogue.self_actions.refresh.IsPressed)
+        if (Rogue.self_actions.refresh.WasPressed)
         {
             if (GameInfo.refresh_num > 0)
             {
@@ -452,41 +579,8 @@ public class ItemManager : MonoBehaviour
                 {
                     if (items.Count > 0)
                     {
+                        RefreshGift();
                         refreshgap = 0.75f;
-                        int t = items.Count;
-
-                        switch (nowMode)
-                        {
-                            case Mode.select_small_gift:
-                                DestroyAllItems();
-                                GameInfo.refresh_num--;
-                                RandomSelectSmall(tempselect, t);
-                                break;
-                            case Mode.select_big_gift:
-                                DestroyAllItems();
-                                GameInfo.refresh_num--;
-                                RandomSelectBig(tempselect, t);
-                                break;
-                            case Mode.one_big_gift:
-                                DestroyAllItems();
-                                GameInfo.refresh_num--;
-                                RandomOneBig();
-                                break;
-                            case Mode.one_small_gift:
-                                DestroyAllItems();
-                                GameInfo.refresh_num--;
-                                RandomOneSmall();
-                                break;
-                            case Mode.fix_gift:
-                                break;
-                            case Mode.fix_select_big_gift:
-                                break;
-                            case Mode.fix_select_small_gift:
-                                break;
-                            default:
-                                break;
-
-                        }
                     }
                 }
             }
@@ -544,11 +638,11 @@ public class ItemManager : MonoBehaviour
 
     }
 
-    public List<Gift> RandomList(List<Gift> gifts, int num = 1, bool canRepeat = false, System.Random random = null)
+    public static List<Gift> RandomList(List<Gift> gifts, int num = 1, bool canRepeat = false, System.Random random = null)
     {
         if (random == null)
         {
-            random = this.item_random;
+            random = ItemManager.Instance.item_random;
         }
         List<Gift> res = new();
         float whole = gifts.Sum((gift) =>
@@ -591,88 +685,51 @@ public class ItemManager : MonoBehaviour
 
 
     }
-    public void RandomOneSmall()
+    internal void SpawnReward(OneReward reward)
     {
-        items.Clear();
-        nowMode = Mode.one_small_gift;
-        int count = GameInfo.act_gifts[GiftVariety.item].Count;
-        if (count <= 0) return;
-        var list = RandomList(GameInfo.act_gifts[GiftVariety.item], 1);
-        if (list.Count > 0)
-            SpwanItem(list[0]);
-    }
-    public void RandomOneBig()
-    {
-        items.Clear();
-        nowMode = Mode.one_big_gift;
-        int count = GameInfo.act_gifts[GiftVariety.huge].Count;
-        if (count <= 0) return;
-        var list = RandomList(GameInfo.act_gifts[GiftVariety.huge], 1);
-        if (list.Count > 0)
-            SpwanItem(list[0]);
-    }
-    public void RandomSelectSmall(int select, int give)
-    {
-        items.Clear();
-        nowMode = Mode.select_small_gift;
-        tempselect = select;
-        int count = GameInfo.act_gifts[GiftVariety.item].Count;
-        if (count <= 0) return;
-        var list = RandomList(GameInfo.act_gifts[GiftVariety.item], give);
-        foreach (var item in list)
+        if (before_spawn_item != null)
         {
-            SpwanItem(item);
+            reward = before_spawn_item(reward);
         }
-
-
-    }
-    public void RandomSelectBig(int select, int give)
-    {
         items.Clear();
-        nowMode = Mode.select_big_gift;
-        tempselect = select;
-        int count = GameInfo.act_gifts[GiftVariety.huge].Count;
-        if (count <= 0) return;
-        var list = RandomList(GameInfo.act_gifts[GiftVariety.huge], give);
-        foreach (var item in list)
+        List<Gift> gifts = null;
+        if (reward.give_mode == OneReward.GiveMode.fix)
         {
-            SpwanItem(item);
+            gifts = reward.gifts;
         }
-
-
-    }
-
-    public void FixGifts(List<Gift> gifts)
-    {
-        items.Clear();
-        nowMode = Mode.fix_gift;
-        foreach (var gift in gifts)
+        else if (reward.give_mode == OneReward.GiveMode.random)
         {
-            SpwanItem(gift);
+            if (reward.giftVarieties != null && reward.giftVarieties.Count > 0)
+            {
+                List<Gift> mix_gifts = null;
+                foreach (var variety in reward.giftVarieties)
+                {
+                    if (mix_gifts == null) mix_gifts = new List<Gift>(GameInfo.act_gifts[variety]);
+                    else mix_gifts.AddRange(GameInfo.act_gifts[variety]);
+                }
+                if (mix_gifts != null && mix_gifts.Count > 0)
+                    gifts = RandomList(mix_gifts, reward.give);
+                else return;
+            }
+            else
+            {
+                int count = GameInfo.act_gifts[reward.gift_variety].Count;
+                if (count <= 0) return;
+                gifts = RandomList(GameInfo.act_gifts[reward.gift_variety], reward.give);
+            }
         }
-    }
-
-    public void FixSelectBig(List<Gift> bigs, int select)
-    {
-        items.Clear();
-        nowMode = Mode.fix_select_big_gift;
-        tempselect = select;
-        foreach (var gift in bigs)
+        can_select = now_reward.select;
+        if (gifts != null)
         {
-            SpwanItem(gift, true);
+            foreach (var gift in gifts)
+            {
+                SpwanItem(gift);
+            }
         }
-
-    }
-    public void FixSelectSmall(List<Gift> smalls, int select)
-    {
-        items.Clear();
-        nowMode = Mode.fix_select_big_gift;
-        tempselect = select;
-        foreach (var gift in smalls)
+        else
         {
-            SpwanItem(gift, true);
+            Log("no gifts to spawn");
         }
-
     }
     private void SpwanItem(Gift gift, bool inSelect = false)
     {
@@ -832,34 +889,9 @@ public class ItemManager : MonoBehaviour
         bool flag = false;
         if (!start)
         {
-            switch (nowMode)
-            {
-                case Mode.select_small_gift:
-                    tempselect--;
-                    if (tempselect <= 0) flag = true;
-                    break;
-                case Mode.select_big_gift:
-                    tempselect--;
-                    if (tempselect <= 0) flag = true;
-                    break;
-                case Mode.one_big_gift:
-                    flag = true;
-                    break;
-                case Mode.one_small_gift:
-                    flag = true;
-                    break;
-                case Mode.fix_gift:
-                    flag = true;
-                    break;
-                case Mode.fix_select_big_gift:
-                    tempselect--;
-                    if (tempselect <= 0) flag = true;
-                    break;
-                case Mode.fix_select_small_gift:
-                    tempselect--;
-                    if (tempselect <= 0) flag = true;
-                    break;
-            }
+            can_select--;
+            if (can_select <= 0) flag = true;
+
         }
         if (items.Count > 0)
         {
@@ -881,36 +913,8 @@ public class ItemManager : MonoBehaviour
                 }
                 while (FixEmptyReward(reward) && rewardsStack.Count > 0);
                 if (FixEmptyReward(reward)) return;
-                if (before_spawn_item != null)
-                {
-                    reward = before_spawn_item(reward);
-                }
-                switch (reward.mode)
-                {
-                    case Mode.select_small_gift:
-                        RandomSelectSmall(reward.select, reward.give);
-                        break;
-                    case Mode.select_big_gift:
-                        RandomSelectBig(reward.select, reward.give);
-                        break;
-                    case Mode.one_big_gift:
-                        RandomOneBig();
-                        break;
-                    case Mode.one_small_gift:
-                        RandomOneSmall();
-                        break;
-                    case Mode.fix_gift:
-                        FixGifts(reward.gifts);
-                        break;
-                    case Mode.fix_select_big_gift:
-                        FixSelectBig(reward.gifts, reward.select);
-                        break;
-                    case Mode.fix_select_small_gift:
-                        FixSelectSmall(reward.gifts, reward.select);
-                        break;
-                    default:
-                        break;
-                }
+                now_reward = reward;
+                SpawnReward(now_reward);
             }
         }
 
@@ -918,7 +922,7 @@ public class ItemManager : MonoBehaviour
 
     private bool FixEmptyReward(OneReward reward)
     {
-        if ((reward.mode == Mode.fix_gift || reward.mode == Mode.fix_select_small_gift || reward.mode == Mode.fix_select_big_gift) && reward.gifts.Count <= 0) return true;
+        if (reward.give_mode == OneReward.GiveMode.fix && reward.gifts.Count <= 0) return true;
         return false;
     }
 

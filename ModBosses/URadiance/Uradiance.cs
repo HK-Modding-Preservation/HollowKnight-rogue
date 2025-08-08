@@ -112,7 +112,6 @@ internal class Uradiance : MonoBehaviour
         }
 
 
-
         ModifyOrbs();
         ModifyNailFan();
         ModifyEyeBeams();

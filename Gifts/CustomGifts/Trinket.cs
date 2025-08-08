@@ -150,7 +150,7 @@ internal class Trinket4 : CustomGift
 
     private void GiveRandomGift()
     {
-        var gifts = ItemManager.Instance.RandomList(GameInfo.act_gifts[GiftVariety.item], 1);
+        var gifts = ItemManager.RandomList(GameInfo.act_gifts[GiftVariety.item], 1);
         if (gifts.Count == 0)
         {
             Rogue.Instance.ShowConvo("什么都没有发生".Localize());

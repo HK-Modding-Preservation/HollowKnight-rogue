@@ -84,6 +84,9 @@ internal abstract class NPC
     internal GameObject go = null;
     internal PlayMakerFSM npc_ctl = null;
     internal PlayMakerFSM convo_ctl = null;
+    const string main = "main";
+    const string sub = "sub";
+    const string super = "super";
     internal string GetSpecialName(string name)
     {
         return "rogueNPC_" + GetType().Name + "_" + name;
@@ -91,9 +94,9 @@ internal abstract class NPC
     internal virtual string GetName(string pos)
     {
         pos = pos.ToLower();
-        if (pos == "main") return name.Localize();
-        else if (pos == "sub") return name_sub.Localize();
-        else if (pos == "super") return name_super.Localize();
+        if (pos == main) return name.Localize();
+        else if (pos == sub) return name_sub.Localize();
+        else if (pos == super) return name_super.Localize();
         return null;
     }
     internal virtual void AddConversation(string name, string convo)
@@ -123,7 +126,7 @@ internal abstract class NPC
     {
         go.GetComponent<tk2dSpriteAnimator>().Play(talk_animation_name);
     }
-    internal void SetPosition(Vector3 pos)
+    internal virtual void SetPosition(Vector3 pos)
     {
         if (go != null)
         {
@@ -143,7 +146,7 @@ internal abstract class NPC
             go.SetActive(false);
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= DeactivateSelf;
         }
-        
+
     }
 
     protected virtual void ShowTitle()

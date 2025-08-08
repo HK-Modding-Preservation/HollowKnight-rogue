@@ -71,8 +71,10 @@ internal static class PreloadManager
     internal static void ReservePreloadGO(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
     {
         var preloadNames = Rogue.Instance.GetPreloadNames();
+
         foreach (var (scene, name) in preloadNames)
         {
+            Log(scene + " " + name);
             if (!ReservedGO.ContainsKey(scene))
             {
                 ReservedGO.Add(scene, new Dictionary<string, GameObject>());

@@ -104,6 +104,10 @@ public abstract class Character : MonoBehaviour
         if (birthright_names == null) return 0;
         return birthright_names.Count;
     }
+    public int GotBirthrightNum()
+    {
+        return got_birthright.Count;
+    }
     public virtual void ExecGetBirthright(int num)
     {
         if (num >= birthright_names.Count) return;

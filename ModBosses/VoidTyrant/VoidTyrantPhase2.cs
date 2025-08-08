@@ -1,6 +1,8 @@
 using HutongGames.PlayMaker.Actions;
 using Satchel;
 using UnityEngine;
+namespace rogue.ModBosses;
+
 internal class VoidTyrantPhase2 : MonoBehaviour
 {
     PlayMakerFSM mage_lord;

@@ -10,6 +10,7 @@ using Steamworks;
 using UnityEngine;
 
 namespace rogue;
+
 public static class Lang
 {
     public static Dictionary<string, Dictionary<string, string>> texts = new();
@@ -26,6 +27,7 @@ public static class Lang
 
             Modding.Logger.Log(file);
             if (!file.EndsWith(".json")) continue;
+            if (!file.Contains("lang")) continue;
             var bytes = Assembly.GetExecutingAssembly().GetBytesFromResources(file);
             var temp = JsonConvert.DeserializeObject<Dictionary<string, string>>(System.Text.Encoding.UTF8.GetString(bytes));
             texts.Add(Path.GetFileNameWithoutExtension(file).Split('.').Last().ToLower(), temp);

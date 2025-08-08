@@ -32,6 +32,12 @@ internal static class NPCManager
     const string charm_slug_scene = "Room_Charm_Shop";
     const string charm_slug_name = "Charm Slug";
     const string charm_slug_desk = "shop_0000_a";
+    const string legeater_scene = "Fungus2_26";
+    const string legeater_name = "Leg Eater";
+    const string WishPool_scene = "Abyss_04";
+    const string down_name = "_0007_wish5";
+    const string up_name = "_0008_wish4";
+    const string well_name = "Wishing_Well_anims/Wishing_Well_normal";
     internal static List<(string, string)> GetPreloadNames()
     {
         List<(string, string)> values = new List<(string, string)>()
@@ -44,13 +50,18 @@ internal static class NPCManager
             (nailsmith_scene,nailsmith_name),
             (quirrel_nail_scene,quirrel_nail_name),
             (charm_slug_scene,charm_slug_name),
-            (charm_slug_scene,charm_slug_desk)
+            (charm_slug_scene,charm_slug_desk),
+            (legeater_scene,legeater_name),
+            (WishPool_scene,up_name),
+            (WishPool_scene,down_name),
+            (WishPool_scene,well_name)
         };
         return values;
 
     }
     internal static void Init(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
     {
+
         NPC.template = GameObject.Instantiate(PreloadManager.getGO(RogueUIManager.card_scene, RogueUIManager.card_name));
         NPC.template.SetActive(false);
         GameObject.DontDestroyOnLoad(NPC.template);
@@ -63,6 +74,11 @@ internal static class NPCManager
         npcs.Add(typeof(CharmSlug).Name, new CharmSlug(preloadedObjects[charm_slug_scene][charm_slug_name].GetComponent<tk2dSpriteAnimator>().Library, GameObject.Instantiate(preloadedObjects[charm_slug_scene][charm_slug_desk])));
         npcs.Add(typeof(Nailsmith).Name, new Nailsmith(preloadedObjects[nailsmith_scene][nailsmith_name].GetComponent<tk2dSpriteAnimator>().Library));
         npcs.Add(typeof(Leveler).Name, new Leveler(preloadedObjects[RogueSceneManager.GG_level_scene][RogueSceneManager.GG_level_name].GetComponent<tk2dSpriteAnimator>().Library));
+        npcs.Add(typeof(LegEater).Name, new LegEater(preloadedObjects[legeater_scene][legeater_name].GetComponent<tk2dSpriteAnimator>().Library));
+        npcs.Add(typeof(WishPool).Name, new WishPool(
+            preloadedObjects[WishPool_scene][down_name].GetComponent<SpriteRenderer>().sprite,
+            preloadedObjects[WishPool_scene][up_name].GetComponent<SpriteRenderer>().sprite,
+            preloadedObjects[WishPool_scene][well_name]));
     }
     internal static void GameLoadInit()
     {

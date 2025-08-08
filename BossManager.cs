@@ -1,4 +1,5 @@
 using System.Data;
+using System.Diagnostics;
 using Steamworks;
 
 namespace rogue;
@@ -19,6 +20,7 @@ internal static class BossManager
     static bool can_self_over;
 
     internal static int bossleft;
+    internal static int waveleft;
 
     static List<GameObject> spawn_gos = new();
     static List<GameObject> spawn_health_gos = new();
@@ -75,14 +77,35 @@ internal static class BossManager
 
 
 
-        On.PlayMakerFSM.OnEnable += ModifyRadiance;
+        On.PlayMakerFSM.OnEnable += ModifyBoss;
     }
 
-    private static void ModifyRadiance(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
+
+
+    private static void ModifyBoss(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
     {
-        if (self.gameObject.name == "Absolute Radiance" && self.FsmName == "Control")
+        if (self.gameObject.name == "Absolute Radiance" && self.FsmName == "Control" && GameInfo.Branch.radiance)
         {
             self.gameObject.AddComponent<ModBosses.Uradiance>();
+        }
+        if (GameInfo.Branch.modboss)
+        {
+            if (self.gameObject.name == "Dream Mage Lord" && self.FsmName == "Mage Lord")
+            {
+                self.gameObject.AddComponent<ModBosses.VoidTyrant>();
+            }
+            if (self.gameObject.name == "Dream Mage Lord Phase2" && self.FsmName == "Mage Lord 2")
+            {
+                self.gameObject.AddComponent<ModBosses.VoidTyrantPhase2>();
+            }
+            if (self.gameObject.name == "Jar Collector" && self.FsmName == "Control")
+            {
+                self.gameObject.GetAddComponent<ModBosses.BlackMonkey>();
+            }
+            if (self.gameObject.name == "False Knight Dream" && self.FsmName == "FalseyControl")
+            {
+                self.gameObject.GetAddComponent<ModBosses.BattleChampions>();
+            }
         }
         orig(self);
     }
@@ -149,27 +172,15 @@ internal static class BossManager
     }
     internal static IEnumerator Replacify(string scene_name)
     {
-        On.ObjectPool.Spawn_GameObject_Transform_Vector3_Quaternion += SetActive;
-        switch (scene_name)
+        if (EnemyWaveManager.GetCollection(scene_name) != null)
         {
-            case "GG_Vengefly_V":
-                yield return null;
-                yield return ItemManager.Instance.StartCoroutine(ReplacifyVengefly());
-                break;
-
-            case "GG_Hive_Knight":
-                yield return null;
-                break;
-            case "GG_Ghost_Hu":
-                yield return null;
-                break;
-            case "GG_Grimm":
-                yield return null;
-                break;
-            default:
-                break;
+            yield return ItemManager.Instance.StartCoroutine(DisableBoss(scene_name));
+            yield return ItemManager.Instance.StartCoroutine(EnemyWaves());
         }
-        On.ObjectPool.Spawn_GameObject_Transform_Vector3_Quaternion -= SetActive;
+        if (scene_name == "GG_Hollow_Knight")
+        {
+            yield return ItemManager.Instance.StartCoroutine(Modify(scene_name));
+        }
     }
     internal static IEnumerator LoveKeyify(string sceneName)
     {
@@ -193,19 +204,7 @@ internal static class BossManager
         }
         On.ObjectPool.Spawn_GameObject_Transform_Vector3_Quaternion -= SetActive;
     }
-    static IEnumerator ReplacifyVengefly()
-    {
-        can_self_over = true;
-        bossleft = 2;
-        GameObject.Find("Giant Buzzer Col (1)").SetActive(false);
-        GameObject.Find("Giant Buzzer Col").SetActive(false);
-        yield return new WaitForSeconds(3f);
-        float breakY = HeroController.instance.transform.position.y;
-        ItemManager.Instance.StartCoroutine(EnemyAppear(big_bee, new Vector3(HeroController.instance.transform.position.x, breakY + 8), 250));
-        yield return new WaitForSeconds(1f);
-        ItemManager.Instance.StartCoroutine(EnemyAppear(big_bee, new Vector3(HeroController.instance.transform.position.x, breakY + 8), 250));
-        yield break;
-    }
+
 
     private static IEnumerator LoveKeyifyGrimm()
     {
@@ -319,6 +318,157 @@ internal static class BossManager
         }
         return res;
     }
+    static IEnumerator DisableBoss(string scene_name)
+    {
+        yield return null;
+        if (BossSceneController.Instance != null)
+        {
+            foreach (var boss in BossSceneController.Instance.bosses)
+            {
+                boss.gameObject.SetActive(false);
+            }
+        }
+        switch (scene_name)
+        {
+            case "GG_Vengefly_V":
+                try
+                {
+                    GameObject.Find("Giant Buzzer Col").SetActive(false);
+                    GameObject.Find("Giant Buzzer Col (1)").SetActive(false);
+                }
+                catch (Exception) { }
+                break;
+            case "GG_Gruz_Mother_V":
+                break;
+            case "GG_False_Knight":
+
+                GameObject.Find("Battle Scene").LocateMyFSM("Activate FK").GetAction<ActivateGameObject>("Activate", 0).activate = false;
+                GameObject.Find("Battle Scene").FindGameObjectInChildren("CamLock Intro").SetActive(false);
+                break;
+            case "GG_Mega_Moss_Charger":
+                break;
+            case "GG_Hornet_1":
+                break;
+            case "GG_Ghost_Gorb_V":
+                GameObject.Find("Warrior").LocateMyFSM("FSM").GetAction<ActivateGameObject>("Enable", 2).activate = false;
+                break;
+            case "GG_Dung_Defender":
+                GameObject.Find("Dung Defender").SetActive(false);
+                break;
+            case "GG_Mage_Knight_V":
+                GameObject.Find("Balloon Spawner").FindGameObjectInChildren("Balloons").SetActive(false);
+                break;
+            case "GG_Brooding_Mawlek_V":
+                var fsm = GameObject.Find("Battle Scene").LocateMyFSM("Activate Boss");
+                fsm.GetAction<ActivateGameObject>("Call Mawlek", 1).activate = false;
+                fsm.GetAction<ActivateGameObject>("Mawlek Fall", 0).activate = false;
+                break;
+            case "GG_Nailmasters":
+                GameObject.Find("Brothers").FindGameObjectInChildren("Oro").SetActive(false);
+                GameObject.Find("Brothers").FindGameObjectInChildren("Mato").SetActive(false);
+                GameObject.Find("Brothers").FindGameObjectInChildren("CamLock Intro").SetActive(false);
+                break;
+            case "GG_Ghost_Xero_V":
+                GameObject.Find("Warrior").LocateMyFSM("FSM").GetAction<ActivateGameObject>("Enable", 2).activate = false;
+                break;
+            case "GG_Crystal_Guardian":
+                break;
+            case "GG_Soul_Master":
+                GameObject.Find("Mage Lord").SetActive(false);
+                GameObject.Find("Mage Lord Phase2").SetActive(false);
+                break;
+            case "GG_Oblobbles":
+                break;
+            case "GG_Mantis_Lords_V":
+                GameObject.Find("Mantis Battle").SetActive(false);
+                break;
+            case "GG_Ghost_Marmu_V":
+                GameObject.Find("Warrior").LocateMyFSM("FSM").GetAction<ActivateGameObject>("Enable", 2).activate = false;
+
+                break;
+            case "GG_Flukemarm":
+                GameObject.Find("CameraLockArea Intro").SetActive(false);
+                break;
+            case "GG_Broken_Vessel":
+                GameObject.Find("Infected Knight").SetActive(false);
+                break;
+            case "GG_Ghost_Galien":
+                GameObject.Find("Warrior").SetActive(false);
+                break;
+            case "GG_Painter":
+                GameObject.Find("Battle Scene").FindGameObjectInChildren("CamLock Intro").SetActive(false);
+                break;
+            case "GG_Hive_Knight":
+                break;
+            case "GG_Ghost_Hu":
+                GameObject.Find("Warrior").LocateMyFSM("FSM").GetAction<ActivateGameObject>("Enable", 2).activate = false;
+                break;
+            case "GG_Collector_V":
+                break;
+            case "GG_God_Tamer":
+                GameObject.Find("Entry Object").SetActive(false);
+                break;
+            case "GG_Grimm":
+                GameObject.Find("Grimm Scene").LocateMyFSM("FSM").GetAction<ActivateGameObject>("Battle Start", 8).activate = false;
+                break;
+            case "GG_Watcher_Knights":
+                GameObject.Find("Battle Control").SetActive(false);
+                break;
+            case "GG_Uumuu_V":
+                GameObject.Find("Mega Jellyfish GG").SetActive(false);
+                GameObject.Find("CameraLockArea Intro").SetActive(false);
+                break;
+            case "GG_Nosk_Hornet":
+                GameObject.Find("Battle Scene").LocateMyFSM("Battle Control").enabled = false;
+                break;
+            case "GG_Sly":
+                GameObject.Find("Battle Scene").FindGameObjectInChildren("Sly Boss").SetActive(false);
+                break;
+            case "GG_Hornet_2":
+
+                break;
+            case "GG_Crystal_Guardian_2":
+                break;
+            case "GG_Lost_Kin":
+                break;
+            case "GG_Ghost_No_Eyes_V":
+                GameObject.Find("Warrior").LocateMyFSM("FSM").GetAction<ActivateGameObject>("Enable", 2).activate = false;
+                break;
+            case "GG_Traitor_Lord":
+                GameObject.Find("Battle Scene").FindGameObjectInChildren("Wave 3").SetActive(false);
+                GameObject.Find("Battle Scene").FindGameObjectInChildren("CameraLockArea Intro").SetActive(false);
+                GameObject.Find("Battle Scene").LocateMyFSM("Battle Control").GetAction<ActivateAllChildren>("Wave 3", 0).activate = false;
+                break;
+            case "GG_White_Defender":
+
+                break;
+            case "GG_Soul_Tyrant":
+                GameObject.Find("Dream Mage Lord").SetActive(false);
+                GameObject.Find("Dream Mage Lord Phase2").SetActive(false);
+                break;
+            case "GG_Ghost_Markoth_V":
+                GameObject.Find("Warrior").LocateMyFSM("FSM").GetAction<ActivateGameObject>("Enable", 2).activate = false;
+
+                break;
+            case "GG_Grey_Prince_Zote":
+                break;
+            case "GG_Failed_Champion":
+                GameObject.Find("Battle Scene").FindGameObjectInChildren("CamLock Intro").SetActive(false);
+                break;
+            case "GG_Grimm_Nightmare":
+                GameObject.Find("Grimm Control").SetActive(false);
+                break;
+            case "GG_Hollow_Knight":
+                GameObject.Find("Battle Scene").FindGameObjectInChildren("HK Prime").SetActive(false);
+                break;
+            case "GG_Radiance":
+                break;
+            default:
+                break;
+
+        }
+        yield break;
+    }
 
 
 
@@ -326,11 +476,17 @@ internal static class BossManager
     static void DeathCount()
     {
         bossleft--;
-        Rogue.Instance.Log(bossleft);
-        if (bossleft == 0 && can_self_over)
+        Rogue.Instance.Log("enemy left " + bossleft);
+        if (bossleft == 0)
         {
-            BossSceneController.Instance.EndBossScene();
+            waveleft--;
+            if (waveleft <= 0)
+            {
+                BossSceneController.Instance.EndBossScene();
+            }
+
         }
+
     }
 
     internal static IEnumerator Modify(string sceneName)
@@ -344,28 +500,229 @@ internal static class BossManager
                 ModifyTHK();
                 break;
 
+
             default:
                 break;
         }
     }
-    internal static IEnumerator EnemyAppear(GameObject enemy, Vector3 pos, int health)
+    internal static IEnumerator EnemyWaves()
+    {
+        string current_scene = ProcessManager.scene_name;
+        EnemyWaveCollection collection = EnemyWaveManager.GetCollection(ProcessManager.scene_name);
+        if (collection == null)
+        {
+            Rogue.Instance.Log("No EnemyWaveCollection for " + ProcessManager.scene_name);
+            yield break;
+        }
+        waveleft = collection.whole_wave.Keys.Count;
+        int max = collection.whole_wave.Keys.Max();
+        for (int i = collection.whole_wave.Keys.Min(); i <= collection.whole_wave.Keys.Max(); i++)
+        {
+            if (current_scene != ProcessManager.scene_name)
+            {
+                Log("Scene Over");
+                yield break;
+            }
+            if (!collection.whole_wave.Keys.Contains(i)) continue;
+            Rogue.Instance.Log("wave " + i);
+            var wave = collection.whole_wave[i];
+            if (wave.Count == 0) continue;
+            EnemyWaveCollection.OnePossibleWave possibleWave = wave[0];
+            yield return new WaitForSeconds(2f);
+            float s = wave.Sum((x) => x.weight);
+            Log("whole weight s:" + s);
+            float r = UnityEngine.Random.Range(0, s);
+            Log("random weight r:" + r);
+            foreach (var x in wave)
+            {
+                r -= x.weight;
+                Log("del " + x.weight + " now is " + r);
+                if (r <= 0)
+                {
+                    possibleWave = x;
+                    break;
+                }
+
+            }
+            bossleft = possibleWave.enemyWave.enemies.Sum((x) => x.num);
+            foreach (var enemy in possibleWave.enemyWave.enemies)
+            {
+                int j = 0;
+                while (j < enemy.num)
+                {
+                    j++;
+
+                    yield return new WaitForSeconds(0.5f);
+
+                    var enemy_go = EnemyWaveManager.GetEnemy(enemy.name);
+                    int random_limit = 0;
+                    if (enemy_go != null)
+                    {
+
+                        Vector2 pos;
+                        Vector2 now_pos = HeroController.instance.transform.position;
+                        do
+                        {
+                            random_limit++;
+                            float angle = UnityEngine.Random.Range(0f, 180f) * Mathf.PI / 180f;
+                            pos = now_pos + (UnityEngine.Random.Range(4f, 7.5f) * new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)));
+                        }
+                        while (!PosInArena(pos) && random_limit <= 10);
+                        if (random_limit > 10)
+                        {
+                            pos = HeroController.instance.transform.position + new Vector3(0, 3f);
+                            Log("Random pos OUT OF LIMIT");
+                        }
+                        yield return ItemManager.Instance.StartCoroutine(EnemyAppear(enemy_go, pos, enemy.hp, enemy.name));
+                    }
+                    else
+                    {
+                        Rogue.Instance.Log("No prefab for " + enemy.name);
+                    }
+
+                }
+            }
+            yield return new WaitUntil(() => bossleft <= 0);
+        }
+
+    }
+    static bool PosInArena(Vector2 pos)
+    {
+        if (BossSceneManager.arena_info.ContainsKey(ProcessManager.scene_name))
+        {
+            BossSceneManager.ArenaInfo ai = BossSceneManager.arena_info[ProcessManager.scene_name];
+            if (pos.x <= ai.right - 2f && pos.x >= ai.left + 2f && pos.y >= ai.down + 2f && pos.y <= ai.up - 2f)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    static void AfterActiveAdjust(GameObject enemy, string name, int hp)
+    {
+        PlayMakerFSM temp_fsm = null;
+        switch (name)
+        {
+            case "Flamebearer Small":
+                temp_fsm = enemy.LocateMyFSM("Control");
+                temp_fsm.InsertCustomAction("Set Level", (fsm) => { fsm.FsmVariables.FindFsmInt("Grimmchild Level").Value = 1; }, 0);
+                temp_fsm.InsertCustomAction("Init", (fsm) => { fsm.SendEvent("START"); }, 23);
+                temp_fsm.InsertCustomAction("Destroy", DeathCount, 0);
+                temp_fsm = enemy.LocateMyFSM("hp_scaler");
+                temp_fsm.FsmVariables.FindFsmInt("Level 1").Value = hp;
+                temp_fsm.FsmVariables.FindFsmInt("Level 2").Value = hp;
+                temp_fsm.FsmVariables.FindFsmInt("Level 3").Value = hp;
+                temp_fsm.FsmVariables.FindFsmInt("Level 4").Value = hp;
+                temp_fsm.FsmVariables.FindFsmInt("Level 5").Value = hp;
+
+                break;
+            case "Flamebearer Med":
+                temp_fsm = enemy.LocateMyFSM("Control");
+                temp_fsm.InsertCustomAction("Set Level", (fsm) => { fsm.FsmVariables.FindFsmInt("Grimmchild Level").Value = 2; }, 0);
+                temp_fsm.InsertCustomAction("Init", (fsm) => { fsm.SendEvent("START"); }, 23);
+                temp_fsm.InsertCustomAction("Destroy", DeathCount, 0);
+                temp_fsm = enemy.LocateMyFSM("hp_scaler");
+                temp_fsm.FsmVariables.FindFsmInt("Level 1").Value = hp;
+                temp_fsm.FsmVariables.FindFsmInt("Level 2").Value = hp;
+                temp_fsm.FsmVariables.FindFsmInt("Level 3").Value = hp;
+                temp_fsm.FsmVariables.FindFsmInt("Level 4").Value = hp;
+                temp_fsm.FsmVariables.FindFsmInt("Level 5").Value = hp;
+
+                break;
+            case "Flamebearer Large":
+                temp_fsm = enemy.LocateMyFSM("Control");
+                temp_fsm.InsertCustomAction("Set Level", (fsm) => { fsm.FsmVariables.FindFsmInt("Grimmchild Level").Value = 3; }, 0);
+                temp_fsm.InsertCustomAction("Init", (fsm) => { fsm.SendEvent("START"); }, 23);
+                temp_fsm.InsertCustomAction("Destroy", DeathCount, 0);
+                temp_fsm = enemy.LocateMyFSM("hp_scaler");
+                temp_fsm.FsmVariables.FindFsmInt("Level 1").Value = hp;
+                temp_fsm.FsmVariables.FindFsmInt("Level 2").Value = hp;
+                temp_fsm.FsmVariables.FindFsmInt("Level 3").Value = hp;
+                temp_fsm.FsmVariables.FindFsmInt("Level 4").Value = hp;
+                temp_fsm.FsmVariables.FindFsmInt("Level 5").Value = hp;
+                break;
+            case "Centipede Hatcher":
+                temp_fsm = enemy.LocateMyFSM("Centipede Hatcher");
+                temp_fsm.InsertCustomAction("Get Centipede", (fsm) =>
+                {
+                    fsm.FsmVariables.FindFsmGameObject("Hatchling").Value = EnemyWaveManager.GetEnemy("Baby Centipede Spawner");
+                    fsm.FsmVariables.FindFsmGameObject("Hatchling").Value.SetActive(true);
+                }, 2);
+                break;
+            case "Mawlek Turret":
+                try
+                {
+                    enemy.transform.SetPositionY(BossSceneManager.arena_info[ProcessManager.scene_name].down - 0.75f);
+
+                }
+                catch (Exception)
+                {
+                    Log("喷吐有误");
+                }
+                break;
+            case "Moss Charger":
+                try
+                {
+                    enemy.transform.SetPositionY(BossSceneManager.arena_info[ProcessManager.scene_name].down);
+
+                }
+                catch (Exception)
+                {
+                    Log("草团子有误");
+                }
+                break;
+            case "Mage Blob":
+                try
+                {
+                    // enemy.transform.SetPositionY(BossSceneManager.arena_info[ProcessManager.scene_name].down);
+                    enemy.LocateMyFSM("Blob").InsertCustomAction("Hide", (fsm) =>
+                    {
+                        fsm.SendEvent("SPAWN");
+                    }, 0);
+                }
+                catch (Exception)
+                {
+                    Log("愚蠢错误有误");
+                }
+                break;
+
+            default:
+                break;
+        }
+    }
+    internal static IEnumerator EnemyAppear(GameObject enemy, Vector3 pos, int health, string enemy_name)
     {
         if (enemy == null) yield break;
-        var res = GameObject.Instantiate(enemy);
-        if (spawn_health_gos.Contains(enemy))
-        {
-            res.GetComponent<HealthManager>().OnDeath -= DeathCount;
-            res.GetComponent<HealthManager>().OnDeath += DeathCount;
-        }
+        Rogue.Instance.Log("EnemyAppear " + enemy.name + " " + health);
+        var res = enemy;
+        res.GetComponent<HealthManager>().OnDeath -= DeathCount;
+        res.GetComponent<HealthManager>().OnDeath += DeathCount;
         res.transform.position = pos;
+        if (res.GetComponent<PersistentBoolItem>() != null)
+        {
+            res.GetComponent<PersistentBoolItem>().enabled = false;
+        }
         res.SetActive(true);
+        res.GetComponent<HealthManager>().isDead = false;
+        AfterActiveAdjust(res, enemy_name, health);
+
         res.GetComponent<HealthManager>().hp = health;
+
         var da = res.GetComponent<DamageHero>();
+        int ori_damage = da.damageDealt;
         if (da != null)
         {
-            da.enabled = false;
+            da.damageDealt = 0;
         }
         var sprite = res.GetComponent<tk2dSprite>();
+        if (sprite == null)
+        {
+            try
+            {
+                sprite = res.FindGameObjectInChildren("Sprite").GetComponent<tk2dSprite>();
+            }
+            catch (Exception) { }
+        }
         float delay = 1f;
         while (delay > 0)
         {
@@ -376,7 +733,7 @@ internal static class BossManager
         sprite.color = Color.white;
         if (da != null)
         {
-            da.enabled = true;
+            da.damageDealt = ori_damage;
         }
         yield break;
     }
@@ -425,5 +782,8 @@ internal static class BossManager
         battleStart.GetState("Roar Antic").AddCustomAction(() => target.Value = HeroController.instance.gameObject);// AddMethod(() => target.Value = HeroController.instance.gameObject);
         GameObject.Destroy(battleScene);
     }
-
+    static void Log(object msg)
+    {
+        Rogue.Instance.Log(msg);
+    }
 }

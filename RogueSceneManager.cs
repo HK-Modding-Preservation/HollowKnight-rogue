@@ -108,6 +108,7 @@ internal static class RogueSceneManager
             case "GG_Engine":
                 ItemManager.Instance.SetNoShop();
                 ProcessManager.Instance.StartCoroutine(DelayShowDreamConvo(0.5f, "godseeker".Localize()));
+                ItemManager.Instance.GiveReward(GameInfo.spa_count);
                 fly_go.SetActive(false);
                 break;
             case "GG_Atrium_Roof":
@@ -136,6 +137,7 @@ internal static class RogueSceneManager
                     ResetAll();
                     switch (GameInfo.spa_count)
                     {
+
                         case 5:
                             NPCManager.npcs[typeof(CharmSlug).Name].SetPosition(new Vector3(78, 16, 0.1f));
                             ItemManager.Instance.CharmShopItem();
@@ -151,18 +153,25 @@ internal static class RogueSceneManager
                             NPCManager.npcs[typeof(Xun).Name].SetPosition(Xun.spa_pos);
                             break;
                         case 4:
-                            NPCManager.npcs[typeof(Nailsmith).Name].SetPosition(Nailsmith.spa_pos);
-                            break;
-                        case 6:
-                            ItemManager.Instance.SetNoShop();
                             if (UnityEngine.Random.Range(0, 2) == 0)
                             {
-                                NPCManager.npcs[typeof(Jiji).Name].SetPosition(Jiji.spa_pos);
+                                NPCManager.npcs[typeof(ElderBug).Name].SetPosition(ElderBug.spa_pos);
                             }
                             else
                             {
-                                NPCManager.npcs[typeof(Jinn).Name].SetPosition(Jinn.spa_pos);
+                                NPCManager.npcs[typeof(Jiji).Name].SetPosition(Jiji.spa_pos);
                             }
+                            break;
+                        case 6:
+                            ItemManager.Instance.NormalShopItem();
+                            ItemManager.Instance.SetShop(true);
+                            SetBanker();
+                            NPCManager.npcs[typeof(Jinn).Name].SetPosition(Jinn.spa_pos);
+                            break;
+                        case 7:
+                            ItemManager.Instance.NormalShopItem();
+                            ItemManager.Instance.SetShop(true);
+                            SetBanker();
                             break;
                         default:
                             break;

@@ -34,6 +34,20 @@ internal static class GameInfo
         {GiftVariety.charm,new()},
         {GiftVariety.custom,new()},
     };
+    internal static class Branch
+    {
+        internal static bool collector = false;
+        internal static bool lost_kin = false;
+        internal static bool modboss = false;
+        internal static bool radiance = false;
+        internal static void Reset()
+        {
+            collector = false;
+            lost_kin = false;
+            modboss = false;
+            radiance = false;
+        }
+    }
     internal static void Reset()
     {
         in_rogue = false;

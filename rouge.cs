@@ -25,7 +25,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
 
     public override string GetVersion()
     {
-        return "1.0.0.5";
+        return "t.e.8.7";
     }
     public class actions : PlayerActionSet
     {
@@ -73,7 +73,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
     public override List<(string, string)> GetPreloadNames()
     {
 
-        return NPCManager.GetPreloadNames().Concat(PreloadManager.GetPreloadNames()).ToList();
+        return NPCManager.GetPreloadNames().Concat(PreloadManager.GetPreloadNames()).Concat(EnemyWaveManager.GetPreloadNames()).ToList();
     }
 
     public override void Initialize(Dictionary<string, Dictionary<string, GameObject>> preloadedObjects)
@@ -92,6 +92,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
         BugFixManager.Init();
         DisplayManager.Init();
         ProcessManager.Init();
+        EnemyWaveManager.Init();
 
 
         On.PlayMakerFSM.OnEnable += CharmsInit;
@@ -144,7 +145,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
                 Log(boss_scene.sceneName);
             }
             ReflectionHelper.SetField<BossSequence, BossScene[]>(sequence, "bossScenes", boss_scenes);
-            // BossSceneManager.MoreBoss(sequence);
+            BossSceneManager.MoreBoss(sequence);
 
         }
         orig(sequence, bindings, playerData);
@@ -272,10 +273,33 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
             GameInfo.Start();
             itemManager.DestroyAllItems();
             itemManager.rewardsStack.Clear();
-            itemManager.rewardsStack.Push(new ItemManager.OneReward() { mode = ItemManager.Mode.select_small_gift, select = 1, give = 3 });
-            itemManager.rewardsStack.Push(new ItemManager.OneReward() { mode = ItemManager.Mode.select_small_gift, select = 1, give = 3 });
-            itemManager.rewardsStack.Push(new ItemManager.OneReward() { mode = ItemManager.Mode.select_small_gift, select = 1, give = 3 });
-            itemManager.rewardsStack.Push(new ItemManager.OneReward() { mode = ItemManager.Mode.fix_select_big_gift, select = 1, gifts = GameInfo.act_gifts[GiftVariety.huge] });
+            itemManager.rewardsStack.Push(new ItemManager.OneReward()
+            {
+                give_mode = ItemManager.OneReward.GiveMode.random,
+                gift_variety = GiftFactory.CustomVariety(),
+                select = 1,
+                give = 3
+            });
+            itemManager.rewardsStack.Push(new ItemManager.OneReward()
+            {
+                give_mode = ItemManager.OneReward.GiveMode.random,
+                gift_variety = GiftVariety.item,
+                select = 1,
+                give = 3
+            });
+            itemManager.rewardsStack.Push(new ItemManager.OneReward()
+            {
+                give_mode = ItemManager.OneReward.GiveMode.random,
+                gift_variety = GiftVariety.item,
+                select = 1,
+                give = 3
+            });
+            itemManager.rewardsStack.Push(new ItemManager.OneReward()
+            {
+                give_mode = ItemManager.OneReward.GiveMode.fix,
+                select = 1,
+                gifts = GameInfo.act_gifts[GiftVariety.huge]
+            });
             itemManager.Next(true);
             DisplayManager.BeginDisplay();
             HeroController.instance.geoCounter.gameObject.GetComponent<DeactivateIfPlayerdataTrue>().enabled = false;
@@ -412,6 +436,10 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
         menu.AddElement(new MenuButton("menu_gift_base".Localize(), "", (but) =>
         {
             Utils.GoToMenuScreen(gs);
+        }));
+        menu.AddElement(new MenuButton("Reload EnemyWave", "", (but) =>
+        {
+            EnemyWaveManager.ReloadWaveCollection();
         }));
 
 

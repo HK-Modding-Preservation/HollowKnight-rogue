@@ -3,6 +3,7 @@ using rogue.Characters;
 using UnityEngine.EventSystems;
 
 namespace rogue;
+
 public enum Giftname
 {
     role_test,
@@ -142,7 +143,10 @@ public enum Giftname
     custom_better_dream_nail,
     custom_sleep_knight,
     custom_circle_super_dash,
-    custom_super_dash_tail
+    custom_super_dash_tail,
+    custom_tram_pass,
+    custom_city_crest,
+    custom_mender_key,
 
 }
 public class Gift
@@ -246,6 +250,14 @@ internal static class GiftFactory
     {
         Rogue.Instance.Log(msg);
     }
+    internal static GiftVariety CustomVariety()
+    {
+        if (GameInfo.gameMode == GameInfo.GameMode.MODE1)
+        {
+            return GiftVariety.custom;
+        }
+        else return GiftVariety.item;
+    }
     private static void CharmInit()
     {
         for (int i = 1; i <= 40; i++)
@@ -322,7 +334,7 @@ internal static class GiftFactory
             price = 400,
             reward = (giftname) =>
             {
-                ItemManager.Instance.rewardsStack.Push(new ItemManager.OneReward() { mode = ItemManager.Mode.one_small_gift, give = 1, select = 1 });
+                ItemManager.Instance.rewardsStack.Push(new ItemManager.OneReward() { give_mode = ItemManager.OneReward.GiveMode.random, gift_variety = GiftVariety.item, give = 1, select = 1 });
                 ItemManager.Instance.Next(force: false);
             },
             name = "shop_random_gift_name",
@@ -773,7 +785,7 @@ internal static class GiftFactory
                 if (PlayerData.instance.fireballLevel < 2 || (saman && PlayerData.instance.fireballLevel < 3)) gifts2.Add(all_gifts[Giftname.get_fireball]);
                 if (PlayerData.instance.quakeLevel < 2 || (saman && PlayerData.instance.quakeLevel < 3)) gifts2.Add(all_gifts[Giftname.get_quake]);
                 ItemManager.Instance.rewardsStack.Push(
-                    new ItemManager.OneReward() { mode = ItemManager.Mode.fix_gift, gifts = gifts2 }
+                    new ItemManager.OneReward() { give_mode = ItemManager.OneReward.GiveMode.fix, select = 1, gifts = gifts2 }
                     );
             },
             name = "mage_name",
@@ -789,7 +801,7 @@ internal static class GiftFactory
                 if (!PlayerData.instance.hasUpwardSlash) gifts1.Add(all_gifts[Giftname.get_dash_slash]);
                 if (!PlayerData.instance.hasDashSlash) gifts1.Add(all_gifts[Giftname.get_upward_slash]);
                 ItemManager.Instance.rewardsStack.Push(
-                    new ItemManager.OneReward() { mode = ItemManager.Mode.fix_select_small_gift, select = 1, gifts = gifts1 }
+                    new ItemManager.OneReward() { give_mode = ItemManager.OneReward.GiveMode.fix, select = 1, gifts = gifts1 }
                     );
 
                 List<Gift> gifts2 = new();
@@ -797,7 +809,7 @@ internal static class GiftFactory
                 if (all_gifts[Giftname.get_zhua_lei_ding].now_weight != 0) gifts2.Add(all_gifts[Giftname.get_zhua_lei_ding]);
                 if (all_gifts[Giftname.get_double_jump].now_weight != 0) gifts2.Add(all_gifts[Giftname.get_double_jump]);
                 ItemManager.Instance.rewardsStack.Push(
-                    new ItemManager.OneReward() { mode = ItemManager.Mode.fix_select_small_gift, select = 1, gifts = gifts2 }
+                    new ItemManager.OneReward() { give_mode = ItemManager.OneReward.GiveMode.fix, select = 1, gifts = gifts2 }
                     );
             },
             name = "ranger_name",
@@ -830,6 +842,9 @@ internal static class GiftFactory
         all_gifts.Add(Giftname.custom_sleep_knight, new SleepKnight());
         all_gifts.Add(Giftname.custom_circle_super_dash, new CircleSuperDash());
         all_gifts.Add(Giftname.custom_super_dash_tail, new SuperDashTail());
+        all_gifts.Add(Giftname.custom_tram_pass, new TramPass());
+        all_gifts.Add(Giftname.custom_city_crest, new CityCrest());
+        all_gifts.Add(Giftname.custom_mender_key, new MenderKey());
         // all_gifts.Add(Giftname.custom_darkness, new Darkness());摸黑好难
     }
     private static void ItemInit()
@@ -984,7 +999,7 @@ internal static class GiftFactory
             if (PlayerData.instance.quakeLevel == 1) gifts.Add(all_gifts[Giftname.get_quake]);
             if (PlayerData.instance.nailDamage < 21) gifts.Add(all_gifts[Giftname.nail_upgrade]);
             if (PlayerData.instance.hasDash && (!PlayerData.instance.hasShadowDash)) gifts.Add(all_gifts[Giftname.get_dash]);
-            Rogue.Instance.itemManager.rewardsStack.Push(new ItemManager.OneReward() { select = 1, mode = ItemManager.Mode.fix_select_small_gift, gifts = gifts });
+            Rogue.Instance.itemManager.rewardsStack.Push(new ItemManager.OneReward() { select = 1, give_mode = ItemManager.OneReward.GiveMode.fix, gifts = gifts });
 
         },
             name = "get_one_skill_up_name",
@@ -1030,7 +1045,7 @@ internal static class GiftFactory
             reward = (giftname) =>
         {
             List<Gift> gifts = new() { all_gifts[Giftname.get_fireball], all_gifts[Giftname.get_scream], all_gifts[Giftname.get_quake] };
-            ItemManager.Instance.rewardsStack.Push(new ItemManager.OneReward() { select = 1, mode = ItemManager.Mode.fix_select_small_gift, gifts = gifts });
+            ItemManager.Instance.rewardsStack.Push(new ItemManager.OneReward() { select = 1, give_mode = ItemManager.OneReward.GiveMode.fix, gifts = gifts });
 
         },
             name = "get_any_spell_name",
@@ -1043,7 +1058,7 @@ internal static class GiftFactory
             reward = (Giftname) =>
         {
             List<Gift> gifts = new() { all_gifts[Giftname.get_dash], all_gifts[Giftname.get_zhua_lei_ding], all_gifts[Giftname.get_double_jump] };
-            ItemManager.Instance.rewardsStack.Push(new ItemManager.OneReward() { select = 1, mode = ItemManager.Mode.fix_select_small_gift, gifts = gifts });
+            ItemManager.Instance.rewardsStack.Push(new ItemManager.OneReward() { select = 1, give_mode = ItemManager.OneReward.GiveMode.fix, gifts = gifts });
 
         },
             name = "get_any_shift_name",
@@ -1056,7 +1071,7 @@ internal static class GiftFactory
             reward = (Giftname) =>
         {
             List<Gift> gifts = new() { all_gifts[Giftname.get_dash_slash], all_gifts[Giftname.get_upward_slash], all_gifts[Giftname.get_cyclone] };
-            ItemManager.Instance.rewardsStack.Push(new ItemManager.OneReward() { select = 1, mode = ItemManager.Mode.fix_select_small_gift, gifts = gifts });
+            ItemManager.Instance.rewardsStack.Push(new ItemManager.OneReward() { select = 1, give_mode = ItemManager.OneReward.GiveMode.fix, gifts = gifts });
 
         },
             name = "get_any_nail_art_name",
@@ -1068,7 +1083,7 @@ internal static class GiftFactory
         {
             reward = (giftname) =>
             {
-                ItemManager.Instance.rewardsStack.Push(new ItemManager.OneReward() { select = 1, mode = ItemManager.Mode.one_big_gift });
+                ItemManager.Instance.rewardsStack.Push(new ItemManager.OneReward() { select = 1, give_mode = ItemManager.OneReward.GiveMode.random, give = 1 });
                 all_gifts[Giftname.get_a_big_gift].now_weight = 0;
             },
             name = "get_a_big_gift_name",
@@ -1260,8 +1275,8 @@ internal static class GiftFactory
             else if (type.StartsWith("custom_"))
             {
                 all_kind_of_gifts[GiftVariety.custom].Add(gift.Value);
-                if (!type.StartsWith("custom_one_two"))
-                    all_kind_of_gifts[GiftVariety.item].Add(gift.Value);
+                // if (!type.StartsWith("custom_one_two"))
+                //     all_kind_of_gifts[GiftVariety.item].Add(gift.Value);
             }
             else all_kind_of_gifts[GiftVariety.item].Add(gift.Value);
         }

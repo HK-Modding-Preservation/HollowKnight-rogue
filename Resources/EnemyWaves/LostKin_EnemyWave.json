@@ -1,0 +1,146 @@
+{
+    "GG_Crystal_Guardian_2": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Moss Knight",
+                                "hp": 800,
+                                "num": 1
+                            },
+                            {
+                                "name": "Mushroom Brawler",
+                                "hp": 500,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Fat Fluke",
+                                "hp": 800,
+                                "num": 1
+                            },
+                            {
+                                "name": "Mawlek Turret",
+                                "hp": 700,
+                                "num": 1
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Lost_Kin": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Great Shield Zombie",
+                                "hp": 1000,
+                                "num": 1
+                            },
+                            {
+                                "name": "Ruins Flying Sentry Javelin",
+                                "hp": 400,
+                                "num": 2
+                            }
+                        ]
+                    }
+                },
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Slash Spider",
+                                "hp": 800,
+                                "num": 1
+                            },
+                            {
+                                "name": "Big Bee",
+                                "hp": 600,
+                                "num": 1
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Ghost_No_Eyes_V": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Ceiling Dropper",
+                                "hp": 1,
+                                "num": 4
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Jellyfish",
+                                "hp": 1,
+                                "num": 4
+                            }
+                        ]
+                    }
+                }
+            ],
+            "3": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Flamebearer Large",
+                                "hp": 400,
+                                "num": 1
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Traitor_Lord": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Royal Gaurd",
+                                "hp": 800,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    }
+}

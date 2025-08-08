@@ -35,6 +35,6 @@ internal class ChaosBoss : CustomGift
 
     protected override void _RemoveGift()
     {
-        UnityEngine.SceneManagement.SceneManager.activeSceneChanged += OnSceneChanged;
+        UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= OnSceneChanged;
     }
 }

@@ -14,6 +14,7 @@ internal class ProcessManager : MonoBehaviour
         "GG_Atrium_Roof" };
 
     public Hooks.OnChangeSceneAndAddGeo after_scene_add_geo_num;
+    int ReplacifyRate = 50;
 
     internal static void Init()
     {
@@ -105,8 +106,13 @@ internal class ProcessManager : MonoBehaviour
         if (!nobossscene.Contains(scene_name) && GameInfo.in_rogue)
         {
             StartCoroutine(BossManager.AdjustBossHP(scene_name));
-            StartCoroutine(BossManager.Replacify(scene_name));
-            StartCoroutine(BossManager.LoveKeyify(scene_name));
+            if (UnityEngine.Random.Range(0, 101) <= ReplacifyRate || EnemyWaveManager.SceneInBranch(scene_name))
+            {
+                Rogue.Instance.Log("Replacify Boss in " + scene_name);
+                StartCoroutine(BossManager.Replacify(scene_name));
+            }
+
+            // StartCoroutine(BossManager.LoveKeyify(scene_name));
         }
     }
 }
