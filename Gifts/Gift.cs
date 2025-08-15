@@ -781,9 +781,9 @@ internal static class GiftFactory
                 GiftHelper.GiveVessel();
                 List<Gift> gifts2 = new();
                 bool saman = GameInfo.role == CharacterRole.shaman;
-                if (PlayerData.instance.screamLevel < 2 || (saman && PlayerData.instance.screamLevel < 3)) gifts2.Add(all_gifts[Giftname.get_scream]);
-                if (PlayerData.instance.fireballLevel < 2 || (saman && PlayerData.instance.fireballLevel < 3)) gifts2.Add(all_gifts[Giftname.get_fireball]);
-                if (PlayerData.instance.quakeLevel < 2 || (saman && PlayerData.instance.quakeLevel < 3)) gifts2.Add(all_gifts[Giftname.get_quake]);
+                if (!GiftHelper.MaxScreamLevel()) gifts2.Add(all_gifts[Giftname.get_scream]);
+                if (!GiftHelper.MaxFireballLevel()) gifts2.Add(all_gifts[Giftname.get_fireball]);
+                if (!GiftHelper.MaxQuakeLevel()) gifts2.Add(all_gifts[Giftname.get_quake]);
                 ItemManager.Instance.rewardsStack.Push(
                     new ItemManager.OneReward() { give_mode = ItemManager.OneReward.GiveMode.fix, select = 1, gifts = gifts2 }
                     );
@@ -902,8 +902,7 @@ internal static class GiftFactory
             reward = (giftname) =>
             {
                 PlayerData.instance.hasSpell = true;
-                if (PlayerData.instance.fireballLevel < 2 ||
-                (GameInfo.role == CharacterRole.shaman && PlayerData.instance.fireballLevel < 3))
+                if (!GiftHelper.MaxFireballLevel())
                     PlayerData.instance.fireballLevel++;
             },
             name = "get_fireball_name",
@@ -916,8 +915,7 @@ internal static class GiftFactory
             reward = (giftname) =>
         {
             PlayerData.instance.hasSpell = true;
-            if (PlayerData.instance.screamLevel < 2 ||
-                (GameInfo.role == CharacterRole.shaman && PlayerData.instance.screamLevel < 3))
+            if (!GiftHelper.MaxScreamLevel())
                 PlayerData.instance.screamLevel++;
         },
             name = "get_scream_name",
@@ -930,8 +928,7 @@ internal static class GiftFactory
             reward = (giftname) =>
                     {
                         PlayerData.instance.hasSpell = true;
-                        if (PlayerData.instance.quakeLevel < 2 ||
-                (GameInfo.role == CharacterRole.shaman && PlayerData.instance.quakeLevel < 3))
+                        if (!GiftHelper.MaxQuakeLevel())
                             PlayerData.instance.quakeLevel++;
                     },
             name = "get_quake_name",
@@ -994,10 +991,13 @@ internal static class GiftFactory
             reward = (giftname) =>
         {
             List<Gift> gifts = new();
-            if (PlayerData.instance.fireballLevel == 1) gifts.Add(all_gifts[Giftname.get_fireball]);
-            if (PlayerData.instance.screamLevel == 1) gifts.Add(all_gifts[Giftname.get_scream]);
-            if (PlayerData.instance.quakeLevel == 1) gifts.Add(all_gifts[Giftname.get_quake]);
-            if (PlayerData.instance.nailDamage < 21) gifts.Add(all_gifts[Giftname.nail_upgrade]);
+            if (PlayerData.instance.fireballLevel != 0 && !GiftHelper.MaxFireballLevel())
+                gifts.Add(all_gifts[Giftname.get_fireball]);
+            if (PlayerData.instance.screamLevel != 0 && !GiftHelper.MaxScreamLevel())
+                gifts.Add(all_gifts[Giftname.get_scream]);
+            if (PlayerData.instance.quakeLevel != 0 && !GiftHelper.MaxQuakeLevel())
+                gifts.Add(all_gifts[Giftname.get_quake]);
+            if (!GiftHelper.MaxNailDamage()) gifts.Add(all_gifts[Giftname.nail_upgrade]);
             if (PlayerData.instance.hasDash && (!PlayerData.instance.hasShadowDash)) gifts.Add(all_gifts[Giftname.get_dash]);
             Rogue.Instance.itemManager.rewardsStack.Push(new ItemManager.OneReward() { select = 1, give_mode = ItemManager.OneReward.GiveMode.fix, gifts = gifts });
 
@@ -1083,7 +1083,7 @@ internal static class GiftFactory
         {
             reward = (giftname) =>
             {
-                ItemManager.Instance.rewardsStack.Push(new ItemManager.OneReward() { select = 1, give_mode = ItemManager.OneReward.GiveMode.random, give = 1 });
+                ItemManager.Instance.rewardsStack.Push(new ItemManager.OneReward() { select = 1, give_mode = ItemManager.OneReward.GiveMode.random, gift_variety = GiftVariety.huge, give = 1 });
                 all_gifts[Giftname.get_a_big_gift].now_weight = 0;
             },
             name = "get_a_big_gift_name",
@@ -1288,11 +1288,11 @@ internal static class GiftFactory
         PlayerData playerData = PlayerData.instance;
         all_gifts[Giftname.add_2_mask].SetWeight(playerData.maxHealthBase < 9);
         if (playerData.MPReserveMax >= 99) all_gifts[Giftname.add_1_vessel].now_weight = 0;
-        if (playerData.nailDamage >= 21) all_gifts[Giftname.nail_upgrade].now_weight = 0;
+        if (GiftHelper.MaxNailDamage()) all_gifts[Giftname.nail_upgrade].now_weight = 0;
         if (playerData.charmSlots >= 11) all_gifts[Giftname.add_3_notch].now_weight = 0;
-        if (playerData.fireballLevel == 2) all_gifts[Giftname.get_fireball].now_weight = 0;
-        if (playerData.screamLevel == 2) all_gifts[Giftname.get_scream].now_weight = 0;
-        if (playerData.quakeLevel == 2) all_gifts[Giftname.get_quake].now_weight = 0;
+        if (GiftHelper.MaxFireballLevel()) all_gifts[Giftname.get_fireball].now_weight = 0;
+        if (GiftHelper.MaxScreamLevel()) all_gifts[Giftname.get_scream].now_weight = 0;
+        if (GiftHelper.MaxQuakeLevel()) all_gifts[Giftname.get_quake].now_weight = 0;
         if (playerData.hasDash && playerData.hasShadowDash) all_gifts[Giftname.get_dash].now_weight = 0;
         if (playerData.hasDoubleJump) all_gifts[Giftname.get_double_jump].now_weight = 0;
         if (playerData.hasWalljump && playerData.hasSuperDash && playerData.hasAcidArmour && playerData.hasDreamNail) all_gifts[Giftname.get_zhua_lei_ding].now_weight = 0;
@@ -1320,7 +1320,7 @@ internal static class GiftFactory
             all_gifts[Giftname.shop_add_1_notch_3].now_weight = 0;
             all_gifts[Giftname.shop_add_1_notch_4].now_weight = 0;
         }
-        if (playerData.nailDamage >= 21)
+        if (GiftHelper.MaxNailDamage())
         {
             all_gifts[Giftname.shop_nail_upgrade].now_weight = 0;
         }

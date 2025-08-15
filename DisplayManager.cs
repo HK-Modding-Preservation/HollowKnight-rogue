@@ -28,11 +28,11 @@ internal class DisplayManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Tab)) { ShowScore(); }
         if (Input.GetKeyUp(KeyCode.Tab)) { HideScore(); }
-        // if (Input.GetKeyUp(KeyCode.End))
-        // {
-        //     BossSceneController.Instance?.EndBossScene();
-        //     ItemManager.Instance.StopCoroutine("EnemyWaves");
-        // }
+        if (Input.GetKeyUp(KeyCode.End))
+        {
+            BossSceneController.Instance?.EndBossScene();
+            ItemManager.Instance.StopCoroutine("EnemyWaves");
+        }
         // if (Input.GetKeyUp(KeyCode.Home)) { BossManager.bossleft = 0; }
         if (GameInfo.in_rogue && BossSequenceController.IsInSequence && (ProcessManager.scene_name != "GG_Spa") && (ProcessManager.scene_name! != "GG_Atrium_Roof" || ProcessManager.scene_name != "GG_Engine"))
         {
@@ -421,7 +421,7 @@ internal class DisplayManager : MonoBehaviour
         else
         {
             render.sprite = (Sprite)Inv_Items.FindGameObjectInChildren("Nail").GetComponent<InvNailSprite>().level5;
-            text.text = "4";
+            text.text = ((int)((PlayerData.instance.nailDamage - 5) / 4)).ToString();
         }
         render.color = new Color(1, 1, 1, alpha);
         text.color = new Color(1, 1, 1, alpha);

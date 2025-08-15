@@ -34,13 +34,16 @@ internal class Jiji : NPC
             if (!get_birthright)
             {
                 get_birthright = true;
-                GiftFactory.all_gifts[Giftname.custom_one_two_dash_doublejump_refresh].GetGift();
+                GiftFactory.all_gifts[Giftname.get_birthright].GetGift();
+                DisplayManager.DisplayStates();
             }
             else
             {
                 var gifts = GameInfo.act_gifts[GiftFactory.CustomVariety()];
                 var gift = ItemManager.RandomList(gifts, 1)[0];
                 gift.GetGift();
+                if (gift.showConvo) Rogue.Instance.ShowConvo(gift.GetShowString());
+                DisplayManager.DisplayStates();
             }
 
 

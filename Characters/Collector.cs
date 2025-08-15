@@ -8,6 +8,39 @@ internal class Collector : Character
     public Collector()
     {
         this.Selfname = CharacterRole.collector;
+        AddBirthRight("吸虫之巢");
+        AddBirthRight("国王之魂");
+    }
+    bool stronger_spawn = false;
+    bool white_charm = false;
+    public override void GetBirthright(int num)
+    {
+        switch (num)
+        {
+            case 0:
+                stronger_spawn = true;
+                break;
+            case 1:
+                PlayerData.instance.gotCharm_11 = true;
+                break;
+            case 2:
+                white_charm = true;
+                break;
+        }
+    }
+    public override void RemoveBirthright(int num)
+    {
+        switch (num)
+        {
+            case 0:
+                stronger_spawn = false;
+                break;
+            case 1:
+                break;
+            case 2:
+                white_charm = false;
+                break;
+        }
     }
 
     public override void BeginCharacter()
@@ -21,7 +54,11 @@ internal class Collector : Character
         PlayerData.instance.equippedCharms.Add(38);
         CharmHelper.SetCantUnequip(38);
         Rogue.Instance.ShowDreamConvo("collector_dream".Localize());
-        On.PlayerData.GetInt += FreeSpawnCharm;
+        stronger_spawn = false;
+        foreach (var charm in spawn_charms)
+        {
+            free_charms.Add(charm);
+        }
         On.KnightHatchling.OnEnable += OnHatchingDamage;
         On.KnightHatchling.DoChaseSimple += OnHatchingChaseSimple;
         On.KnightHatchling.DoChase += OnHatchingChase;
@@ -30,10 +67,25 @@ internal class Collector : Character
         ModHooks.CharmUpdateHook += ChangeHatchOnCharmUpdate;
         UnityEngine.SceneManagement.SceneManager.activeSceneChanged += ChangeHatchOnSceneChanged;
     }
+    float timer = 0f;
+    void Update()
+    {
+        timer += Time.deltaTime;
+        if (timer >= 2f)
+        {
+            timer = 0;
+            if (!PlayerData.instance.disablePause && white_charm)
+            {
+                HeroController.instance.AddMPCharge(4);
+            }
+        }
+
+
+    }
     public override void EndCharacter()
     {
         CharmHelper.SetCanEquip(38);
-        On.PlayerData.GetInt -= FreeSpawnCharm;
+        free_charms.Clear();
         On.KnightHatchling.OnEnable -= OnHatchingDamage;
         On.KnightHatchling.DoChaseSimple -= OnHatchingChaseSimple;
         On.KnightHatchling.DoChase -= OnHatchingChase;
@@ -130,7 +182,7 @@ internal class Collector : Character
                 if (grimm != null)
                 {
                     float scale = 1f;
-                    if (GameInfo.get_birthright) scale += 0.5f;
+                    if (stronger_spawn) scale += 0.5f;
                     if (PlayerData.instance.equippedCharm_13) scale += 1f;
                     if (PlayerData.instance.equippedCharm_18) scale += 0.5f;
                     grimm.FindGameObjectInChildren("Enemy Range").transform.localScale = new Vector3(scale, scale, scale);
@@ -206,7 +258,7 @@ internal class Collector : Character
                 if (PlayerData.instance.equippedCharm_6 && PlayerData.instance.health == 1) damage *= 1.75f;
                 self.FsmVariables.FindFsmInt("Damage").Value = (int)damage;
 
-                int mp_get = GameInfo.get_birthright ? 5 : 3;
+                int mp_get = stronger_spawn ? 5 : 3;
                 int spelllevel = PlayerData.instance.fireballLevel + PlayerData.instance.quakeLevel + PlayerData.instance.screamLevel;
                 mp_get += spelllevel / 2;
                 if (PlayerData.instance.equippedCharm_20) mp_get += 1;
@@ -233,7 +285,7 @@ internal class Collector : Character
                     self.InsertCustomAction("Init", (fsm) =>
                     {
                         float damage = PlayerData.instance.nailDamage;
-                        if (GameInfo.get_birthright) damage += 5;
+                        if (stronger_spawn) damage += 5;
                         if (PlayerData.instance.equippedCharm_25) damage *= 1.5f;
                         if (PlayerData.instance.equippedCharm_6 && PlayerData.instance.health == 1) damage *= 1.75f;
                         self.FsmVariables.FindFsmInt("Damage").Value = (int)damage;
@@ -442,14 +494,6 @@ internal class Collector : Character
 
 
 
-    private int FreeSpawnCharm(On.PlayerData.orig_GetInt orig, PlayerData self, string intName)
-    {
-        if (intName == "charmCost_38") return 0;
-        if (intName == "charmCost_39") return 0;
-        if (intName == "charmCost_40") return 0;
-        if (intName == "charmCost_22") return 0;
-        return orig(self, intName);
-    }
     private void OnHatchingChaseSimple(On.KnightHatchling.orig_DoChaseSimple orig, KnightHatchling self, Transform target, float speedMax, float accelerationForce, float offsetX, float offsetY)
     {
         if (PlayerData.instance.equippedCharm_1)
@@ -486,7 +530,7 @@ internal class Collector : Character
         if (PlayerData.instance.equippedCharm_11) damage *= 0.7f;
         if (PlayerData.instance.equippedCharm_40) damage *= 0.7f;
         de.damage = (int)damage;
-        if (GameInfo.get_birthright && ProcessManager.scene_name != "GG_Spa")
+        if (stronger_spawn && ProcessManager.scene_name != "GG_Spa")
         {
             self.damageEnemies.attackType = AttackTypes.SharpShadow;
         }

@@ -1,14 +1,13 @@
 
 
 namespace rogue.Characters;
+
 internal class Moth : Character
 {
     public Moth()
     {
         this.Selfname = CharacterRole.moth;
-        birthright_names = new(){
-            "弑梦"
-        };
+        AddBirthRight("弑梦");
     }
 
     int dream_mul = 0;
@@ -21,6 +20,7 @@ internal class Moth : Character
         GiftHelper.GiveMask();
         GiftHelper.GiveVessel();
         GiftHelper.AddCharmSlot(8);
+        PlayerData.instance.gotCharm_30 = true;
         Rogue.Instance.ShowDreamConvo("moth_dream".Localize());
         On.EnemyDreamnailReaction.RecieveDreamImpact += DoDamage;
 
@@ -60,6 +60,7 @@ internal class Moth : Character
             SpecialType = SpecialTypes.None,
             IsExtraDamage = false
         });
+        orig(self);
     }
     public override void RemoveBirthright(int num)
     {

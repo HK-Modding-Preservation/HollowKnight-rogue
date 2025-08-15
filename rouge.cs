@@ -25,7 +25,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
 
     public override string GetVersion()
     {
-        return "t.e.8.7";
+        return "t.e.8.8";
     }
     public class actions : PlayerActionSet
     {

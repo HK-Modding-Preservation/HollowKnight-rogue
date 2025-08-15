@@ -77,21 +77,55 @@ public class RoleGift<T> : Gift where T : Character
 }
 public abstract class Character : MonoBehaviour
 {
+    internal int index = 0;
+    internal class Birthright
+    {
+        internal string name;
+        internal int got;
+        internal int max_got;
+        internal int index;
+        internal Birthright(string name, ref int index, int got = 0, int max_got = 1)
+        {
+            this.name = name;
+            got = 0;
+            max_got = 1;
+            this.index = index;
+            index++;
+        }
+        internal void Reset()
+        {
+            got = 0;
+        }
+        internal bool GotMax()
+        {
+            return got >= max_got;
+        }
+        internal void Get()
+        {
+            got++;
+        }
+    }
+
     internal CharacterRole Selfname { get; protected private set; }
     protected float nail_mul = 1;
     protected float spell_mul = 1;
-    protected List<int> got_birthright = new();
-    protected List<string> birthright_names = null;
+    internal List<Birthright> birthrights = new();
+    // protected List<int> got_birthright = new();
     protected bool can_get = false;
+    protected List<int> free_charms = new();
 
+    protected void AddBirthRight(string name, int got = 0, int max_got = 1)
+    {
+        birthrights.Add(new(name, ref index, got, max_got));
+    }
     public virtual void SelectBirthright()
     {
         List<RogueUIManager.SelectItem> items = new();
         for (int i = 0; i < GetBirthrightNum(); i++)
         {
-            RogueUIManager.SelectItem item = new(birthright_names[i]);
+            RogueUIManager.SelectItem item = new(birthrights[i].name);
             item.not_select_info = "已经选择过";
-            item.selectable = !got_birthright.Contains(i);
+            item.selectable = birthrights[i].got < birthrights[i].max_got;
             if (!can_get) item.selectable = false;
             item.select_action = ExecGetBirthright;
             items.Add(item);
@@ -101,28 +135,28 @@ public abstract class Character : MonoBehaviour
     }
     public int GetBirthrightNum()
     {
-        if (birthright_names == null) return 0;
-        return birthright_names.Count;
+        if (birthrights == null) return 0;
+        return birthrights.Count;
     }
     public int GotBirthrightNum()
     {
-        return got_birthright.Count;
+        return birthrights.Sum((x) => x.got);
     }
     public virtual void ExecGetBirthright(int num)
     {
-        if (num >= birthright_names.Count) return;
+        if (num >= birthrights.Count) return;
         else ResetGetBirthright();
-        if (got_birthright.Contains(num)) return;
+        if (birthrights[num].GotMax()) return;
+        birthrights[num].Get();
         GetBirthright(num);
-        got_birthright.Add(num);
         GiftFactory.UpdateWeight();
         DisplayManager.DisplayStates();
     }
     public virtual void ExecRemoveBirthright(int num)
     {
-        if (!got_birthright.Contains(num)) return;
+        if (birthrights[num].got == 0) return;
         RemoveBirthright(num);
-        got_birthright.Remove(num);
+        birthrights[num].got--;
     }
     internal virtual void SetGetBirthright()
     {
@@ -149,7 +183,18 @@ public abstract class Character : MonoBehaviour
         BeginCharacter();
         On.HealthManager.TakeDamage += DamageMul;
         ItemManager.Instance.after_revive_action += AfterRevive;
+        free_charms.Clear();
+        ModHooks.GetPlayerIntHook += FreeCharm;
         DisplayManager.DisplayStates();
+    }
+
+    private int FreeCharm(string name, int orig)
+    {
+        foreach (var i in free_charms)
+        {
+            if (name == "charmCost_" + i) return 0;
+        }
+        return orig;
     }
 
     protected virtual void AfterRevive()
@@ -160,13 +205,16 @@ public abstract class Character : MonoBehaviour
 
     public void OnDestroy()
     {
-        foreach (var br in got_birthright)
+        foreach (var br in birthrights)
         {
-            RemoveBirthright(br);
+            while (br.got > 0)
+            {
+                ExecRemoveBirthright(br.index);
+            }
         }
-        got_birthright.Clear();
         EndCharacter();
         On.HealthManager.TakeDamage -= DamageMul;
+        ModHooks.GetPlayerIntHook -= FreeCharm;
         ItemManager.Instance.after_revive_action -= AfterRevive;
     }
     protected virtual void DamageMul(On.HealthManager.orig_TakeDamage orig, HealthManager self, HitInstance hitInstance)

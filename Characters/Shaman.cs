@@ -19,12 +19,10 @@ internal class Shaman : Character
         this.Selfname = CharacterRole.shaman;
         nail_mul = 0.8f;
         spell_mul = 1.25f;
-        birthright_names = new()
-        {
-            "砸",
-            "吼",
-            "萨满之力"
-        };
+        AddBirthRight("砸");
+        AddBirthRight("吼");
+        AddBirthRight("0槽法扭");
+
     }
 
     internal static void Init()
@@ -55,24 +53,41 @@ internal class Shaman : Character
     {
         GameInfo.role = CharacterRole.shaman;
         PlayerData.instance.gotCharm_19 = true;
-        GameInfo.refresh_num += 2;
+        GiftHelper.GiveMask();
+        GiftHelper.GiveMask();
         Rogue.Instance.ShowDreamConvo("shaman_dream".Localize());
         On.SpellFluke.OnEnable += OnFlukeDamage;
+        GiftHelper.max_scream_level += HigherScreamLevel;
+        GiftHelper.max_fireball_level += HigherFireballLevel;
+        GiftHelper.max_quake_level += HigherQuakeLevel;
         AddFireball3();
         AddQuake3();
         AddScream3();
-        GiftFactory.after_update_weight += CanUpdateSpellLevel;
         beam.transform.SetParent(HeroController.instance.transform);
         beam.transform.localPosition = new Vector3(0, -1.4f, 0);
         beam.transform.localScale = new Vector3(10, 5, 0);
         beam.transform.SetRotation2D(90f);
         beam.GetComponent<tk2dSprite>().color = new Color(0, 0, 1, 0.5f);
         beam.SetActive(true);
-        PlayerData.instance.fireballLevel = 2;
-        PlayerData.instance.screamLevel = 2;
-        PlayerData.instance.quakeLevel = 2;
+        PlayerData.instance.fireballLevel = 1;
+        PlayerData.instance.hasDoubleJump = true;
 
 
+    }
+
+    private bool HigherQuakeLevel(bool orig)
+    {
+        return PlayerData.instance.quakeLevel >= 3;
+    }
+
+    private bool HigherFireballLevel(bool orig)
+    {
+        return PlayerData.instance.fireballLevel >= 3;
+    }
+
+    private bool HigherScreamLevel(bool orig)
+    {
+        return PlayerData.instance.screamLevel >= 3;
     }
 
     private void CanUpdateSpellLevel()
@@ -88,7 +103,9 @@ internal class Shaman : Character
         RemoveFireball3();
         RemoveQuake3();
         RemoveScream3();
-        GiftFactory.after_update_weight -= CanUpdateSpellLevel;
+        GiftHelper.max_scream_level -= HigherScreamLevel;
+        GiftHelper.max_fireball_level -= HigherFireballLevel;
+        GiftHelper.max_quake_level -= HigherQuakeLevel;
         beam.transform.SetParent(null);
         GameObject.DontDestroyOnLoad(beam);
         beam.SetActive(false);
@@ -99,10 +116,10 @@ internal class Shaman : Character
         fbc.AddAction("Recycle", new DestroySelf());
         fbc.gameObject.GetComponent<tk2dSprite>().color = spell_color;
         fbc.GetAction<Wait>("Idle", 0).time = 4f;
-        fbc.GetAction<SetScale>("Set Damage", 0).x = 2.5f;
-        fbc.GetAction<SetScale>("Set Damage", 0).y = 2.5f;
-        fbc.GetAction<SetFsmInt>("Set Damage", 3).setValue = 40;
-        fbc.GetAction<SetFsmInt>("Set Damage", 5).setValue = 55;
+        fbc.GetAction<SetScale>("Set Damage", 0).x = 2.0f;
+        fbc.GetAction<SetScale>("Set Damage", 0).y = 2.0f;
+        fbc.GetAction<SetFsmInt>("Set Damage", 3).setValue = 35;
+        fbc.GetAction<SetFsmInt>("Set Damage", 5).setValue = 45;
         if (fbc.ActiveStateName != "Set Damage")
             fbc.SetState("Set Damage");
     }
@@ -368,7 +385,8 @@ internal class Shaman : Character
                 if (PlayerData.instance.screamLevel > 3) PlayerData.instance.screamLevel = 3;
                 break;
             case 2:
-                base.gameObject.FindGameObjectInChildren("Spells").transform.localScale = new(1.2f, 1.2f, 1);
+                PlayerData.instance.gotCharm_33 = true;
+                free_charms.Add(33);
                 break;
         }
     }
@@ -379,7 +397,7 @@ internal class Shaman : Character
             case 0:
             case 1:
             case 2:
-                gameObject.FindGameObjectInChildren("Spells").transform.localScale = new(1f, 1f, 1);
+                free_charms.Remove(33);
                 break;
         }
     }

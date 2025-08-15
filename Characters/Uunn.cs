@@ -9,10 +9,10 @@ internal class Uunn : Character
     public Uunn()
     {
         this.Selfname = CharacterRole.uunn;
-        birthright_names = new(){
-            "扩散",
-            "硬壳"
-        };
+        AddBirthRight("扩散");
+        AddBirthRight("硬壳");
+        AddBirthRight("蜕变挽歌");
+
     }
 
     public override void BeginCharacter()
@@ -41,6 +41,9 @@ internal class Uunn : Character
                                                     FindGameObjectInChildren("Blocker Shield").LocateMyFSM("Control")
                                                     .InsertCustomAction("Blocker Hit", DamageAll, 0);
                 PlayerData.instance.gotCharm_5 = true;
+                break;
+            case 2:
+                PlayerData.instance.gotCharm_35 = true;
                 break;
         }
     }
@@ -131,6 +134,7 @@ internal class Uunn : Character
             }
         }
         GameManager.instance.FreezeMoment(0);
+        HeroController.instance.TakeMP(10);
     }
     private int UunnReward(int geo, int damage_num)
     {

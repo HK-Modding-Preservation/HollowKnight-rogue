@@ -626,7 +626,7 @@ public class ItemManager : MonoBehaviour
             {
                 self.InsertCustomAction("End", () =>
                 {
-                    if (GameInfo.in_rogue && !GameInfo.get_birthright)
+                    if (GameInfo.in_rogue)
                     {
                         GiftFactory.all_gifts[Giftname.get_birthright].GetGift();
                     }

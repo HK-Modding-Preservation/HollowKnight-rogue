@@ -24,6 +24,20 @@ internal class BossSceneManager
             this.right = right;
         }
     }
+    internal static List<string> no_roof_boss_scene = new()
+    {
+    "GG_Vengefly_V",
+    "GG_Gruz_Mother_V",
+    "GG_Ghost_Gorb_V",
+    "GG_Ghost_Xero_V",
+    "GG_Soul_Master",
+    "GG_Oblobbles",
+    "GG_Ghost_Marmu_V"
+
+
+
+
+    };
     internal static Dictionary<string, ArenaInfo> arena_info = new Dictionary<string, ArenaInfo>()
     {
         { "GG_Vengefly_V",      new(39.86f,54.97f,23f,13.40812f) },
@@ -31,13 +45,13 @@ internal class BossSceneManager
         {"GG_False_Knight",     new(11.19f,45.7f,37.64f,27.40812f)},
         {"GG_Mega_Moss_Charger",new(28.3f,69.73f,18.52f,7.408125f)},
         {"GG_Hornet_1",         new(15.27f,37.73f,36.19f,28.40812f)},
-        {"GG_Ghost_Gorb_V",     new(45.24f,65.87f,39f,33.39785f)},
+        {"GG_Ghost_Gorb_V",     new(45.24f,65.87f,45.8f,33.39785f)},
         {"GG_Dung_Defender",     new(60.27f,91.73f,18.31f,7.408124f)},
         {"GG_Mage_Knight_V",     new(35.01f,58.93f,17.67f,5.408125f)},
         {"GG_Brooding_Mawlek_V", new(51.24f,71.71f,14f,4.408125f)},
         {"GG_Nailmasters",       new(30.01f,62.93f,17f,5.408125f)},
         {"GG_Ghost_Xero_V",      new(89.66f,115.13f,22.4f,11.34652f)},
-        {"GG_Crystal_Guardian",  new(15.27f,43.73f,18.33f,11.40812f)},
+        {"GG_Crystal_Guardian",  new(15.27f,43.73f,23.5f,11.40812f)},
         {"GG_Soul_Master",        new(5.27f,36.73f,42.28f,29.40812f)},
         {"GG_Oblobbles",          new(85.43f,119.73f,19.19f,6.408125f)},
         {"GG_Mantis_Lords_V",      new(17.24f,42.73f,19.57f,7.408124f)},
@@ -46,7 +60,7 @@ internal class BossSceneManager
         {"GG_Broken_Vessel",     new(15.19f,37.9f,37.93f,28.4f)},
         {"GG_Ghost_Galien",      new(34.27f,70.73f,23.8f,14.40812f)},
         {"GG_Painter",           new(32.01f,60.6f,14.55f,5.408125f)},
-        {"GG_Hive_Knight",      new(57.27f,80.72f,34f,27.40812f)},
+        {"GG_Hive_Knight",      new(57.27f,80.72f,39.8f,27.40812f)},
         {"GG_Ghost_Hu",         new(32.29f,65.4f,15.7f,3.408125f)},
         {"GG_Collector_V",      new(39.47f,69.58f,105f,95.40811f)},
         {"GG_God_Tamer",        new(85.6f,119.66f,16f,6.43f)},
@@ -65,7 +79,7 @@ internal class BossSceneManager
         {"GG_Ghost_Markoth_V",  new(16.6f,34.6f,24.8f,8.4f)},
         {"GG_Grey_Prince_Zote",new(6.6f,46.4f,18.9f,6.4f)},
         {"GG_Failed_Champion",  new(42.4f,76.57f,37.6f,27.4f)},
-        {"GG_Grimm_Nightmare",  new(69.3f,102.79f,18.1f,6.4f)},
+        {"GG_Grimm_Nightmare",  new(63.3f,108.79f,18.1f,6.4f)},
         {"GG_Hollow_Knight",new(29.33f,61.67f,18.9f,6.4f)}
     };
 

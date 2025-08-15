@@ -100,15 +100,35 @@ internal static class RogueSceneManager
         yield return new WaitForSeconds(delay);
         Rogue.Instance.ShowDreamConvo(msg);
     }
-
+    internal static void AddRoof(string scene_name)
+    {
+        void AddRoofGO(Vector3 pos, float left, float right)
+        {
+            GameObject roof = new("roof");
+            roof.transform.position = pos;
+            var col = roof.AddComponent<BoxCollider2D>();
+            col.size = new Vector2(right - left + 4, 1f);
+            col.offset = new Vector2((left + right) / 2, 0.5f);
+            roof.layer = LayerMask.NameToLayer("Terrain");
+        }
+        if (BossSceneManager.arena_info.ContainsKey(scene_name) && !BossSceneManager.no_roof_boss_scene.Contains(scene_name))
+        {
+            var info = BossSceneManager.arena_info[scene_name];
+            AddRoofGO(new Vector3(0, info.up + 1), info.left, info.right);
+        }
+    }
     internal static void ModifyScene(string scenename)
     {
+
         switch (scenename)
         {
             case "GG_Engine":
                 ItemManager.Instance.SetNoShop();
-                ProcessManager.Instance.StartCoroutine(DelayShowDreamConvo(0.5f, "godseeker".Localize()));
-                ItemManager.Instance.GiveReward(GameInfo.spa_count);
+                if (GameInfo.in_rogue)
+                {
+                    ProcessManager.Instance.StartCoroutine(DelayShowDreamConvo(0.5f, "godseeker".Localize()));
+                    ItemManager.Instance.GiveReward(GameInfo.spa_count);
+                }
                 fly_go.SetActive(false);
                 break;
             case "GG_Atrium_Roof":

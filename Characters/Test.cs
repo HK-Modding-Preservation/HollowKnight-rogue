@@ -6,10 +6,7 @@ internal class Test : Character
     public Test()
     {
         this.Selfname = CharacterRole.test;
-        birthright_names = new()
-        {
-            "贪婪"
-        };
+        AddBirthRight("贪婪");
     }
     bool get_birthright = false;
     public override void BeginCharacter()

@@ -14,7 +14,7 @@ internal class ProcessManager : MonoBehaviour
         "GG_Atrium_Roof" };
 
     public Hooks.OnChangeSceneAndAddGeo after_scene_add_geo_num;
-    int ReplacifyRate = 50;
+    int ReplacifyRate = 100;
 
     internal static void Init()
     {
@@ -52,6 +52,7 @@ internal class ProcessManager : MonoBehaviour
         ClearLastScene();
         scene_name = next_scene.name;
         PrepareNextScene();
+
     }
 
     private void ClearLastScene()

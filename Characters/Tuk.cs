@@ -1,16 +1,16 @@
 
 
+
 namespace rogue.Characters;
+
 internal class Tuk : Character
 {
     public Tuk()
     {
         this.Selfname = CharacterRole.tuk;
-        birthright_names = new(){
-            "感染",
-            "+2腐臭蛋",
-            "使用腐臭蛋+200geo"
-        };
+        AddBirthRight("感染");
+        AddBirthRight("收集");
+        AddBirthRight("积累");
     }
     System.Random random = new System.Random();
 
@@ -21,10 +21,8 @@ internal class Tuk : Character
         HeroController.instance.AddGeo(500);
         GameInfo.revive_num = 5;
         Rogue.Instance.ShowDreamConvo("tuk_dream".Localize());
-        ItemManager.Instance.after_revive_action += TukRevive;
     }
-
-    private void TukRevive()
+    protected override void AfterRevive()
     {
         if (random.Next(0, 2) == 0)
         {
@@ -35,11 +33,11 @@ internal class Tuk : Character
             GiftHelper.GiveMask();
             GiftHelper.GiveMask();
         }
-        if (got_birthright.Contains(3))
+        if (birthrights[2].got > 0)
         {
             HeroController.instance.AddGeo(200);
         }
-
+        base.AfterRevive();
     }
     public override void GetBirthright(int num)
     {
@@ -53,10 +51,20 @@ internal class Tuk : Character
                 GameInfo.revive_num += 2;
                 break;
             case 2:
+                UnityEngine.SceneManagement.SceneManager.activeSceneChanged += GetEgg;
                 break;
 
         }
     }
+
+    private void GetEgg(Scene arg0, Scene arg1)
+    {
+        if (arg1.name == "GG_Spa")
+        {
+            GameInfo.revive_num++;
+        }
+    }
+
     public override void RemoveBirthright(int num)
     {
         switch (num)
@@ -67,6 +75,7 @@ internal class Tuk : Character
                 break;
             case 1:
             case 2:
+                UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= GetEgg;
                 break;
         }
     }
@@ -88,6 +97,5 @@ internal class Tuk : Character
 
     public override void EndCharacter()
     {
-        ItemManager.Instance.after_revive_action -= TukRevive;
     }
 }

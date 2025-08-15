@@ -174,6 +174,7 @@ internal static class BossManager
     {
         if (EnemyWaveManager.GetCollection(scene_name) != null)
         {
+            RogueSceneManager.AddRoof(scene_name);
             yield return ItemManager.Instance.StartCoroutine(DisableBoss(scene_name));
             yield return ItemManager.Instance.StartCoroutine(EnemyWaves());
         }
@@ -571,6 +572,7 @@ internal static class BossManager
                         if (random_limit > 10)
                         {
                             pos = HeroController.instance.transform.position + new Vector3(0, 3f);
+                            pos.y = Mathf.Min(pos.y, BossSceneManager.arena_info[ProcessManager.scene_name].up - 1f);
                             Log("Random pos OUT OF LIMIT");
                         }
                         yield return ItemManager.Instance.StartCoroutine(EnemyAppear(enemy_go, pos, enemy.hp, enemy.name));
@@ -664,6 +666,15 @@ internal static class BossManager
                 try
                 {
                     enemy.transform.SetPositionY(BossSceneManager.arena_info[ProcessManager.scene_name].down);
+                    var x = enemy.transform.position.x;
+                    if (x > BossSceneManager.arena_info[ProcessManager.scene_name].right - 12f)
+                    {
+                        enemy.transform.SetPositionX(BossSceneManager.arena_info[ProcessManager.scene_name].right - 12f);
+                    }
+                    else if (x < BossSceneManager.arena_info[ProcessManager.scene_name].left + 12f)
+                    {
+                        enemy.transform.SetPositionX(BossSceneManager.arena_info[ProcessManager.scene_name].left + 12f);
+                    }
 
                 }
                 catch (Exception)
@@ -685,7 +696,26 @@ internal static class BossManager
                     Log("愚蠢错误有误");
                 }
                 break;
-
+            case EnemyWaveManager.beam_miner_name:
+                var cp = enemy.GetAddComponent<ConstrainPosition>();
+                cp.enabled = true;
+                cp.constrainX = true;
+                cp.constrainY = false;
+                cp.xMin = BossSceneManager.arena_info[ProcessManager.scene_name].left;
+                cp.xMax = BossSceneManager.arena_info[ProcessManager.scene_name].right;
+                break;
+            case "Zombie Guard":
+                enemy.FindGameObjectInChildren("Hero Solid").SetActive(false);
+                break;
+            case "Great Shield Zombie":
+                enemy.FindGameObjectInChildren("Hero Blocker").SetActive(false);
+                break;
+            case "Grave Zombie":
+                enemy.FindGameObjectInChildren("Hero Blocker").SetActive(false);
+                break;
+            case "Slash Spider":
+                enemy.FindGameObjectInChildren("Hero Blocker").SetActive(false);
+                break;
             default:
                 break;
         }

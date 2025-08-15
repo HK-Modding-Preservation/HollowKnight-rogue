@@ -1,6 +1,7 @@
 
 using System.Runtime.Serialization.Formatters.Binary;
 
+
 namespace rogue.Characters;
 
 internal class NailMaster : Character
@@ -8,15 +9,16 @@ internal class NailMaster : Character
     internal const string hk_scene = "GG_Hollow_Knight";
     internal const string hk_name = "Battle Scene/HK Prime";
     internal static GameObject hk_shot;
+    const float default_charge_time = 1.25f;
+    const float charm_charge_time = 0.75f;
+    const float default_speed_charge_time = 0.75f;
+    const float charm_speed_charge_time = 0.35f;
     public NailMaster()
     {
         this.Selfname = CharacterRole.nail_master;
-        birthright_names = new List<string>()
-        {
-            "0槽钉耀",
-            "无双",
-            "聚气"
-        };
+        AddBirthRight("迅疾");
+        AddBirthRight("无双");
+        AddBirthRight("聚气");
     }
     internal static void Init()
     {
@@ -38,18 +40,25 @@ internal class NailMaster : Character
     {
         GameInfo.role = CharacterRole.nail_master;
         GiftHelper.AddNailDamage();
-        GiftHelper.AddNailDamage();
+        GiftHelper.max_nail_damage += HigherNailLevel;
         PlayerData.instance.hasCyclone = true;
         PlayerData.instance.hasDashSlash = true;
         PlayerData.instance.hasUpwardSlash = true;
         PlayerData.instance.hasNailArt = true;
-        On.NailSlash.StartSlash += LongerNail;
+        PlayerData.instance.hasDash = true;
+        PlayerData.instance.gotCharm_26 = true;
         Rogue.Instance.ShowDreamConvo("nail_master_dream".Localize());
 
     }
+
+    private bool HigherNailLevel(bool orig)
+    {
+        return PlayerData.instance.nailDamage >= 25;
+    }
+
     AudioClip nail_charge_ready;
     int nail_charge_level;
-    int NailChargeLevel
+    private int NailChargeLevel
     {
         get { return nail_charge_level; }
         set
@@ -68,26 +77,28 @@ internal class NailMaster : Character
 
 
 
-    private void LongerNail(On.NailSlash.orig_StartSlash orig, NailSlash self)
-    {
-        orig(self);
-        var scale = self.transform.localScale;
-        float mul = PlayerData.instance.nailDamage / 4 * 0.15f + 1;
-        self.transform.localScale = new Vector3(scale.x * mul, scale.y * mul, scale.z);
-    }
+
 
     public override void EndCharacter()
     {
-        On.PlayerData.GetInt -= FreeNailGlory;
-        On.NailSlash.StartSlash -= LongerNail;
+        GiftHelper.max_nail_damage -= HigherNailLevel;
     }
     public override void GetBirthright(int num)
     {
         switch (num)
         {
             case 0:
-                PlayerData.instance.gotCharm_26 = true;
-                On.PlayerData.GetInt += FreeNailGlory;
+                HeroController.instance.NAIL_CHARGE_TIME_DEFAULT = default_speed_charge_time;
+                HeroController.instance.NAIL_CHARGE_TIME_CHARM = charm_speed_charge_time;
+                if (PlayerData.instance.equippedCharm_26)
+                {
+                    ReflectionHelper.SetField<HeroController, float>(HeroController.instance, "nailChargeTime", charm_speed_charge_time);
+                }
+                else
+                {
+                    ReflectionHelper.SetField<HeroController, float>(HeroController.instance, "nailChargeTime", default_charge_time);
+                }
+
                 break;
             case 1:
                 On.PlayMakerFSM.OnEnable += InverWhenNailArt;
@@ -363,8 +374,8 @@ internal class NailMaster : Character
         switch (num)
         {
             case 0:
-                PlayerData.instance.gotCharm_26 = true;
-                On.PlayerData.GetInt -= FreeNailGlory;
+                HeroController.instance.NAIL_CHARGE_TIME_DEFAULT = default_charge_time;
+                HeroController.instance.NAIL_CHARGE_TIME_CHARM = charm_charge_time;
                 break;
             case 1:
                 On.PlayMakerFSM.OnEnable -= InverWhenNailArt;
@@ -386,11 +397,6 @@ internal class NailMaster : Character
 
 
         }
-    }
-    private int FreeNailGlory(On.PlayerData.orig_GetInt orig, PlayerData self, string intName)
-    {
-        if (intName == "charmCost_26") return 0;
-        return orig(self, intName);
     }
 
 

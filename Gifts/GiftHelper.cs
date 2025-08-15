@@ -1,7 +1,45 @@
+using MonoMod.RuntimeDetour;
+
 namespace rogue;
 
 static class GiftHelper
 {
+    internal static Hooks.OnCheckBool max_nail_damage = null;
+    internal static Hooks.OnCheckBool min_nail_damage = null;
+    internal static Hooks.OnCheckBool max_fireball_level = null;
+    internal static Hooks.OnCheckBool max_quake_level = null;
+    internal static Hooks.OnCheckBool max_scream_level = null;
+    internal static bool MaxNailDamage()
+    {
+        var orig = PlayerData.instance.nailDamage >= 21;
+        if (max_nail_damage == null) return orig;
+        return max_nail_damage.Invoke(orig);
+    }
+    internal static bool MinNailDamage()
+    {
+        var orig = PlayerData.instance.nailDamage <= 5;
+        if (min_nail_damage == null) return orig;
+        return min_nail_damage.Invoke(orig);
+    }
+    internal static bool MaxFireballLevel()
+    {
+        var orig = PlayerData.instance.fireballLevel >= 2;
+        if (max_fireball_level == null) return orig;
+        return max_fireball_level.Invoke(orig);
+    }
+    internal static bool MaxQuakeLevel()
+    {
+        var orig = PlayerData.instance.quakeLevel >= 2;
+        if (max_quake_level == null) return orig;
+        return max_quake_level.Invoke(orig);
+
+    }
+    internal static bool MaxScreamLevel()
+    {
+        var orig = PlayerData.instance.screamLevel >= 2;
+        if (max_scream_level == null) return orig;
+        return max_scream_level.Invoke(orig);
+    }
     public static void GiveMask()
     {
         if (PlayerData.instance.maxHealthBase < 9)
@@ -61,7 +99,7 @@ static class GiftHelper
 
     public static void AddNailDamage()
     {
-        if (PlayerData.instance.nailDamage < 21)
+        if (!MaxNailDamage())
         {
             PlayerData.instance.nailDamage += 4;
             PlayMakerFSM.BroadcastEvent("UPDATE NAIL DAMAGE");
@@ -69,7 +107,7 @@ static class GiftHelper
     }
     public static void DecreaseNailDamage()
     {
-        if (PlayerData.instance.nailDamage > 5)
+        if (!MinNailDamage())
         {
             PlayerData.instance.nailDamage -= 4;
             PlayMakerFSM.BroadcastEvent("UPDATE NAIL DAMAGE");
