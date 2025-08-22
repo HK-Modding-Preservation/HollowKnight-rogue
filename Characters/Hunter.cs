@@ -60,7 +60,7 @@ internal class Hunter : Character
         {
             if (random.Next(0, 100) < 8)
             {
-                Log("Attack AddHealth");
+                ("Attack AddHealth").TestLog();
                 HeroController.instance.AddHealth(1);
                 HeroController.instance.gameObject.GetComponent<AudioSource>().PlayOneShot(heal_clip);
                 HeroController.instance.gameObject.SendMessage("flashFocusHeal", options: SendMessageOptions.DontRequireReceiver);

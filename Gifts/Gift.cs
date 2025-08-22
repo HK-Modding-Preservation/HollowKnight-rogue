@@ -282,7 +282,7 @@ internal static class GiftFactory
         all_gifts.Add(Giftname.role_defender, new RoleGift<Defender>(Giftname.role_defender));
         all_gifts.Add(Giftname.role_mantis, new RoleGift<Mantis>(Giftname.role_mantis));
         all_gifts.Add(Giftname.role_collector, new RoleGift<Collector>(Giftname.role_collector));
-        Log("role is loaded");
+        ("role is loaded").TestLog();
     }
     private static void ShopInit()
     {
@@ -974,7 +974,6 @@ internal static class GiftFactory
             giftname = Giftname.get_zhua_lei_ding,
             reward = (giftname) =>
                     {
-                        Log("飞舞大礼包");
                         PlayerData.instance.hasSuperDash = true;
                         PlayerData.instance.hasDreamNail = true;
                         PlayerData.instance.hasAcidArmour = true;

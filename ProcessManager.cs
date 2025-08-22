@@ -110,7 +110,7 @@ internal class ProcessManager : MonoBehaviour
             if ((UnityEngine.Random.Range(0, 101) <= ReplacifyRate || EnemyWaveManager.SceneInBranch(scene_name))
              && !EnemyWaveManager.DontReplacyScene(scene_name))
             {
-                Rogue.Instance.Log("Replacify Boss in " + scene_name);
+                ("Replacify Boss in " + scene_name).TestLog();
                 StartCoroutine(BossManager.Replacify(scene_name));
             }
 

@@ -20,14 +20,16 @@ internal class LoveKey : CustomGift
     {
         GameInfo.Branch.collector = true;
         var oriscenes = ReflectionHelper.GetField<BossSequence, BossScene[]>(Rogue.Instance.bossSequence, "bossScenes");
-        oriscenes[28].sceneName = "GG_Collector_V";
+        var replacy_scene = oriscenes.FirstOrDefault((bs) => { return bs.name == "Grimm Boss Scene"; });
+        replacy_scene.sceneName = "GG_Collector_V";
     }
 
     protected override void _RemoveGift()
     {
         GameInfo.Branch.collector = false;
         var oriscenes = ReflectionHelper.GetField<BossSequence, BossScene[]>(Rogue.Instance.bossSequence, "bossScenes");
-        oriscenes[28].sceneName = "GG_Grimm";
+        var replacy_scene = oriscenes.FirstOrDefault((bs) => { return bs.name == "Grimm Boss Scene"; });
+        replacy_scene.sceneName = "GG_Grimm";
     }
     internal override string GetName()
     {

@@ -514,7 +514,7 @@ internal static class BossManager
     static void DeathCount()
     {
         bossleft--;
-        Rogue.Instance.Log("enemy left " + bossleft);
+        ("enemy left " + bossleft).TestLog();
         if (bossleft == 0)
         {
             waveleft--;
@@ -549,7 +549,7 @@ internal static class BossManager
         EnemyWaveCollection collection = EnemyWaveManager.GetCollection(ProcessManager.scene_name);
         if (collection == null)
         {
-            Rogue.Instance.Log("No EnemyWaveCollection for " + ProcessManager.scene_name);
+            ("No EnemyWaveCollection for " + ProcessManager.scene_name).TestLog();
             yield break;
         }
         waveleft = collection.whole_wave.Keys.Count;
@@ -558,23 +558,23 @@ internal static class BossManager
         {
             if (current_scene != ProcessManager.scene_name)
             {
-                Log("Scene Over");
+                ("Scene Over").TestLog();
                 yield break;
             }
             if (!collection.whole_wave.Keys.Contains(i)) continue;
-            Rogue.Instance.Log("wave " + i);
+            ("wave " + i).TestLog();
             var wave = collection.whole_wave[i];
             if (wave.Count == 0) continue;
             EnemyWaveCollection.OnePossibleWave possibleWave = wave[0];
             yield return new WaitForSeconds(2f);
             float s = wave.Sum((x) => x.weight);
-            Log("whole weight s:" + s);
+            ("whole weight s:" + s).TestLog();
             float r = UnityEngine.Random.Range(0, s);
-            Log("random weight r:" + r);
+            ("random weight r:" + r).TestLog();
             foreach (var x in wave)
             {
                 r -= x.weight;
-                Log("del " + x.weight + " now is " + r);
+                ("del " + x.weight + " now is " + r).TestLog();
                 if (r <= 0)
                 {
                     possibleWave = x;
@@ -610,13 +610,13 @@ internal static class BossManager
                         {
                             pos = HeroController.instance.transform.position + new Vector3(0, 3f);
                             pos.y = Mathf.Min(pos.y, BossSceneManager.arena_info[ProcessManager.scene_name].up - 1f);
-                            Log("Random pos OUT OF LIMIT");
+                            ("Random pos OUT OF LIMIT").TestLog();
                         }
                         yield return ItemManager.Instance.StartCoroutine(EnemyAppear(enemy_go, pos, enemy.hp, enemy.name));
                     }
                     else
                     {
-                        Rogue.Instance.Log("No prefab for " + enemy.name);
+                        ("No prefab for " + enemy.name).TestLog();
                     }
 
                 }
@@ -760,7 +760,7 @@ internal static class BossManager
     internal static IEnumerator EnemyAppear(GameObject enemy, Vector3 pos, int health, string enemy_name)
     {
         if (enemy == null) yield break;
-        Rogue.Instance.Log("EnemyAppear " + enemy.name + " " + health);
+        ("EnemyAppear " + enemy.name + " " + health).TestLog();
         var res = enemy;
         res.GetComponent<HealthManager>().OnDeath -= DeathCount;
         res.GetComponent<HealthManager>().OnDeath += DeathCount;

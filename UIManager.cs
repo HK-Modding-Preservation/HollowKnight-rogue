@@ -162,7 +162,7 @@ internal static class RogueUIManager
         yield return new WaitForSeconds(delay);
         DialogueUI.customDialogueManager.ShowDialogue(conv_name);
 
-        }
+    }
     internal static IEnumerator _StartSelection(float delay, string conversation, List<SelectItem> items, int cancel_num)
     {
         RogueUIManager.conversation = conversation;
@@ -226,15 +226,11 @@ internal static class RogueUIManager
         static IEnumerator _DelaySetText(TMPro.TextMeshPro com, float delay, string text)
         {
 
-            Rogue.Instance.Log("before delay" + com.text);
             yield return new WaitForSeconds(delay);
-            Rogue.Instance.Log("before" + com.text);
             com.SetText(text);
             com.ForceMeshUpdate();
             yield return null;
-            Rogue.Instance.Log("after" + com.text);
         }
-        Rogue.Instance.Log("before" + com.text);
         com.StartCoroutine(_DelaySetText(com, delay, text));
     }
     static void TestSelect()

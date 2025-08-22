@@ -8,6 +8,7 @@ using Mono.Security.Cryptography;
 using IL.tk2dRuntime.TileMap;
 using System.Diagnostics;
 using rogue.NPCs;
+using System.CodeDom;
 
 namespace rogue;
 
@@ -97,8 +98,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
 
 
         On.PlayMakerFSM.OnEnable += CharmsInit;
-        On.BossSequenceController.FinishLastBossScene += EndScene;
-        On.BossSequenceController.SetupNewSequence += BeginScene;
+        On.BossSequenceController.FinishLastBossScene += EndSequence;
+        On.BossSequenceController.SetupNewSequence += BeginSequence;
         On.HeroController.Awake += OnSavegameLoad;
         ModHooks.SavegameSaveHook += TestSavaGame;
         On.GameCameras.Awake += CameraAwake;
@@ -106,11 +107,11 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
 
     private void CameraAwake(On.GameCameras.orig_Awake orig, GameCameras self)
     {
-        Rogue.Instance.Log("CameraAwake");
+        ("CameraAwake").TestLog();
     }
     private void TestSavaGame(int obj)
     {
-        Log("Save Game!!!");
+        ("Save Game!!!").TestLog();
     }
 
 
@@ -130,7 +131,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
     }
 
 
-    private void BeginScene(On.BossSequenceController.orig_SetupNewSequence orig, BossSequence sequence, BossSequenceController.ChallengeBindings bindings, string playerData)
+    private void BeginSequence(On.BossSequenceController.orig_SetupNewSequence orig, BossSequence sequence, BossSequenceController.ChallengeBindings bindings, string playerData)
     {
         if (sequence.name == "Boss Sequence Tier 5")
         {
@@ -143,7 +144,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
             ori_boss_scenes.CopyTo(boss_scenes, 0);
             foreach (var boss_scene in ori_boss_scenes)
             {
-                Log(boss_scene.sceneName);
+                (boss_scene.sceneName).TestLog();
             }
             ReflectionHelper.SetField<BossSequence, BossScene[]>(sequence, "bossScenes", boss_scenes);
             BossSceneManager.MoreBoss(sequence);
@@ -152,9 +153,10 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
         orig(sequence, bindings, playerData);
     }
 
-    private void EndScene(On.BossSequenceController.orig_FinishLastBossScene orig, BossSceneController self)
+    private void EndSequence(On.BossSequenceController.orig_FinishLastBossScene orig, BossSceneController self)
     {
         // GameInfo.in_rogue = false;
+        ("EndSequence").TestLog();
         orig(self);
 
     }
@@ -465,7 +467,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
 
     public void OnLoadGlobal(Setting s)
     {
-        Log("Onload");
+        ("Onload").TestLog();
         _set = s;
         if (_set.start == null) ;
         else if (_set.start is KeyBindingSource keyBindingSource1)
@@ -569,12 +571,5 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
         playMakerFSM.SendEvent("DISPLAY ENEMY DREAM");
     }
 
-    internal static void TestLog(object msg)
-    {
-        if (Instance.Test)
-        {
-            Instance.Log(msg);
-        }
 
-    }
 }

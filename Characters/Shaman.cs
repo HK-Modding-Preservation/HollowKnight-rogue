@@ -269,7 +269,7 @@ internal class Shaman : Character
     }
     public void SetQuake3()
     {
-        Log("Set Quake3");
+        ("Set Quake3").TestLog();
         butterfly.SetActive(false);
         butterfly.transform.position = HeroController.instance.transform.position;
         butterfly.SetActive(true);
@@ -316,7 +316,7 @@ internal class Shaman : Character
     }
     public void SetNoQuake3()
     {
-        Log("Set No Quake3");
+        ("Set No Quake3").TestLog();
 
         HeroController.instance.INVUL_TIME_QUAKE = 0.4f;
         List<string> animes = new()

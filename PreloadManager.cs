@@ -75,7 +75,7 @@ internal static class PreloadManager
 
         foreach (var (scene, name) in preloadNames)
         {
-            Log(scene + " " + name);
+            (scene + " " + name).TestLog();
             if (!ReservedGO.ContainsKey(scene))
             {
                 ReservedGO.Add(scene, new Dictionary<string, GameObject>());

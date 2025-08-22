@@ -24,10 +24,10 @@ internal static class SpriteLoader
         foreach (var file in files)
         {
 
-            Modding.Logger.Log(file);
+            (file).TestLog();
             if (!file.EndsWith(".png")) continue;
             resource_sprites.Add(Path.GetFileNameWithoutExtension(file).Split('.').Last().ToLower(), LoadSprite(file));
-            Modding.Logger.Log(file + "is completed");
+            (file + "is completed").TestLog();
         }
         resource_sprites.Add("hunter_mask", (Sprite)Resources.InstanceIDToObject(8948));
         resource_sprites.Add("love_key", (Sprite)Resources.InstanceIDToObject(8248));

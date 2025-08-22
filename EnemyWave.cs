@@ -281,12 +281,12 @@ internal static class EnemyWaveManager
         catch (Exception)
         {
             error = true;
-            Log("Read ERROR");
+            ("Read ERROR").TestLog();
         }
         if (!error)
         {
             wave_collections = JsonConvert.DeserializeObject<Dictionary<string, EnemyWaveCollection>>(res);
-            Log("Read OK");
+            ("Read OK").TestLog();
         }
         return error;
     }
@@ -356,7 +356,7 @@ internal static class EnemyWaveManager
             string true_name = names.Item2.Split('/').Last();
             if (!enemy_prefabs.ContainsKey(true_name))
             {
-                Log(true_name);
+                (true_name).TestLog();
                 GameObject go = PreloadManager.getGO(names.Item1, names.Item2);
                 if (true_name.Contains("Large"))
                 {
@@ -368,7 +368,6 @@ internal static class EnemyWaveManager
                 }
                 else if (true_name.Contains("Small"))
                 {
-                    Log(go);
                     var true_go = go
                         .LocateMyFSM("Spawn")
                         .FsmVariables
@@ -436,7 +435,7 @@ internal static class EnemyWaveManager
     }
     internal static void AdjustEnemy(GameObject enemy, string name)
     {
-        Log("adjust " + name);
+        ("adjust " + name).TestLog();
         PlayMakerFSM temp_fsm;
 
         switch (name)

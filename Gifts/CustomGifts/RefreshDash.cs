@@ -12,7 +12,7 @@ internal class RefreshDash : CustomGift
     protected override void _GetGift()
     {
         On.HealthManager.TakeDamage += RefreshDashAndDoublejump;
-        Rogue.Instance.Log("Get RefreshDash");
+        ("Get RefreshDash").TestLog();
 
     }
 
@@ -29,7 +29,7 @@ internal class RefreshDash : CustomGift
     protected override void _RemoveGift()
     {
         On.HealthManager.TakeDamage -= RefreshDashAndDoublejump;
-        Rogue.Instance.Log("Remove refreshDash");
+        ("Remove refreshDash").TestLog();
 
     }
 

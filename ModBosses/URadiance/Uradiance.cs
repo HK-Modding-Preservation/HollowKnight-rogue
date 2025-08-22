@@ -463,7 +463,6 @@ internal class Uradiance : MonoBehaviour
         }
         void Add3LittleOrb(PlayMakerFSM o_fsm)
         {
-            Log("Before Add3");
             float angle = UnityEngine.Random.Range(0, 360f);
             float v = 5f;
             for (int i = 0; i < 3; i++)
@@ -486,12 +485,10 @@ internal class Uradiance : MonoBehaviour
                 new_little_orb.GetComponent<Rigidbody2D>().velocity = new Vector2(v * Mathf.Cos(new_angle / 180f * Mathf.PI), v * Mathf.Sin(new_angle / 180f * Mathf.PI));
                 new_little_orb.LocateMyFSM("Orb Control").SendEvent("FIRE");
             }
-            Log("After Add3");
         }
 
         _com.InsertCustomAction("Spawn Fireball", (fsm) =>
         {
-            Log("Spawn a Fireball");
             var orb = fsm.FsmVariables.FindFsmGameObject("Projectile").Value;
             var final_fsm = orb.LocateMyFSM("Final Control");
             final_fsm.RemoveAction("Recycle", 0);
@@ -501,7 +498,6 @@ internal class Uradiance : MonoBehaviour
             orb_fsm.AddAction("Recycle", new DestroySelf() { detachChildren = false });
             orb_fsm.InsertCustomAction("Impact", Add3LittleOrb, 0);
             orb_fsm.InsertCustomAction("Stop Particles", Add3LittleOrb, 0);
-            Log("Spawn a Fireball end");
         }, 2);
         //Orb2替代BeamSweepL
         var orb_wait_2 = _cho.CopyState("Orb Wait", "Orb Wait 2");

@@ -728,7 +728,7 @@ public class ItemManager : MonoBehaviour
         }
         else
         {
-            Log("no gifts to spawn");
+            ("no gifts to spawn").TestLog();
         }
     }
     private void SpwanItem(Gift gift, bool inSelect = false)
@@ -742,7 +742,7 @@ public class ItemManager : MonoBehaviour
 
     private void SpwanItem(int level, string name, Giftname giftname)
     {
-        Log(giftname.ToString() + " spawn");
+        (giftname.ToString() + " spawn").TestLog();
         knight = GameObject.Find("Knight");
         item = PreloadManager.getGO(item_scene, item_name);
         if (knight != null)
@@ -836,7 +836,7 @@ public class ItemManager : MonoBehaviour
             reward.GetAction<SetTextMeshProText>(4).textString = name;
             reward.InsertCustomAction(() =>
             {
-                Log(giftname);
+                (giftname).TestLog();
                 GiftFactory.all_gifts[giftname].GetGift();
                 GameInfo.got_items.Add(giftname);
                 GiftFactory.UpdateWeight();
@@ -861,7 +861,7 @@ public class ItemManager : MonoBehaviour
                 foreach (string s in strings)
                 {
                     temp = temp.FindGameObjectInChildren(s);
-                    if (temp == null) { Log("null is " + s); return; }
+                    if (temp == null) { ("null is " + s).TestLog(); return; }
                 }
                 temp.GetComponent<TMPro.TextMeshPro>().text = name;
                 temp.GetComponent<TMPro.TextMeshPro>().fontSize = Rogue.Instance._set.item_font_size;

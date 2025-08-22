@@ -53,7 +53,6 @@ internal abstract class CustomGift : Gift
         get { return got; }
         set
         {
-            Log(value);
             if (got == value) return;
             if (got)
             {
@@ -135,7 +134,6 @@ internal abstract class CustomOneOrTwoGift : Gift
         get { return got_which_item; }
         set
         {
-            Log(value);
             if (got_which_item == value) return;
             switch (got_which_item)
             {

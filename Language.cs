@@ -25,7 +25,7 @@ public static class Lang
         foreach (var file in files)
         {
 
-            Modding.Logger.Log(file);
+            (file).TestLog();
             if (!file.EndsWith(".json")) continue;
             if (!file.Contains("lang")) continue;
             var bytes = Assembly.GetExecutingAssembly().GetBytesFromResources(file);

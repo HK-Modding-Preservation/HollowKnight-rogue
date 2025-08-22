@@ -132,7 +132,7 @@ internal class DisplayManager : MonoBehaviour
         var holder = GameObject.Find("charm_dispaly_holder");
         if (holder != null)
         {
-            Log("Found existing holder.");
+            ("Found existing holder.").TestLog();
             DestroyImmediate(holder);
         }
         holder = new GameObject("charm_dispaly_holder");
@@ -176,7 +176,7 @@ internal class DisplayManager : MonoBehaviour
         // inventory_display_holder = GameObject.Find("inventory_display_holder");
         if (inventory_display_holder != null)
         {
-            Log("another inventory_display_holder");
+            ("another inventory_display_holder").TestLog();
             inventory_display_holder.SetActive(false);
             DestroyImmediate(inventory_display_holder);
         }

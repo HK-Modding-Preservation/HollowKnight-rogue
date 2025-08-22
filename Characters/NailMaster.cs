@@ -195,7 +195,6 @@ internal class NailMaster : Character
     {
         if (self.FsmName == "nailart_damage")
         {
-            Log("Reset Level");
             if (self.gameObject.name == "Great Slash")
             {
 
@@ -218,7 +217,6 @@ internal class NailMaster : Character
     {
         if (self.FsmName == "nailart_damage")
         {
-            Log("Set Level");
             if (self.gameObject.name == "Great Slash")
             {
                 ItemManager.Instance.StartCoroutine(DelayGreatSlash(nail_charge_level));
@@ -352,7 +350,7 @@ internal class NailMaster : Character
     {
         if (self.FsmName == "nailart_damage")
         {
-            Log("End No Damage");
+            ("End No Damage").TestLog();
 
             HeroController.instance.SetDamageMode(0);
         }
@@ -363,8 +361,8 @@ internal class NailMaster : Character
     {
         if (self.FsmName == "nailart_damage")
         {
-            Log("Begin No Damage");
-            Log(nail_charge_level);
+            ("Begin No Damage").TestLog();
+            (nail_charge_level).TestLog();
             HeroController.instance.SetDamageMode(1);
         }
         orig(self);
