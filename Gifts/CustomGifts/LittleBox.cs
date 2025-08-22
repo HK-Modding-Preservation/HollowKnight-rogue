@@ -5,8 +5,8 @@ internal class LittleBox : CustomGift
     {
         weight = 0.5f;
         price = 200;
-        name = "变小";
-        desc = "小骑士的受伤碰撞箱变小";
+        name = "custom_little_box_name";
+        desc = "custom_little_box_desc";
     }
 
     protected override void _GetGift()

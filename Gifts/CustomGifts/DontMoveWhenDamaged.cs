@@ -5,7 +5,7 @@ internal class DontMoveWhenDamaged : CustomGift
     {
         price = 200;
         weight = 0.5f;
-        name = "霸体";
+        name = "custom_dont_move_when_damaged_desc";
         desc = "受伤时不会再产生强制移动";
     }
     float ori_vel;

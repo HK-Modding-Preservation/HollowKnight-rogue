@@ -16,9 +16,9 @@ internal class NailMaster : Character
     public NailMaster()
     {
         this.Selfname = CharacterRole.nail_master;
-        AddBirthRight("迅疾");
-        AddBirthRight("无双");
-        AddBirthRight("聚气");
+        AddBirthRight("nail_master_birthright_0_name".Localize());
+        AddBirthRight("nail_master_birthright_1_name".Localize());
+        AddBirthRight("nail_master_birthright_2_name".Localize());
     }
     internal static void Init()
     {

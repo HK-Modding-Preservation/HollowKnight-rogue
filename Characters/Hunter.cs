@@ -8,9 +8,9 @@ internal class Hunter : Character
     public Hunter()
     {
         this.Selfname = CharacterRole.hunter;
-        AddBirthRight("嗜血");
-        AddBirthRight("护符槽+3");
-        AddBirthRight("0槽坚硬外壳");
+        AddBirthRight("hunter_birthright_0_name".Localize());
+        AddBirthRight("hunter_birthright_1_name".Localize());
+        AddBirthRight("hunter_birthright_2_name".Localize());
     }
     public override void BeginCharacter()
     {

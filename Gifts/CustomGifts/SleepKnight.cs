@@ -1,12 +1,13 @@
 namespace rogue;
+
 internal class SleepKnight : CustomGift
 {
     internal SleepKnight() : base(Giftname.custom_sleep_knight, 0, "witches_eye")
     {
         weight = 0.3f;
         price = 100;
-        name = "咸鱼";
-        desc = "躺倒睡觉";
+        name = "custom_sleep_knight_name";
+        desc = "custom_sleep_knight_desc";
     }
 
     protected override void _GetGift()

@@ -5,8 +5,8 @@ internal class RefreshDash : CustomGift
     {
         weight = 1f;
         price = 200;
-        name = "飞翔的阿鲁巴";
-        desc = "生命不息，飞翔不止\n\n攻击到敌人时会刷新冲刺和二段跳";
+        name = "custom_refresh_dash_name";
+        desc = "custom_refresh_dash_desc";
     }
 
     protected override void _GetGift()

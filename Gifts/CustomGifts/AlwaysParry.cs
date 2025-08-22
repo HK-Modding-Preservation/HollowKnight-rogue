@@ -2,12 +2,13 @@
 using Mono.Cecil;
 
 namespace rogue;
+
 internal class AlwaysParry : CustomGift
 {
     public AlwaysParry() : base(Giftname.custom_always_parry, 4, "blue_idle")
     {
-        name = "只虫";
-        desc = "所有骨钉攻击视为拼刀";
+        name = "custom_always_parry_name";
+        desc = "custom_always_parry_desc";
         weight = 0.5f;
         price = 200;
     }

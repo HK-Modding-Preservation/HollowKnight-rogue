@@ -25,8 +25,8 @@ internal class Moth : Character
     public Moth()
     {
         this.Selfname = CharacterRole.moth;
-        AddBirthRight("弑梦");
-        AddBirthRight("剑制");
+        AddBirthRight("moth_birthright_0_name".Localize());
+        AddBirthRight("moth_birthright_1_name".Localize());
 
     }
 

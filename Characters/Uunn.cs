@@ -9,9 +9,9 @@ internal class Uunn : Character
     public Uunn()
     {
         this.Selfname = CharacterRole.uunn;
-        AddBirthRight("扩散");
-        AddBirthRight("硬壳");
-        AddBirthRight("蜕变挽歌");
+        AddBirthRight("uunn_birthright_0_name".Localize());
+        AddBirthRight("uunn_birthright_1_name".Localize());
+        AddBirthRight("uunn_birthright_2_name".Localize());
 
     }
 

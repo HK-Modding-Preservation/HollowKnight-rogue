@@ -25,7 +25,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
 
     public override string GetVersion()
     {
-        return "t.e.8.17";
+        return "t.e.8.22";
     }
     public class actions : PlayerActionSet
     {
@@ -154,7 +154,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
 
     private void EndScene(On.BossSequenceController.orig_FinishLastBossScene orig, BossSceneController self)
     {
-        GameInfo.in_rogue = false;
+        // GameInfo.in_rogue = false;
         orig(self);
 
     }

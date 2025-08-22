@@ -44,7 +44,7 @@ internal class Trinket1 : CustomCountedGift
     IEnumerator DelayShowDreamConvo()
     {
         yield return new WaitForSeconds(0.5f);
-        Rogue.Instance.ShowDreamConvo("你的经历又填满一页日记".Localize());
+        Rogue.Instance.ShowDreamConvo("custom_counted_trinket1_convo".Localize());
     }
 }
 internal class Trinket2 : CustomGift
@@ -94,7 +94,7 @@ internal class Trinket3 : CustomGift
     protected override void _GetGift()
     {
         HeroController.instance.AddGeo(PlayerData.instance.geo);
-        Rogue.Instance.ShowDreamConvo("让圣巢的苍白之王为你解除负担。".Localize());
+        Rogue.Instance.ShowDreamConvo("custom_counted_trinket3_convo".Localize());
     }
 
     protected override void _RemoveGift()
@@ -153,7 +153,7 @@ internal class Trinket4 : CustomGift
         var gifts = ItemManager.RandomList(GameInfo.act_gifts[GiftVariety.item], 1);
         if (gifts.Count == 0)
         {
-            Rogue.Instance.ShowConvo("什么都没有发生".Localize());
+            Rogue.Instance.ShowConvo("nothing_happened".Localize());
         }
         else
         {
@@ -174,6 +174,6 @@ internal class Trinket4 : CustomGift
     }
     internal override string GetDesc()
     {
-        return Language.Language.Get("INV_DESC_TRINKET4", "UI") + "\n\n" + "当前进度：".Localize() + count + "/" + max;
+        return Language.Language.Get("INV_DESC_TRINKET4", "UI") + "\n\n" + count + "/" + max;
     }
 }

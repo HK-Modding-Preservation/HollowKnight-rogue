@@ -6,8 +6,8 @@ internal class NailArtAfterDash : CustomGift
     {
         weight = 0.5f;
         price = 200;
-        name = "冲刺必定冲刺斩";
-        desc = "冲刺必定冲刺斩";
+        name = "custom_nail_art_after_dash_name";
+        desc = "custom_nail_art_after_dash_desc";
     }
     GameObject GetKnight()
     {

@@ -1,12 +1,13 @@
 
 
 namespace rogue;
+
 internal class DashDoubleRefresh : CustomOneOrTwoGift
 {
     internal DashDoubleRefresh() : base(Giftname.custom_one_two_dash_doublejump_refresh, 4, "keeper_key", "easy_key")
     {
-        name = "虎符咒";
-        desc = "阴阳流转，百世不绝\n当获得1时冲刺刷新二段，获得2时二段刷新冲刺";
+        name = "custom_one_two_dash_doublejump_refresh_name";
+        desc = "custom_one_two_dash_doublejump_refresh_desc";
     }
 
     internal override string GetDesc1()

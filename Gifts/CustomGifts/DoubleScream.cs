@@ -1,6 +1,7 @@
 
 
 namespace rogue;
+
 internal class DoubleScream : CustomGift
 {
     class DestroyOnDisable : MonoBehaviour
@@ -14,8 +15,8 @@ internal class DoubleScream : CustomGift
     {
         weight = 0.5f;
         price = 200;
-        name = "深渊回响";
-        desc = "吼结束时会在原地再释放一次";
+        name = "custom_double_scream_name";
+        desc = "custom_double_scream_desc";
     }
 
 

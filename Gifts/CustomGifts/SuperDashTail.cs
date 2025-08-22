@@ -1,11 +1,12 @@
 
 namespace rogue;
+
 internal class SuperDashTail : CustomGift
 {
     internal SuperDashTail() : base(Giftname.custom_super_dash_tail, 4, "witches_eye")
     {
-        name = "超冲尾气";
-        desc = "超冲尾气持续存在且伤害增加";
+        name = "custom_super_dash_tail_name";
+        desc = "custom_super_dash_tail_desc";
         weight = 0.5f;
         price = 200;
     }

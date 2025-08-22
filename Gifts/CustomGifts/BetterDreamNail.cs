@@ -6,8 +6,8 @@ internal class BetterDreamNail : CustomGift
     {
         weight = 0.5f;
         price = 200;
-        name = "低语之根";
-        desc = "即使在挥舞梦之钉时，你也是自由的";
+        name = "custom_better_dream_nail_name";
+        desc = "custom_better_dream_nail_desc";
     }
 
     protected override void _GetGift()

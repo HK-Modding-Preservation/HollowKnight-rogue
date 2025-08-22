@@ -6,8 +6,8 @@ internal class MoneyIsPower : CustomGift
     {
         weight = 0.5f;
         price = 200;
-        name = "钱力";
-        desc = "金钱就是力量";
+        name = "custom_money_is_power_name";
+        desc = "custom_money_is_power_desc";
     }
 
     protected override void _GetGift()

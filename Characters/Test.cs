@@ -6,7 +6,7 @@ internal class Test : Character
     public Test()
     {
         this.Selfname = CharacterRole.test;
-        AddBirthRight("贪婪");
+        AddBirthRight("test_birthright_0_name".Localize());
     }
     bool get_birthright = false;
     public override void BeginCharacter()

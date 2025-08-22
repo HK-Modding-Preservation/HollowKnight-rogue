@@ -1,5 +1,6 @@
 
 namespace rogue;
+
 internal class Gliding : CustomGift
 {
     GameObject butterfly;
@@ -7,8 +8,8 @@ internal class Gliding : CustomGift
     {
         weight = 0.5f;
         price = 200;
-        name = "滑翔";
-        desc = "小骑士下落的时候可以滑翔";
+        name = "custom_gliding_name";
+        desc = "custom_gliding_desc";
         butterfly = new("health_butterfly");
         butterfly.AddComponent<SpriteRenderer>().sprite = SpriteLoader.GetSprite("health_butterfly");
         butterfly.SetActive(false);

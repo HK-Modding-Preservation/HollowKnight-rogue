@@ -9,7 +9,7 @@ internal class CityCrest : CustomGift
     {
         giftname = Giftname.custom_city_crest;
         price = 200;
-        desc = "城市徽章，似乎可以打开某种通路";
+        desc = "城市纹章，似乎可以打开某种通路";
         force_active = false;
     }
 
@@ -26,5 +26,9 @@ internal class CityCrest : CustomGift
     internal override string GetName()
     {
         return Language.Language.Get("INV_NAME_CITYKEY", "UI");
+    }
+    internal override string GetDesc()
+    {
+        return base.GetDesc();
     }
 }

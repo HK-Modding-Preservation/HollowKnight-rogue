@@ -8,7 +8,7 @@ internal class Mantis : Character
     {
         this.Selfname = CharacterRole.mantis;
         nail_mul = 1.25f;
-        AddBirthRight("纯钉", 0, 2);
+        AddBirthRight("mantis_birthright_0_name".Localize(), 0, 2);
     }
 
     public override void BeginCharacter()

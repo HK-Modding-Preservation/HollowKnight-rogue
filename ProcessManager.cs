@@ -107,7 +107,8 @@ internal class ProcessManager : MonoBehaviour
         if (!nobossscene.Contains(scene_name) && GameInfo.in_rogue)
         {
             StartCoroutine(BossManager.AdjustBossHP(scene_name));
-            if (UnityEngine.Random.Range(0, 101) <= ReplacifyRate || EnemyWaveManager.SceneInBranch(scene_name) && !EnemyWaveManager.DontReplacyScene(scene_name))
+            if ((UnityEngine.Random.Range(0, 101) <= ReplacifyRate || EnemyWaveManager.SceneInBranch(scene_name))
+             && !EnemyWaveManager.DontReplacyScene(scene_name))
             {
                 Rogue.Instance.Log("Replacify Boss in " + scene_name);
                 StartCoroutine(BossManager.Replacify(scene_name));

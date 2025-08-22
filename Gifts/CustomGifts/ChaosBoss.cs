@@ -4,8 +4,8 @@ internal class ChaosBoss : CustomGift
 {
     public ChaosBoss() : base(Giftname.custom_chaos_boss, 4, "witches_eye")
     {
-        name = "小丑把戏";
-        desc = "今天感觉怎么样？";
+        name = "custom_chaos_boss_name";
+        desc = "custom_chaos_boss_desc";
         weight = 0.5f;
     }
 

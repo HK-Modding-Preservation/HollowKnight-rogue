@@ -7,8 +7,8 @@ internal class CircleSuperDash : CustomGift
 {
     internal CircleSuperDash() : base(Giftname.custom_circle_super_dash, 4, "witches_eye")
     {
-        name = "超冲转向";
-        desc = "超冲过程中，按下攻击键，超冲转向";
+        name = "custom_circle_super_dash_name";
+        desc = "custom_circle_super_dash_desc";
         weight = 0.5f;
         price = 200;
     }

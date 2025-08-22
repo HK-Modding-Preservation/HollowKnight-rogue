@@ -8,9 +8,9 @@ internal class Tuk : Character
     public Tuk()
     {
         this.Selfname = CharacterRole.tuk;
-        AddBirthRight("感染");
-        AddBirthRight("收集");
-        AddBirthRight("积累");
+        AddBirthRight("tuk_birthright_0_name".Localize());
+        AddBirthRight("tuk_birthright_1_name".Localize());
+        AddBirthRight("tuk_birthright_2_name".Localize());
     }
     System.Random random = new System.Random();
 
@@ -62,6 +62,7 @@ internal class Tuk : Character
         if (arg1.name == "GG_Spa")
         {
             GameInfo.revive_num++;
+            DisplayManager.DisplayStates();
         }
     }
 

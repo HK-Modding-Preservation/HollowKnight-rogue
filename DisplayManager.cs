@@ -1,3 +1,5 @@
+using System.IO;
+using System.Text;
 using InControl;
 using rogue.Characters;
 using UnityEngine.EventSystems;
@@ -82,6 +84,7 @@ internal class DisplayManager : MonoBehaviour
                 Log("字体尚未找到");
             }
         }
+
     }
     internal static void BeginDisplay()
     {

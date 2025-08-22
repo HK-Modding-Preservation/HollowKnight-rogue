@@ -9,9 +9,9 @@ internal class Joni : Character
         Selfname = CharacterRole.joni;
         nail_mul = 1.75f;
         spell_mul = 1.75f;
-        AddBirthRight("降费", 0, 2);
-        AddBirthRight("0槽蜂血");
-        AddBirthRight("0槽生命血之心");
+        AddBirthRight("joni_birthright_0_name".Localize(), 0, 2);
+        AddBirthRight("joni_birthright_1_name".Localize());
+        AddBirthRight("joni_birthright_2_name".Localize());
     }
 
     public override void BeginCharacter()

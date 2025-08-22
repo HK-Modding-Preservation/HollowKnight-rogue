@@ -8,8 +8,9 @@ internal class Collector : Character
     public Collector()
     {
         this.Selfname = CharacterRole.collector;
-        AddBirthRight("吸虫之巢");
-        AddBirthRight("国王之魂");
+        AddBirthRight("collector_birthright_0_name".Localize());
+        AddBirthRight("collector_birthright_1_name".Localize());
+        AddBirthRight("collector_birthright_2_name".Localize());
     }
     bool stronger_spawn = false;
     bool white_charm = false;

@@ -6,9 +6,9 @@ internal class GreyPrince : Character
     public GreyPrince()
     {
         this.Selfname = CharacterRole.grey_prince;
-        AddBirthRight("0槽贪婪");
-        AddBirthRight("400geo");
-        AddBirthRight("负荷");
+        AddBirthRight("grey_prince_birthright_0_name".Localize());
+        AddBirthRight("grey_prince_birthright_1_name".Localize());
+        AddBirthRight("grey_prince_birthright_2_name".Localize());
     }
     bool charm_to_power = false;
 

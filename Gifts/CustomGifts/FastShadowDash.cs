@@ -1,14 +1,15 @@
 
 
 namespace rogue;
+
 internal class FastShadowDash : CustomGift
 {
     internal FastShadowDash() : base(Giftname.custom_fast_shadow_dash, 4, "abyss_tendril")
     {
         weight = 0.5f;
         price = 200;
-        name = "全程黑冲";
-        desc = "每次黑冲都是黑冲";
+        name = "custom_fast_shadow_dash_name";
+        desc = "custom_fast_shadow_dash_desc";
     }
 
     protected override void _GetGift()

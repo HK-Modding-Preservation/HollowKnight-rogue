@@ -19,9 +19,9 @@ internal class Shaman : Character
         this.Selfname = CharacterRole.shaman;
         nail_mul = 0.8f;
         spell_mul = 1.25f;
-        AddBirthRight("砸");
-        AddBirthRight("吼");
-        AddBirthRight("0槽法扭");
+        AddBirthRight("shaman_birthright_0_name".Localize());
+        AddBirthRight("shaman_birthright_1_name".Localize());
+        AddBirthRight("shaman_birthright_2_name".Localize());
 
     }
 
