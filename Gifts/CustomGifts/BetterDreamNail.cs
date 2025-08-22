@@ -1,4 +1,5 @@
 namespace rogue;
+
 internal class BetterDreamNail : CustomGift
 {
     internal BetterDreamNail() : base(Giftname.custom_better_dream_nail, 4, "dream_tree")
@@ -11,12 +12,20 @@ internal class BetterDreamNail : CustomGift
 
     protected override void _GetGift()
     {
-        HeroController.instance.gameObject.LocateMyFSM("Dream Nail").GetAction<SendMessage>("Take Control", 2).Enabled = false;
+        var fsm = HeroController.instance.gameObject.LocateMyFSM("Dream Nail");
+        fsm.GetAction<SendMessage>("Take Control", 2).Enabled = false;
+        // fsm.RemoveTransition("Set Charge Start", "CANCEL");
+        // fsm.RemoveTransition("Set Charge", "CANCEL");
+        // fsm.RemoveTransition("Set Antic", "CANCEL");
 
     }
 
     protected override void _RemoveGift()
     {
-        HeroController.instance.gameObject.LocateMyFSM("Dream Nail").GetAction<SendMessage>("Take Control", 2).Enabled = true;
+        var fsm = HeroController.instance.gameObject.LocateMyFSM("Dream Nail");
+        fsm.GetAction<SendMessage>("Take Control", 2).Enabled = true;
+        // fsm.AddTransition("Set Charge Start", "CANCEL", "Set Recover");
+        // fsm.AddTransition("Set Charge", "CANCEL", "Set Recover");
+        // fsm.AddTransition("Set Antic", "CANCEL", "Set Recover");
     }
 }

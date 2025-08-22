@@ -52,13 +52,14 @@ internal class Collector : Character
         PlayerData.instance.gotCharm_38 = true;
         PlayerData.instance.equippedCharm_38 = true;
         PlayerData.instance.equippedCharms.Add(38);
-        CharmHelper.SetCantUnequip(38);
-        Rogue.Instance.ShowDreamConvo("collector_dream".Localize());
+
         stronger_spawn = false;
         foreach (var charm in spawn_charms)
         {
             free_charms.Add(charm);
         }
+        CharmHelper.SetCantUnequip(38);
+        Rogue.Instance.ShowDreamConvo("collector_dream".Localize());
         On.KnightHatchling.OnEnable += OnHatchingDamage;
         On.KnightHatchling.DoChaseSimple += OnHatchingChaseSimple;
         On.KnightHatchling.DoChase += OnHatchingChase;

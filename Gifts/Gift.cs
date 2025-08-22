@@ -449,7 +449,7 @@ internal static class GiftFactory
         });
         all_gifts.Add(Giftname.shop_egg, new Gift(1)
         {
-            price = 400,
+            price = 300,
             reward = (giftname) =>
             {
                 GameInfo.revive_num++;
@@ -765,13 +765,19 @@ internal static class GiftFactory
         {
             reward = (giftname) =>
             {
-                GiftHelper.GiveMask();
-                GiftHelper.GiveMask();
                 GiftHelper.AddNailDamage();
+                List<Gift> gifts1 = new();
+                if (!PlayerData.instance.hasCyclone) gifts1.Add(all_gifts[Giftname.get_cyclone]);
+                if (!PlayerData.instance.hasUpwardSlash) gifts1.Add(all_gifts[Giftname.get_dash_slash]);
+                if (!PlayerData.instance.hasDashSlash) gifts1.Add(all_gifts[Giftname.get_upward_slash]);
+                ItemManager.Instance.rewardsStack.Push(
+                    new ItemManager.OneReward() { give_mode = ItemManager.OneReward.GiveMode.fix, select = 1, gifts = gifts1 }
+                    );
+
 
             },
             name = "warrior_name",
-            desc = "面具+2&骨钉+1",
+            desc = "剑技+1&骨钉+1",
             weight = 1f,
         });
         all_gifts.Add(Giftname.huge_mage, new Gift(5)
@@ -796,14 +802,9 @@ internal static class GiftFactory
         {
             reward = (giftname) =>
             {
-                List<Gift> gifts1 = new();
-                if (!PlayerData.instance.hasCyclone) gifts1.Add(all_gifts[Giftname.get_cyclone]);
-                if (!PlayerData.instance.hasUpwardSlash) gifts1.Add(all_gifts[Giftname.get_dash_slash]);
-                if (!PlayerData.instance.hasDashSlash) gifts1.Add(all_gifts[Giftname.get_upward_slash]);
-                ItemManager.Instance.rewardsStack.Push(
-                    new ItemManager.OneReward() { give_mode = ItemManager.OneReward.GiveMode.fix, select = 1, gifts = gifts1 }
-                    );
 
+                GiftHelper.GiveMask();
+                GiftHelper.GiveMask();
                 List<Gift> gifts2 = new();
                 if (all_gifts[Giftname.get_dash].now_weight != 0) gifts2.Add(all_gifts[Giftname.get_dash]);
                 if (all_gifts[Giftname.get_zhua_lei_ding].now_weight != 0) gifts2.Add(all_gifts[Giftname.get_zhua_lei_ding]);
@@ -813,7 +814,7 @@ internal static class GiftFactory
                     );
             },
             name = "ranger_name",
-            desc = "剑技+1&位移+1",
+            desc = "血量+2&位移+1",
             weight = 1f,
         });
     }
@@ -1237,7 +1238,6 @@ internal static class GiftFactory
         {
             reward = (giftname) =>
             {
-                GameInfo.get_birthright = true;
                 Character character = HeroController.instance?.gameObject.GetComponent<Character>();
                 character?.SetGetBirthright();
                 character?.SelectBirthright();

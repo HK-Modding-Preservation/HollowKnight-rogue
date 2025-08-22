@@ -472,9 +472,9 @@ internal class Uradiance : MonoBehaviour
                 float new_angle = angle + i * 120f;
                 GameObject new_little_orb = orb.Spawn(o_fsm.transform.position);
                 new_little_orb.LocateMyFSM("Orb Control").RemoveAction("Recycle", 0);
-                new_little_orb.LocateMyFSM("Orb Control").AddAction("Recycle", new DestroySelf());
+                new_little_orb.LocateMyFSM("Orb Control").AddAction("Recycle", new DestroySelf() { detachChildren = false });
                 new_little_orb.LocateMyFSM("Final Control").RemoveAction("Recycle", 0);
-                new_little_orb.LocateMyFSM("Final Control").AddAction("Recycle", new DestroySelf());
+                new_little_orb.LocateMyFSM("Final Control").AddAction("Recycle", new DestroySelf() { detachChildren = false });
                 new_little_orb.LocateMyFSM("Orb Control").GetAction<SetDamageHeroAmount>("Init", 5).damageDealt = 1;
                 new_little_orb.LocateMyFSM("Orb Control").GetAction<SetScale>("Init", 2).x = 0.7f;
                 new_little_orb.LocateMyFSM("Orb Control").GetAction<SetScale>("Init", 2).y = 0.7f;
@@ -495,10 +495,10 @@ internal class Uradiance : MonoBehaviour
             var orb = fsm.FsmVariables.FindFsmGameObject("Projectile").Value;
             var final_fsm = orb.LocateMyFSM("Final Control");
             final_fsm.RemoveAction("Recycle", 0);
-            final_fsm.AddAction("Recycle", new DestroySelf());
+            final_fsm.AddAction("Recycle", new DestroySelf() { detachChildren = false });
             var orb_fsm = orb.LocateMyFSM("Orb Control");
             orb_fsm.RemoveAction("Recycle", 0);
-            orb_fsm.AddAction("Recycle", new DestroySelf());
+            orb_fsm.AddAction("Recycle", new DestroySelf() { detachChildren = false });
             orb_fsm.InsertCustomAction("Impact", Add3LittleOrb, 0);
             orb_fsm.InsertCustomAction("Stop Particles", Add3LittleOrb, 0);
             Log("Spawn a Fireball end");
@@ -627,9 +627,11 @@ internal class Uradiance : MonoBehaviour
             now_sword.SetActive(true);
             now_sword.LocateMyFSM("Control").SendEvent("FLY");
             now_sword.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -10);
+            now_sword.GetComponent<DamageHero>().damageDealt = 0;
             now_sword.GetAddComponent<StopWhenHitTerrain>();
             yield return new WaitUntil(() => now_sword.GetComponent<Rigidbody2D>().velocity == Vector2.zero);
             float timer = 0;
+            now_sword.GetComponent<DamageHero>().damageDealt = 2;
             while (timer < 10f)
             {
                 now_sword.GetComponent<tk2dSprite>().color = Color.Lerp(Color.white, Color.red, timer / 10f);
@@ -798,7 +800,7 @@ internal class Uradiance : MonoBehaviour
             t_nail.name = "sword";
             t_nail.transform.SetParent(slash_inst.FindGameObjectInChildren("Slash" + i).transform);
             t_nail.transform.localPosition = new Vector3(0, 0, 0);
-            t_nail.LocateMyFSM("Control").InsertAction("Recycle", new DestroySelf(), 0);
+            t_nail.LocateMyFSM("Control").InsertAction("Recycle", new DestroySelf() { detachChildren = false }, 0);
             t_nail.LocateMyFSM("Control").RemoveAction("Recycle", 1);
             t_nail.LocateMyFSM("Control").AddCustomAction("Appear", (fsm) =>
             {

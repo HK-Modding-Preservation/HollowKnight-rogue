@@ -53,7 +53,8 @@ internal static class PreloadManager
             (Shaman.butterfly_scene,Shaman.butterfly_name),
             (NailMaster.hk_scene,NailMaster.hk_name),
             (BossSceneManager.boss_scene_controler_scene,BossSceneManager.boss_scene_controler_name),
-            (BossSceneManager.thk_scene,BossSceneManager.thk_name)
+            (BossSceneManager.thk_scene,BossSceneManager.thk_name),
+            (Moth.dream_sword_scene,Moth.markoth_name)
         };
     }
 

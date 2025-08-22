@@ -19,7 +19,8 @@ internal static class GameInfo
     internal static int revive_num = 0;
     internal static StatsData data = null;
 
-    internal static bool get_birthright = false;
+    internal static int num_can_get_birthright = 0;
+    internal static bool can_get_birthright = true;
     internal static int pretty_key_num = 0;
     internal static int refresh_num = 0;
     internal static int spa_count = 0;
@@ -36,13 +37,17 @@ internal static class GameInfo
     };
     internal static class Branch
     {
+        internal static bool meet_collector = false;
         internal static bool collector = false;
+        internal static bool meet_lost_kin = false;
         internal static bool lost_kin = false;
         internal static bool modboss = false;
         internal static bool radiance = false;
         internal static void Reset()
         {
+            meet_collector = false;
             collector = false;
+            
             lost_kin = false;
             modboss = false;
             radiance = false;
@@ -54,20 +59,23 @@ internal static class GameInfo
         role = CharacterRole.no_role;
         get_any_charm_num = 0;
         revive_num = 0;
-        get_birthright = false;
+        num_can_get_birthright = 0;
         pretty_key_num = 0;
         refresh_num = 0;
         spa_count = 0;
         score = 0;
         data?.EndCount();
         data = new();
+        Branch.Reset();
         foreach (var gifts in act_gifts)
         {
+
             gifts.Value.Clear();
         }
     }
     internal static void Start()
     {
+
         foreach (var gifts in act_gifts)
         {
             foreach (var gift in GiftFactory.all_kind_of_gifts[gifts.Key])
@@ -87,7 +95,6 @@ internal static class GameInfo
     internal static void Over()
     {
         in_rogue = false;
-        get_birthright = false;
         foreach (var item in got_items)
         {
             GiftFactory.all_gifts[item].RemoveGift();

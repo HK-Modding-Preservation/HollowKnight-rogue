@@ -1,4 +1,6 @@
 
+using IL;
+
 namespace rogue;
 
 internal class LoveKey : CustomGift
@@ -17,11 +19,15 @@ internal class LoveKey : CustomGift
     protected override void _GetGift()
     {
         GameInfo.Branch.collector = true;
+        var oriscenes = ReflectionHelper.GetField<BossSequence, BossScene[]>(Rogue.Instance.bossSequence, "bossScenes");
+        oriscenes[28].sceneName = "GG_Collector_V";
     }
 
     protected override void _RemoveGift()
     {
         GameInfo.Branch.collector = false;
+        var oriscenes = ReflectionHelper.GetField<BossSequence, BossScene[]>(Rogue.Instance.bossSequence, "bossScenes");
+        oriscenes[28].sceneName = "GG_Grimm";
     }
     internal override string GetName()
     {

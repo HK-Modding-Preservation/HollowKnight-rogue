@@ -46,6 +46,7 @@ internal class NailMaster : Character
         PlayerData.instance.hasUpwardSlash = true;
         PlayerData.instance.hasNailArt = true;
         PlayerData.instance.hasDash = true;
+        PlayerData.instance.canDash = true;
         PlayerData.instance.gotCharm_26 = true;
         Rogue.Instance.ShowDreamConvo("nail_master_dream".Localize());
 

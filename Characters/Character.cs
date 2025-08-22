@@ -87,8 +87,8 @@ public abstract class Character : MonoBehaviour
         internal Birthright(string name, ref int index, int got = 0, int max_got = 1)
         {
             this.name = name;
-            got = 0;
-            max_got = 1;
+            this.got = got;
+            this.max_got = max_got;
             this.index = index;
             index++;
         }
@@ -126,7 +126,11 @@ public abstract class Character : MonoBehaviour
             RogueUIManager.SelectItem item = new(birthrights[i].name);
             item.not_select_info = "已经选择过";
             item.selectable = birthrights[i].got < birthrights[i].max_got;
-            if (!can_get) item.selectable = false;
+            if (!GameInfo.can_get_birthright)
+            {
+                item.selectable = false;
+                item.not_select_info = "你没资格啊";
+            }
             item.select_action = ExecGetBirthright;
             items.Add(item);
         }
@@ -160,11 +164,10 @@ public abstract class Character : MonoBehaviour
     }
     internal virtual void SetGetBirthright()
     {
-        can_get = true;
     }
     internal virtual void ResetGetBirthright()
     {
-        can_get = false;
+        GameInfo.can_get_birthright = false;
     }
     public virtual void GetBirthright(int num)
     {
@@ -180,10 +183,11 @@ public abstract class Character : MonoBehaviour
     public abstract void EndCharacter();
     public void Start()
     {
+        free_charms.Clear();
         BeginCharacter();
         On.HealthManager.TakeDamage += DamageMul;
         ItemManager.Instance.after_revive_action += AfterRevive;
-        free_charms.Clear();
+
         ModHooks.GetPlayerIntHook += FreeCharm;
         DisplayManager.DisplayStates();
     }

@@ -36,8 +36,42 @@ internal class VoidTyrant : MonoBehaviour
             mage_lord.GetAction<SendEventByName>("HS Dissipate", 1).Enabled = false;
             mage_lord.GetAction<SendEventByName>("Stun Init", 3).Enabled = false;
             mage_lord.ChangeTransition("HS Summon", "FINISHED", "HS Dir");
+            mage_lord.InsertCustomAction("Teleport", (fsm) =>
+            {
+                GameObject spinner = fsm.FsmVariables.FindFsmGameObject("Orb Spinner").Value;
+                StartCoroutine(TeleInit(spinner));
+            }, 13);
+            mage_lord.InsertCustomAction("TeleportQ", (fsm) =>
+           {
+               GameObject spinner = fsm.FsmVariables.FindFsmGameObject("Orb Spinner").Value;
+               StartCoroutine(TeleInit(spinner));
+           }, 12);
         }, 2);
 
+
+    }
+    IEnumerator TeleInit(GameObject spinner)
+    {
+        var fsm = spinner.LocateMyFSM("Summon Orbs");
+        for (int i = 1; i <= 6; i++)
+        {
+            var orb = fsm.FsmVariables.FindFsmGameObject("Orb " + i).Value;
+            if (orb != null)
+            {
+                orb.FindGameObjectInChildren("Hero Hurter").GetComponent<DamageHero>().damageDealt = 0;
+                orb.GetComponent<tk2dSprite>().color = new Color(0.5f, 0.5f, 0.5f);
+            }
+        }
+        yield return new WaitForSeconds(0.6f);
+        for (int i = 1; i <= 6; i++)
+        {
+            var orb = fsm.FsmVariables.FindFsmGameObject("Orb " + i).Value;
+            if (orb != null)
+            {
+                orb.FindGameObjectInChildren("Hero Hurter").GetComponent<DamageHero>().damageDealt = 1;
+                orb.GetComponent<tk2dSprite>().color = Color.white;
+            }
+        }
     }
 
 }

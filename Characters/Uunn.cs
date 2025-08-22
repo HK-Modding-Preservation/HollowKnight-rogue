@@ -18,10 +18,14 @@ internal class Uunn : Character
     public override void BeginCharacter()
     {
         GameInfo.role = CharacterRole.uunn;
-        PlayerData.instance.charmSlots += 2;
+        PlayerData.instance.charmSlots += 4;
         if (PlayerData.instance.charmSlots > 11) PlayerData.instance.charmSlots = 11;
         PlayerData.instance.gotCharm_7 = true;
         PlayerData.instance.gotCharm_28 = true;
+        PlayerData.instance.gotCharm_34 = true;
+        free_charms.Add(7);
+        free_charms.Add(28);
+        free_charms.Add(34);
         ProcessManager.Instance.after_scene_add_geo_num += UunnReward;
     }
 
@@ -58,7 +62,7 @@ internal class Uunn : Character
         if (self.gameObject.name.Contains("Knight Spore Cloud") && self.FsmName == "Control")
         {
             self.RemoveAction("Recycle", 1);
-            self.AddAction("Recycle", new DestroySelf());
+            self.AddAction("Recycle", new DestroySelf() { detachChildren = false });
             self.GetAction<SetScale>("Normal", 1).x = 2f;
             self.GetAction<SetScale>("Normal", 1).y = 2f;
             self.GetAction<SetScale>("Deep", 1).x = 2.7f;
@@ -73,7 +77,7 @@ internal class Uunn : Character
             else
             {
                 self.RemoveAction("Recycle", 1);
-                self.AddAction("Recycle", new DestroySelf());
+                self.AddAction("Recycle", new DestroySelf() { detachChildren = false });
                 self.GetAction<SetScale>("Normal", 1).x = 2f;
                 self.GetAction<SetScale>("Normal", 1).y = 2f;
                 self.GetAction<SetScale>("Deep", 1).x = 2.7f;
@@ -145,5 +149,6 @@ internal class Uunn : Character
     public override void EndCharacter()
     {
         ProcessManager.Instance.after_scene_add_geo_num -= UunnReward;
+        free_charms.Clear();
     }
 }

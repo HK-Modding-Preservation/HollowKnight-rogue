@@ -25,7 +25,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
 
     public override string GetVersion()
     {
-        return "t.e.8.8";
+        return "t.e.8.17";
     }
     public class actions : PlayerActionSet
     {
@@ -62,7 +62,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
 
     public SpriteAtlas all_sprites;
 
-    BossSequence bossSequence;
+    internal BossSequence bossSequence;
 
     BossScene[] ori_boss_scenes = null;
 
@@ -86,6 +86,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
         ItemManager.Init();
         Shaman.Init();
         NailMaster.Init();
+        Moth.Init();
         RogueUIManager.Init();
         NPCManager.Init(preloadedObjects);
         BossSceneManager.Init();

@@ -327,11 +327,27 @@ internal static class EnemyWaveManager
         // File.WriteAllText("c:\\Users\\shownyoung\\Desktop\\EnemyWave.json", res);
         CheckPreloadEnemy();
     }
+    private static readonly List<string> modboss_scenes = new(){
+
+    "GG_Soul_Tyrant",
+    "GG_Ghost_Markoth_V",
+    "GG_Grey_Prince_Zote",
+    "GG_Failed_Champion",
+    "GG_Grimm_Nightmare"
+
+    };
     internal static bool SceneInBranch(string scene_name)
     {
         if (GameInfo.Branch.collector && collector_collections.ContainsKey(scene_name)) return true;
         if (GameInfo.Branch.lost_kin && lost_kin_collections.ContainsKey(scene_name)) return true;
+
         return false;
+    }
+    internal static bool DontReplacyScene(string scene_name)
+    {
+        if (GameInfo.Branch.modboss && modboss_scenes.Contains(scene_name)) return true;
+        return false;
+
     }
     internal static void CheckPreloadEnemy()
     {

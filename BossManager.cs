@@ -98,18 +98,47 @@ internal static class BossManager
             {
                 self.gameObject.AddComponent<ModBosses.VoidTyrantPhase2>();
             }
-            if (self.gameObject.name == "Jar Collector" && self.FsmName == "Control")
+            if (self.gameObject.name == "Ghost Warrior Markoth" && self.FsmName == "Movement")
             {
-                self.gameObject.GetAddComponent<ModBosses.BlackMonkey>();
+                self.gameObject.AddComponent<ModBosses.MarkothInf>();
             }
             if (self.gameObject.name == "False Knight Dream" && self.FsmName == "FalseyControl")
             {
                 self.gameObject.GetAddComponent<ModBosses.BattleChampions>();
             }
         }
+        if (GameInfo.Branch.collector && GameInfo.Branch.meet_collector)
+        {
+            if (self.gameObject.name == "Jar Collector" && self.FsmName == "Control")
+            {
+                self.gameObject.GetAddComponent<ModBosses.BlackMonkey>();
+            }
+        }
+        if (GameInfo.Branch.lost_kin && GameInfo.Branch.meet_lost_kin)
+        {
+
+        }
         orig(self);
     }
+    internal static bool BranchBoss()
+    {
+        if (ProcessManager.scene_name == "GG_Collector_V")
+        {
+            if (GameInfo.Branch.collector)
+            {
+                if (GameInfo.Branch.meet_collector)
+                {
+                    return true;
 
+                }
+                else
+                {
+                    GameInfo.Branch.meet_collector = true;
+                }
+            }
+        }
+        return false;
+    }
     internal static IEnumerator AdjustBossHP(string scenename)
     {
         switch (scenename)
@@ -174,9 +203,16 @@ internal static class BossManager
     {
         if (EnemyWaveManager.GetCollection(scene_name) != null)
         {
-            RogueSceneManager.AddRoof(scene_name);
-            yield return ItemManager.Instance.StartCoroutine(DisableBoss(scene_name));
-            yield return ItemManager.Instance.StartCoroutine(EnemyWaves());
+            if (!BranchBoss())
+            {
+                RogueSceneManager.AddRoof(scene_name);
+                yield return ItemManager.Instance.StartCoroutine(DisableBoss(scene_name));
+                yield return ItemManager.Instance.StartCoroutine(EnemyWaves());
+            }
+            else
+            {
+
+            }
         }
         if (scene_name == "GG_Hollow_Knight")
         {
@@ -405,6 +441,7 @@ internal static class BossManager
                 GameObject.Find("Warrior").LocateMyFSM("FSM").GetAction<ActivateGameObject>("Enable", 2).activate = false;
                 break;
             case "GG_Collector_V":
+                GameObject.Find("Battle Scene").LocateMyFSM("Control").GetAction<ActivateGameObject>("Start", 0).activate = false;
                 break;
             case "GG_God_Tamer":
                 GameObject.Find("Entry Object").SetActive(false);

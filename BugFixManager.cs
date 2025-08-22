@@ -8,7 +8,9 @@ internal static class BugFixManager
     internal static List<string> animator_list = new()
     {
         "Dream Mage Lord",
-        "Dream Mage Lord Phase2"
+        "Dream Mage Lord Phase2",
+        "Mage Lord",
+        "Mage Lord Phase2"
     };
     internal static void Init()
     {

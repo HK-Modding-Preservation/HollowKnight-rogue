@@ -11,6 +11,7 @@ internal class Test : Character
     bool get_birthright = false;
     public override void BeginCharacter()
     {
+        var res = ReflectionHelper.CallMethod<HeroController, bool>(HeroController.instance, "CheckStillTouchingWall", GlobalEnums.CollisionSide.left);
         GameInfo.role = CharacterRole.test;
         Rogue.Instance.ShowDreamConvo("test_dream".Localize());
         ItemManager.Instance.before_spawn_item += OneMoreThing;
