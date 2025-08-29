@@ -4,6 +4,14 @@ namespace rogue;
 
 static class GiftHelper
 {
+    internal static void HookReset()
+    {
+        max_nail_damage = null;
+        min_nail_damage = null;
+        max_fireball_level = null;
+        max_quake_level = null;
+        max_scream_level = null;
+    }
     internal static Hooks.OnCheckBool max_nail_damage = null;
     internal static Hooks.OnCheckBool min_nail_damage = null;
     internal static Hooks.OnCheckBool max_fireball_level = null;
@@ -11,7 +19,7 @@ static class GiftHelper
     internal static Hooks.OnCheckBool max_scream_level = null;
     internal static bool MaxNailDamage()
     {
-        var orig = PlayerData.instance.nailDamage >= 21;
+        var orig = PlayerData.instance.nailDamage >= (int)(5 + GameInfo.max_nail_level * 4);
         if (max_nail_damage == null) return orig;
         return max_nail_damage.Invoke(orig);
     }
@@ -40,12 +48,24 @@ static class GiftHelper
         if (max_scream_level == null) return orig;
         return max_scream_level.Invoke(orig);
     }
+    static void AddToMaxHealthWithoutAddHealth(int amount)
+    {
+        PlayerData.instance.maxHealthBase += amount;
+        if (!PlayerData.instance.equippedCharm_27)
+        {
+            PlayerData.instance.maxHealth += amount;
+        }
+        if (PlayerData.instance.maxHealthBase == PlayerData.instance.maxHealthCap)
+        {
+            PlayerData.instance.heartPieceMax = true;
+        }
+
+    }
     public static void GiveMask()
     {
         if (PlayerData.instance.maxHealthBase < 9)
         {
-            HeroController.instance.MaxHealth();
-            HeroController.instance.AddToMaxHealth(1);
+            AddToMaxHealthWithoutAddHealth(1);
             PlayMakerFSM.BroadcastEvent("MAX HP UP");
         }
         else
@@ -63,12 +83,16 @@ static class GiftHelper
                 PlayerData.instance.health = PlayerData.instance.maxHealthBase;
             }
         }
-        if (!GameCameras.instance.hudCanvas.gameObject.activeInHierarchy)
-            GameCameras.instance.hudCanvas.gameObject.SetActive(true);
-        else
+        GameObject health = GameCameras.instance.hudCanvas.gameObject;
+        for (int i = 1; i <= 11; i++)
         {
-            GameCameras.instance.hudCanvas.gameObject.SetActive(false);
-            GameCameras.instance.hudCanvas.gameObject.SetActive(true);
+            var hi = health.FindGameObjectInChildren("Health " + i);
+            if (hi != null)
+            {
+                hi.SetActive(false);
+                hi.SetActive(true);
+            }
+
         }
     }
 
@@ -113,7 +137,10 @@ static class GiftHelper
             PlayMakerFSM.BroadcastEvent("UPDATE NAIL DAMAGE");
         }
     }
-
+    internal static int GetNailLevel()
+    {
+        return (int)((PlayerData.instance.nailDamage - 5) / 4);
+    }
     public static void AdjustNailLevel(int level)
     {
         if (level < 0 || level > 4) return;
@@ -148,12 +175,15 @@ static class GiftHelper
         if (PlayerData.instance.MPReserveMax > 0)
         {
             PlayerData.instance.MPReserveMax -= 33;
-            if (!GameCameras.instance.hudCanvas.gameObject.activeInHierarchy)
-                GameCameras.instance.hudCanvas.gameObject.SetActive(true);
+            var hudCanvas = GameCameras.instance.hudCanvas.gameObject;
+            var soul = hudCanvas.FindGameObjectInChildren("Soul Orb");
+            if (!soul.activeInHierarchy)
+                soul.SetActive(true);
             else
             {
-                GameCameras.instance.hudCanvas.gameObject.SetActive(false);
-                GameCameras.instance.hudCanvas.gameObject.SetActive(true);
+                soul.SetActive(false);
+                soul.SetActive(true);
+
             }
         }
         else
@@ -218,7 +248,7 @@ static class GiftHelper
         PlayerData.instance.fragileStrength_unbreakable = true;
         PlayerData.instance.fragileHealth_unbreakable = true;
         PlayerData.instance.grimmChildLevel = 5;
-        PlayerData.instance.charmCost_40 = 2;
+        PlayerData.instance.charmCost_40 = 3;
         PlayerData.instance.charmSlots = 3;
         PlayerData.instance.equippedCharms.Clear();
         PlayerData.instance.equippedCharms.Add(36);

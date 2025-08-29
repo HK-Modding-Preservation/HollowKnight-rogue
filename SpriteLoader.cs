@@ -26,7 +26,7 @@ internal static class SpriteLoader
 
             (file).TestLog();
             if (!file.EndsWith(".png")) continue;
-            resource_sprites.Add(Path.GetFileNameWithoutExtension(file).Split('.').Last().ToLower(), LoadSprite(file));
+            resource_sprites.Add(Path.GetFileNameWithoutExtension(file).Split('.').Last().ToLowerInvariant(), LoadSprite(file));
             (file + "is completed").TestLog();
         }
         resource_sprites.Add("hunter_mask", (Sprite)Resources.InstanceIDToObject(8948));

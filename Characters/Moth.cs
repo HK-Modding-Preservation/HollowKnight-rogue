@@ -77,6 +77,7 @@ internal class Moth : Character
                 var sword = Instantiate(dream_sword);
 
                 sword.transform.position = HeroController.instance.transform.position + new Vector3(2 * Mathf.Cos(t_angle * Mathf.PI / 180), 2 * Mathf.Sin(t_angle * Mathf.PI / 180));
+                sword.transform.localScale = new Vector3(1.5f, 1.5f, 1);
                 sword.transform.SetRotation2D(t_angle);
                 sword.SetActive(true);
                 sword.GetComponent<DamageEnemies>().damageDealt = 4 * PlayerData.instance.nailDamage;

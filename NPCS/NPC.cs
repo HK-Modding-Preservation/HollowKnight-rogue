@@ -84,16 +84,16 @@ internal abstract class NPC
     internal GameObject go = null;
     internal PlayMakerFSM npc_ctl = null;
     internal PlayMakerFSM convo_ctl = null;
-    const string main = "main";
-    const string sub = "sub";
-    const string super = "super";
+    protected const string main = "main";
+    protected const string sub = "sub";
+    protected const string super = "super";
     internal string GetSpecialName(string name)
     {
         return "rogueNPC_" + GetType().Name + "_" + name;
     }
     internal virtual string GetName(string pos)
     {
-        pos = pos.ToLower();
+        pos = pos.ToLowerInvariant();
         if (pos == main) return name.Localize();
         else if (pos == sub) return name_sub.Localize();
         else if (pos == super) return name_super.Localize();

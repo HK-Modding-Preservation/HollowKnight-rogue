@@ -2,9 +2,8 @@
 namespace rogue;
 internal class MoneyIsPower : CustomGift
 {
-    public MoneyIsPower() : base(Giftname.custom_money_is_power, 4, "witches_eye")
+    public MoneyIsPower() : base(Giftname.custom_money_is_power, 3, "witches_eye")
     {
-        weight = 0.5f;
         price = 200;
         name = "custom_money_is_power_name";
         desc = "custom_money_is_power_desc";

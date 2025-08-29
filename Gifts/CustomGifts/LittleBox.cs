@@ -1,9 +1,8 @@
 namespace rogue;
 internal class LittleBox : CustomGift
 {
-    public LittleBox() : base(Giftname.custom_little_box, 4, "health_butterfly")
+    public LittleBox() : base(Giftname.custom_little_box, 3, "witches_eye")
     {
-        weight = 0.5f;
         price = 200;
         name = "custom_little_box_name";
         desc = "custom_little_box_desc";

@@ -14,22 +14,23 @@ internal class Jiji : NPC
         name_super = "";
         idle_animation_name = "Idle";
         talk_animation_name = "Idle";
-        AddConversation("初遇", "你好啊，我不知道怎么就来到了这里<page>这里没有遗憾，但我也捡到了一些稀罕的东西");
+        AddConversation("初遇", "npc_jiji_conv_1".Localize());
         OnConvoEnd("初遇", () => { ShowDialogue("交易"); });
-        AddConversation("交易", "给我一点食物，我把捡到的东西给你，怎么样？");
+        AddConversation("交易", "npc_jiji_conv_2".Localize());
         OnConvoEnd("交易", TryEggSwap);
-        AddConversation("接受", "好了，如果需要调整，我应该也能帮上忙");
-        AddConversation("拒绝", "好吧，那就只好饿一会肚子了");
-        AddConversation("调整", "需要我调整？那我来试试");
-        OnConvoEnd("调整", AdjustGift);
+        AddConversation("拒绝", "npc_jiji_conv_3".Localize());
+    }
+    internal override string GetName(string pos)
+    {
+        if (pos == main) return Language.Language.Get("JIJI_MAIN", "Titles");
+        return "";
     }
     void TryEggSwap()
     {
         List<RogueUIManager.SelectItem> selectItems = new();
-        RogueUIManager.SelectItem yes = new("是");
+        RogueUIManager.SelectItem yes = new(Lang.YES);
         yes.select_action = (select) =>
         {
-            ShowDialogue("接受");
             GameInfo.revive_num -= 2;
             if (!get_birthright)
             {
@@ -48,27 +49,27 @@ internal class Jiji : NPC
 
 
         };
-        yes.not_select_info = "腐臭蛋数量不足";
+        yes.not_select_info = "egg_cant_select_info".Localize();
         yes.selectable = GameInfo.revive_num >= 2;
         selectItems.Add(yes);
-        RogueUIManager.SelectItem no = new("否");
+        RogueUIManager.SelectItem no = new(Lang.NO);
         no.select_action = (select) => { ShowDialogue("拒绝"); };
         selectItems.Add(no);
-        RogueUIManager.StartSelection(0.3f, "用两个腐臭蛋换稀罕东西？", selectItems, 2);
+        RogueUIManager.StartSelection(0.3f, "npc_jiji_select_conv".Localize(), selectItems, 2);
     }
-    void AdjustGift()
-    {
-        List<RogueUIManager.SelectItem> selectItems = new();
-        RogueUIManager.SelectItem item1 = new("冲刺刷新二段");
-        item1.select_action = (select) => { ((DashDoubleRefresh)GiftFactory.all_gifts[Giftname.custom_one_two_dash_doublejump_refresh]).Got_Which_Item = CustomOneOrTwoGift.GotWhichItem.First; };
-        selectItems.Add(item1);
-        RogueUIManager.SelectItem item2 = new("二段刷新冲刺");
-        item2.select_action = (select) => { ((DashDoubleRefresh)GiftFactory.all_gifts[Giftname.custom_one_two_dash_doublejump_refresh]).Got_Which_Item = CustomOneOrTwoGift.GotWhichItem.Second; };
-        selectItems.Add(item2);
-        RogueUIManager.SelectItem item3 = new("取消");
-        selectItems.Add(item3);
-        RogueUIManager.StartSelection(0.3f, "调整功能", selectItems, 3);
-    }
+    // void AdjustGift()
+    // {
+    //     List<RogueUIManager.SelectItem> selectItems = new();
+    //     RogueUIManager.SelectItem item1 = new("冲刺刷新二段");
+    //     item1.select_action = (select) => { ((DashDoubleRefresh)GiftFactory.all_gifts[Giftname.custom_one_two_dash_doublejump_refresh]).Got_Which_Item = CustomOneOrTwoGift.GotWhichItem.First; };
+    //     selectItems.Add(item1);
+    //     RogueUIManager.SelectItem item2 = new("二段刷新冲刺");
+    //     item2.select_action = (select) => { ((DashDoubleRefresh)GiftFactory.all_gifts[Giftname.custom_one_two_dash_doublejump_refresh]).Got_Which_Item = CustomOneOrTwoGift.GotWhichItem.Second; };
+    //     selectItems.Add(item2);
+    //     RogueUIManager.SelectItem item3 = new("取消");
+    //     selectItems.Add(item3);
+    //     RogueUIManager.StartSelection(0.3f, "调整功能", selectItems, 3);
+    // }
     internal override void SetPosition(Vector3 pos)
     {
         base.SetPosition(pos);

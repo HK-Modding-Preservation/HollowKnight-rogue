@@ -3,11 +3,10 @@ namespace rogue;
 
 internal class SuperDashTail : CustomGift
 {
-    internal SuperDashTail() : base(Giftname.custom_super_dash_tail, 4, "witches_eye")
+    internal SuperDashTail() : base(Giftname.custom_super_dash_tail, 1, "witches_eye")
     {
         name = "custom_super_dash_tail_name";
         desc = "custom_super_dash_tail_desc";
-        weight = 0.5f;
         price = 200;
     }
     GameObject burst = null;

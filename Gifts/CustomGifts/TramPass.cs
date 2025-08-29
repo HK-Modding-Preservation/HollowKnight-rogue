@@ -10,18 +10,24 @@ internal class TramPass : CustomGift
     {
         giftname = Giftname.custom_tram_pass;
         price = 200;
-        desc = "电车通行证，似乎可以打开某种通路";
+        desc = "tram_pass_desc";
         force_active = false;
     }
 
     protected override void _GetGift()
     {
         GameInfo.Branch.lost_kin = true;
+        var oriscenes = ReflectionHelper.GetField<BossSequence, BossScene[]>(Rogue.Instance.bossSequence, "bossScenes");
+        var replacy_scene = oriscenes.FirstOrDefault((bs) => { return bs.name == "White Defender Boss Scene"; });
+        replacy_scene.sceneName = "GG_Lost_Kin";
     }
 
     protected override void _RemoveGift()
     {
         GameInfo.Branch.lost_kin = false;
+        var oriscenes = ReflectionHelper.GetField<BossSequence, BossScene[]>(Rogue.Instance.bossSequence, "bossScenes");
+        var replacy_scene = oriscenes.FirstOrDefault((bs) => { return bs.name == "White Defender Boss Scene"; });
+        replacy_scene.sceneName = "GG_White_Defender";
     }
     internal override string GetName()
     {

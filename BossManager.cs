@@ -78,18 +78,53 @@ internal static class BossManager
 
 
         On.PlayMakerFSM.OnEnable += ModifyBoss;
+        ModHooks.LanguageGetHook += ModifyBossName;
     }
 
-
+    private static string ModifyBossName(string key, string sheetTitle, string orig)
+    {
+        if (GameInfo.Branch.radiance || (Rogue.Instance._set.modboss_in_workshop && !BossSequenceController.IsInSequence))
+        {
+            if (key == "ABSOLUTE_RADIANCE_MAIN") return "uradiance".Localize();
+        }
+        if (GameInfo.Branch.modboss || (Rogue.Instance._set.modboss_in_workshop && !BossSequenceController.IsInSequence))
+        {
+            if (key == "NAME_SOUL_TYRANT" || key == "MAGE_LORD_DREAM_MAIN") return "void_tyrant".Localize();
+            if (key == "NAME_GHOST_MARKOTH" || key == "GH_MARKOTH_C_MAIN" || key == "GH_MARKOTH_NC_MAIN") return "markoth_infinity".Localize();
+            if (key == "GREY_PRINCE_SUPER") return "grey_king".Localize();
+            if (key == "NAME_GREY_PRINCE") return "grey_king_zote".Localize();
+            if (key == "FALSE_KNIGHT_MAIN" || key == "NAME_FALSEKNIGHT") return "champions_of_battle".Localize();
+            if (key == "NAME_FAILED_CHAMPION" || key == "FALSE_KNIGHT_DREAM_MAIN") return "champions_of_battle".Localize();
+        }
+        if ((GameInfo.Branch.collector && GameInfo.Branch.meet_collector) || (Rogue.Instance._set.modboss_in_workshop && !BossSequenceController.IsInSequence))
+        {
+            if (key == "NAME_JAR_COLLECTOR" || key == "COLLECTOR_MAIN") return "monkey_mount".Localize();
+            if (key == "COLLECTOR_SUB") return "a_celestial_abode".Localize();
+            if (key == "COLLECTOR_SUPER") return "a_blessed_land".Localize();
+        }
+        if ((GameInfo.Branch.lost_kin && GameInfo.Branch.meet_lost_kin) || (Rogue.Instance._set.modboss_in_workshop && !BossSequenceController.IsInSequence))
+        {
+            if (key == "INFECTED_KNIGHT_DREAM_MAIN" || key == "NAME_LOST_KIN") return "chronos_desiderium".Localize();
+        }
+        return orig;
+    }
 
     private static void ModifyBoss(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
     {
-        if (self.gameObject.name == "Absolute Radiance" && self.FsmName == "Control" && GameInfo.Branch.radiance)
+        if (GameInfo.Branch.radiance || (Rogue.Instance._set.modboss_in_workshop && !BossSequenceController.IsInSequence))
         {
-            self.gameObject.AddComponent<ModBosses.Uradiance>();
+
+
+            if (self.gameObject.name == "Absolute Radiance" && self.FsmName == "Control")
+            {
+                self.gameObject.AddComponent<ModBosses.Uradiance>();
+            }
         }
-        if (GameInfo.Branch.modboss)
+
+
+        if (GameInfo.Branch.modboss || (Rogue.Instance._set.modboss_in_workshop && !BossSequenceController.IsInSequence))
         {
+
             if (self.gameObject.name == "Dream Mage Lord" && self.FsmName == "Mage Lord")
             {
                 self.gameObject.AddComponent<ModBosses.VoidTyrant>();
@@ -106,18 +141,30 @@ internal static class BossManager
             {
                 self.gameObject.GetAddComponent<ModBosses.BattleChampions>();
             }
+            if (self.gameObject.name == "Grey Prince" && self.FsmName == "Control")
+            {
+                self.gameObject.GetAddComponent<ModBosses.GreyKingZote>();
+            }
         }
-        if (GameInfo.Branch.collector && GameInfo.Branch.meet_collector)
+
+        if ((GameInfo.Branch.collector && GameInfo.Branch.meet_collector) || (Rogue.Instance._set.modboss_in_workshop && !BossSequenceController.IsInSequence))
         {
+
             if (self.gameObject.name == "Jar Collector" && self.FsmName == "Control")
             {
                 self.gameObject.GetAddComponent<ModBosses.BlackMonkey>();
             }
         }
-        if (GameInfo.Branch.lost_kin && GameInfo.Branch.meet_lost_kin)
-        {
 
+
+        if ((GameInfo.Branch.lost_kin && GameInfo.Branch.meet_lost_kin) || (Rogue.Instance._set.modboss_in_workshop && !BossSequenceController.IsInSequence))
+        {
+            if (self.gameObject.name == "Lost Kin" && self.FsmName == "IK Control")
+            {
+                self.gameObject.GetAddComponent<ModBosses.ChronosDesideria>();
+            }
         }
+
         orig(self);
     }
     internal static bool BranchBoss()
@@ -134,6 +181,20 @@ internal static class BossManager
                 else
                 {
                     GameInfo.Branch.meet_collector = true;
+                }
+            }
+        }
+        if (ProcessManager.scene_name == "GG_Lost_Kin")
+        {
+            if (GameInfo.Branch.lost_kin)
+            {
+                if (GameInfo.Branch.meet_lost_kin)
+                {
+                    return true;
+                }
+                else
+                {
+                    GameInfo.Branch.meet_lost_kin = true;
                 }
             }
         }
@@ -365,6 +426,7 @@ internal static class BossManager
                 boss.gameObject.SetActive(false);
             }
         }
+        GameCameras.instance.StopCameraShake();
         switch (scene_name)
         {
             case "GG_Vengefly_V":
@@ -826,9 +888,10 @@ internal static class BossManager
         var bsc = BossSceneController.Instance;
         // if (bsc.BossLevel >= 1)
         // {
-        thk.GetComponent<HealthManager>().hp = 1800;
-        phaseCtrl.Fsm.GetFsmInt("Phase2 HP").Value = 1300;
-        phaseCtrl.Fsm.GetFsmInt("Phase3 HP").Value = 950;
+        thk.GetComponent<HealthManager>().hp = 2000;
+        phaseCtrl.GetAction<SetHP>("Set Phase 4", 5).hp = 650;
+        phaseCtrl.Fsm.GetFsmInt("Phase2 HP").Value = 1650;
+        phaseCtrl.Fsm.GetFsmInt("Phase3 HP").Value = 1000;
         // }
 
         control.GetState("Long Roar End").RemoveAction(2); //.RemoveAction<PlayerDataBoolTest>(2);

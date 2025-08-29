@@ -25,6 +25,7 @@ internal static class GameInfo
     internal static int refresh_num = 0;
     internal static int spa_count = 0;
     internal static float score = 0;
+    internal static int max_nail_level = 4;
     internal static List<Giftname> got_items = new();
     internal static Dictionary<GiftVariety, List<Gift>> act_gifts = new()
     {
@@ -47,7 +48,7 @@ internal static class GameInfo
         {
             meet_collector = false;
             collector = false;
-            
+            meet_lost_kin = false;
             lost_kin = false;
             modboss = false;
             radiance = false;
@@ -64,6 +65,7 @@ internal static class GameInfo
         refresh_num = 0;
         spa_count = 0;
         score = 0;
+        max_nail_level = 4;
         data?.EndCount();
         data = new();
         Branch.Reset();

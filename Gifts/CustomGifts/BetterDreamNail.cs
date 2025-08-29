@@ -2,9 +2,8 @@ namespace rogue;
 
 internal class BetterDreamNail : CustomGift
 {
-    internal BetterDreamNail() : base(Giftname.custom_better_dream_nail, 4, "dream_tree")
+    internal BetterDreamNail() : base(Giftname.custom_better_dream_nail, 3, "dream_tree")
     {
-        weight = 0.5f;
         price = 200;
         name = "custom_better_dream_nail_name";
         desc = "custom_better_dream_nail_desc";

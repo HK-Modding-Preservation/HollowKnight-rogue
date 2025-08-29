@@ -4,11 +4,10 @@ namespace rogue;
 
 internal class AnotherJump : CustomGift
 {
-    public AnotherJump() : base(Giftname.custom_another_jump, 4, "attack_projectile")
+    public AnotherJump() : base(Giftname.custom_another_jump, 2, "witches_eye")
     {
         name = "custom_another_jump_name";
         desc = "custom_another_jump_desc";
-        weight = 0.5f;
         price = 200;
     }
     bool can_another_jump = true;

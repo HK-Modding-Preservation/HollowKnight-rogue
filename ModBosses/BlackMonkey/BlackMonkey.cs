@@ -24,7 +24,7 @@ internal class BlackMonkey : MonoBehaviour
             return;
 
         }
-        GetComponent<HealthManager>().hp = 600;
+        GetComponent<HealthManager>().hp = 500;
         GetComponent<HealthManager>().OnDeath += () =>
         {
             bossleft--;
@@ -32,6 +32,10 @@ internal class BlackMonkey : MonoBehaviour
             {
                 original.transform.parent.gameObject.LocateMyFSM("Control").SendEvent("BATTLE END");
                 BossSceneController.Instance.EndBossScene();
+            }
+            else
+            {
+                base.gameObject.SetActive(false);
             }
         };
         var fsm = base.gameObject.LocateMyFSM("Control");
@@ -48,6 +52,10 @@ internal class BlackMonkey : MonoBehaviour
 
             }
         }, 14);
+        var death = base.gameObject.LocateMyFSM("Death");
+        death.GetAction<PlayParticleEmitter>("Death Antic", 3).Enabled = false;
+        death.GetAction<PlayParticleEmitter>("Blow", 2).Enabled = false;
+
     }
     IEnumerator SpawnChild()
     {

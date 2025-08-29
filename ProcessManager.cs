@@ -90,6 +90,7 @@ internal class ProcessManager : MonoBehaviour
     {
         ModifyScene();
         DisplayUI();
+        FlowerManager.CheckFlower(scene_name);
         GameInfo.can_get_birthright = true;
     }
 
@@ -97,6 +98,11 @@ internal class ProcessManager : MonoBehaviour
     {
         DisplayManager.DisplayStates();
         DisplayManager.DisplayEquipped();
+        if (scene_name == "GG_End_Sequence")
+        {
+            GameInfo.data.CalSoreEnd();
+            DisplayManager.ShowScore();
+        }
     }
 
     private void ModifyScene()

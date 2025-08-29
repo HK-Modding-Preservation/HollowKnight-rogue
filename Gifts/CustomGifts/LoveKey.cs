@@ -12,7 +12,7 @@ internal class LoveKey : CustomGift
     {
         giftname = Giftname.custom_love_key;
         price = 200;
-        desc = "钥匙，似乎可以打开某种通路";
+        desc = "love_key_desc";
         force_active = false;
     }
 

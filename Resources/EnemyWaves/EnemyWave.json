@@ -7,14 +7,14 @@
                     "enemyWave": {
                         "enemies": [
                             {
-                               "name": "Buzzer",
-                                "hp": 8,
-                               "num": 4
+                                "name": "Spitter",
+                                "hp": 15,
+                                "num": 1
                             },
                             {
-                                "name": "Hatcher",
-                                "hp": 50,
-                               "num": 1
+                               "name": "Buzzer",
+                               "hp": 16,
+                               "num": 3
                             }
                         ]
                     }
@@ -26,11 +26,11 @@
                             {
                                 "name": "Spitter",
                                 "hp": 15,
-                                "num": 3
+                                "num": 2
                             },
                             {
                                 "name": "Buzzer",
-                                "hp": 8,
+                                "hp": 16,
                                 "num": 2
                             }
                         ]
@@ -43,17 +43,12 @@
                     "enemyWave": {
                         "enemies": [
                             {
-                                "name": "Angry Buzzer",
-                                "hp": 60,
-                                "num": 1
-                            },
-                            {
-                                "name": "Buzzer",
-                                "hp": 8,
+                                "name": "Spitter",
+                                "hp": 15,
                                 "num": 2
                             },
                             {
-                                "name": "Hatcher",
+                                "name": "Ruins Flying Sentry",
                                 "hp": 50,
                                "num": 1
                             }
@@ -67,12 +62,12 @@
                             {
                                 "name": "Spitter",
                                 "hp": 15,
-                                "num": 2
+                               "num": 2
                             },
                             {
                                 "name": "Angry Buzzer",
                                 "hp": 40,
-                                "num": 2
+                                "num": 1
                             }
                         ]
                     }
@@ -256,8 +251,8 @@
                     "enemyWave": {
                         "enemies": [
                             {
-                                "name": "Moss Walker",
-                                "hp": 50,
+                                "name": "Moss Knight",
+                                "hp": 70,
                                 "num": 1
                             },
                             {
@@ -274,8 +269,8 @@
                         "enemies": [
                             {
                                 "name": "Moss Knight",
-                                "hp": 100,
-                                "num": 1
+                                "hp": 70,
+                                "num": 2
                             }
                         ]
                     }
@@ -292,12 +287,7 @@
                         "enemies": [
                             {
                                 "name": "Ruins Flying Sentry Javelin",
-                                "hp": 75,
-                                "num": 1
-                            },
-                            {
-                                "name": "Ruins Flying Sentry",
-                                "hp": 75,
+                                "hp": 80,
                                 "num": 1
                             }
                         ]
@@ -461,9 +451,14 @@
                     "enemyWave": {
                         "enemies": [
                             {
-                                "name": "Mage",
+                                "name": "Mushroom Roller",
                                 "hp": 100,
-                                "num": 2
+                                "num": 1
+                            },
+                            {
+                                "name": "Ruins Sentry Fat",
+                                "hp": 150,
+                                "num": 1
                             }
                         ]
                     }
@@ -473,7 +468,7 @@
                     "enemyWave": {
                         "enemies": [
                             {
-                                "name": "Mage",
+                                "name": "Mushroom Roller",
                                 "hp": 150,
                                 "num": 1
                             },
@@ -497,8 +492,8 @@
                         "enemies": [
                             {
                                 "name": "Lesser Mawlek",
-                                "hp": 120,
-                                "num": 2
+                                "hp": 200,
+                                "num": 1
                             }
                         ]
                     }
@@ -508,13 +503,8 @@
                     "enemyWave": {
                         "enemies": [
                             {
-                                "name": "Lesser Mawlek",
-                                "hp": 120,
-                                "num": 1
-                            },
-                            {
                                 "name": "Colosseum_Flying_Sentry",
-                                "hp": 65,
+                                "hp": 100,
                                 "num": 2
                             }
                         ]
@@ -532,8 +522,8 @@
                                 "num": 1
                             },
                             {
-                                "name": "Colosseum_Worm",
-                                "hp": 180,
+                                "name": "Flip Hopper",
+                                "hp": 120,
                                 "num": 1
                             }
                         ]
@@ -545,8 +535,8 @@
                         "enemies": [
                             {
                                 "name": "Lesser Mawlek",
-                                "hp": 120,
-                                "num": 3
+                                "hp": 160,
+                                "num": 2
                             }
                         ]
                     }
@@ -589,11 +579,11 @@
                         "enemies": [
                             {
                                 "name": "Ruins Flying Sentry Javelin",
-                                "hp": 100,
+                                "hp": 50,
                                 "num": 1
                             },
                             {
-                                "name": "Colosseum_Armoured_Mosquito",
+                                "name": "Colosseum_Flying_Sentry",
                                 "hp": 80,
                                 "num": 2
                             }
@@ -606,7 +596,7 @@
                         "enemies": [
                             {
                                 "name": "Ruins Flying Sentry Javelin",
-                                "hp": 100,
+                                "hp": 50,
                                 "num": 1
                             },
                             {
@@ -669,11 +659,6 @@
                                 "num": 1
                             },
                             {
-                                "name": "Mines Crawler",
-                                "hp": 30,
-                                "num": 2
-                            },
-                            {
                                 "name": "Crystal Flyer",
                                 "hp": 80,
                                 "num": 1
@@ -687,8 +672,8 @@
                         "enemies": [
                             {
                                 "name": "Zombie Miner",
-                                "hp": 100,
-                                "num": 3
+                                "hp": 120,
+                                "num": 2
                             }
                         ]
                     }
@@ -701,11 +686,6 @@
                                 "name": "Crystal Flyer",
                                 "hp": 80,
                                 "num": 3
-                            },
-                            {
-                                "name": "Mines Crawler",
-                                "hp": 30,
-                                "num": 1
                             }
                         ]
                     }
@@ -913,7 +893,7 @@
             ]
         }
     },
-    "GG_Flukemarm": {
+    "GG_Ghost_Marmu_V": {
         "whole_wave": {
             "1": [
                 {
@@ -921,10 +901,37 @@
                     "enemyWave": {
                         "enemies": [
                             {
-                                "name": "Fluke Fly",
-                                "hp": 300,
+                                "name": "Moss Walker",
+                                "hp": 50,
                                 "num": 1
-                            },
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Ceiling Dropper",
+                                "hp": 1,
+                                "num": 8
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    "GG_Flukemarm": {
+        "whole_wave": {
+            "1": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
                             {
                                 "name": "Inflater",
                                 "hp": 60,
@@ -938,8 +945,27 @@
                     "enemyWave": {
                         "enemies": [
                             {
-                                "name": "Fluke Fly",
-                                "hp": 200,
+                                "name": "Fungus Flyer",
+                                "hp": 60,
+                                "num": 2
+                            }
+                        ]
+                    }
+                }
+            ],
+            "2": [
+                {
+                    "weight": 1.0,
+                    "enemyWave": {
+                        "enemies": [
+                            {
+                                "name": "Fungus Flyer",
+                                "hp": 60,
+                                "num": 2
+                            },
+                            {
+                                "name": "Inflater",
+                                "hp": 60,
                                 "num": 2
                             }
                         ]
@@ -973,7 +999,7 @@
                                 "num": 1
                             },
                             {
-                                "name": "Parasite Balloon",
+                                "name": "Spitter",
                                 "hp": 100,
                                 "num": 2
                             }
@@ -1009,7 +1035,7 @@
                                 "num": 1
                             },
                             {
-                                "name": "Parasite Balloon",
+                                "name": "Spitter",
                                 "hp": 100,
                                 "num": 2
                             }
@@ -1161,6 +1187,11 @@
                             {
                                 "name": "Mushroom Brawler",
                                 "hp": 450,
+                                "num": 1
+                            },
+                            {
+                                "name": "Mossman_Shaker",
+                                "hp": 200,
                                 "num": 2
                             }
                         ]
@@ -1364,7 +1395,7 @@
                         "enemies": [
                             {
                                 "name": "Great Shield Zombie",
-                                "hp": 500,
+                                "hp": 400,
                                 "num": 1
                             }
                         ]
@@ -1382,8 +1413,8 @@
                                 "num": 1
                             },
                             {
-                                "name": "Ruins Flying Sentry Javelin",
-                                "hp": 150,
+                                "name": "Ruins Sentry",
+                                "hp": 200,
                                 "num": 2
                             }
                         ]
@@ -1704,7 +1735,7 @@
                         "enemies": [
                             {
                                 "name": "Mage",
-                                "hp": 350,
+                                "hp": 250,
                                 "num": 3
                             }
                         ]
@@ -1716,12 +1747,12 @@
                         "enemies": [
                             {
                                 "name": "Electric Mage New",
-                                "hp": 500,
+                                "hp": 350,
                                 "num": 1
                             },
                             {
                                 "name": "Mage",
-                                "hp": 350,
+                                "hp": 250,
                                 "num": 2
                             }
                         ]
@@ -1776,7 +1807,7 @@
                             },
                             {
                                 "name": "Mage",
-                                "hp": 350,
+                                "hp": 250,
                                 "num": 2
                             }
                         ]
@@ -1793,7 +1824,7 @@
                             },
                             {
                                 "name": "Electric Mage New",
-                                "hp": 500,
+                                "hp": 350,
                                 "num": 1
                             },
                             {

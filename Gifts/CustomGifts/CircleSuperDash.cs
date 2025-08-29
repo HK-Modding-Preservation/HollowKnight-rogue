@@ -5,11 +5,10 @@ using GlobalEnums;
 namespace rogue;
 internal class CircleSuperDash : CustomGift
 {
-    internal CircleSuperDash() : base(Giftname.custom_circle_super_dash, 4, "witches_eye")
+    internal CircleSuperDash() : base(Giftname.custom_circle_super_dash, 1, "witches_eye")
     {
         name = "custom_circle_super_dash_name";
         desc = "custom_circle_super_dash_desc";
-        weight = 0.5f;
         price = 200;
     }
     FsmFloat current_speed_x;

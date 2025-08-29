@@ -147,6 +147,7 @@ public enum Giftname
     custom_tram_pass,
     custom_city_crest,
     custom_mender_key,
+    custom_one_two_another_collider
 
 }
 public class Gift
@@ -334,7 +335,7 @@ internal static class GiftFactory
             price = 400,
             reward = (giftname) =>
             {
-                ItemManager.Instance.rewardsStack.Push(new ItemManager.OneReward() { give_mode = ItemManager.OneReward.GiveMode.random, gift_variety = GiftVariety.item, give = 1, select = 1 });
+                ItemManager.Instance.rewardsStack.Push(new ItemManager.OneReward() { give_mode = ItemManager.OneReward.GiveMode.random, gift_variety = GiftFactory.CustomVariety(), give = 1, select = 1 });
                 ItemManager.Instance.Next(force: false);
             },
             name = "shop_random_gift_name",
@@ -846,6 +847,7 @@ internal static class GiftFactory
         all_gifts.Add(Giftname.custom_tram_pass, new TramPass());
         all_gifts.Add(Giftname.custom_city_crest, new CityCrest());
         all_gifts.Add(Giftname.custom_mender_key, new MenderKey());
+        all_gifts.Add(Giftname.custom_one_two_another_collider, new AnotherCollider());
         // all_gifts.Add(Giftname.custom_darkness, new Darkness());摸黑好难
     }
     private static void ItemInit()

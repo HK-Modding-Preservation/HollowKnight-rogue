@@ -38,8 +38,8 @@ internal class Uradiance : MonoBehaviour
     int a1Rage_HP = 2950;
     int stun_HP = 2500;
     int p5Acend_HP = 1500;
-    int Scream_HP = 1000;
-    int death_HP = 550;
+    int Scream_HP = 1170;
+    int death_HP = 720;
 
 
     float gap = 0.7f;
@@ -128,7 +128,7 @@ internal class Uradiance : MonoBehaviour
 
 
         ModifyAcend();
-        ModifyFinal();
+        ModifyFinal2();
         // ModifyScene();
 
         _con.InsertCustomAction("Tendrils1", () => { ModifyPlatsPhase(); }, 0);
@@ -1491,7 +1491,67 @@ internal class Uradiance : MonoBehaviour
         _com.GetAction<Wait>("Aim", 11).time = 1.2f;
 
     }
+    private void ModifyFinal2()
+    {
+        _con.InsertCustomAction("Scream", () =>
+        {
+            for (int i = 0; i < 15; i++)
+            {
+                var n_sword = GameObject.Instantiate(sword);
+                n_sword.SetActive(false);
+                n_sword.SetActive(true);
+                n_sword.transform.SetRotation2D(-90);
+                n_sword.transform.SetPosition2D(50f, 150 + i);
 
+            }
+            for (int i = 0; i < 15; i++)
+            {
+                var n_sword = GameObject.Instantiate(sword);
+                n_sword.SetActive(false);
+                n_sword.SetActive(true);
+                n_sword.transform.SetRotation2D(90);
+                n_sword.transform.SetPosition2D(76.5f, 150 + i);
+            }
+            var orbstate = _com.AddState("TwoOrb");
+            var gapstate = _com.AddState("OrbWait");
+            orbstate.AddTransition("FINISHED", "OrbWait");
+            gapstate.AddTransition("FINISHED", "TwoOrb");
+            orbstate.AddCustomAction(() => { StartCoroutine(TwoOrb()); });
+            gapstate.AddAction(new Wait() { time = 3f, finishEvent = FsmEvent.Finished });
+            _com.ChangeTransition("Set Final Orbs", "FINISHED", "TwoOrb");
+            _com.AddCustomAction("Final Hit", () =>
+            {
+                PlayMakerFSM.BroadcastEvent("DESTROY");
+                PlayMakerFSM.BroadcastEvent("NAIL END");
+            });
+            IEnumerator TwoOrb()
+            {
+                List<GameObject> orbs = new();
+                for (int i = 0; i < 2; i++)
+                {
+                    var norb = orb.Spawn();
+                    norb.transform.position = new Vector3(58 + 9.5f * i, 166f);
+                    norb.SetActive(true);
+                    orbs.Add(norb);
+                }
+                float timer = 0;
+                while (timer < 2f)
+                {
+                    timer += Time.deltaTime;
+                    foreach (var orb in orbs)
+                    {
+                        orb.transform.Translate(0, -2 * Time.deltaTime, 0, Space.World);
+                    }
+                    yield return null;
+                }
+                foreach (var orb in orbs)
+                {
+                    orb.LocateMyFSM("Orb Control").SendEvent("FIRE");
+                }
+            }
+
+        }, 2);
+    }
     private void ModifyFinal()
     {
 
@@ -1504,13 +1564,13 @@ internal class Uradiance : MonoBehaviour
             {
                 final_beams.Add(GameObject.Instantiate(oribeam));
             }
-            final_beams[0].transform.position = new Vector3(48, 163.8248f, 0.004f);
+            final_beams[0].transform.position = new Vector3(48, 165.0f, 0.004f);
             final_beams[0].transform.SetScaleX(30);
             final_beams[0].transform.SetRotation2D(0);
-            final_beams[1].transform.position = new Vector3(50, 163.8248f, 0.004f);
+            final_beams[1].transform.position = new Vector3(48.5f, 163.8248f, 0.004f);
             final_beams[1].transform.SetScaleX(30);
             final_beams[1].transform.SetRotation2D(270f);
-            final_beams[2].transform.position = new Vector3(77, 163.8248f, 0.004f);
+            final_beams[2].transform.position = new Vector3(78f, 163.8248f, 0.004f);
             final_beams[2].transform.SetScaleX(30);
             final_beams[2].transform.SetRotation2D(270f);
             StartCoroutine(BeamFire());

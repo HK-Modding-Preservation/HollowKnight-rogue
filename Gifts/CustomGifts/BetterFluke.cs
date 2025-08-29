@@ -2,11 +2,10 @@
 namespace rogue;
 internal class BetterFluke : CustomGift
 {
-    public BetterFluke() : base(Giftname.custom_better_fluke, 4, "witches_eye")
+    public BetterFluke() : base(Giftname.custom_better_fluke, 1, "witches_eye")
     {
         name = "custom_better_fluke_name";
         desc = "custom_better_fluke_desc";
-        weight = 0.5f;
     }
 
     protected override void _GetGift()

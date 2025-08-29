@@ -105,7 +105,15 @@ public class ItemManager : MonoBehaviour
             Giftname.role_mantis,
             Giftname.role_collector
         };
-    internal static List<string> nobossscene = new List<string> { "GG_Spa", "GG_Engine", "GG_Unn", "GG_Engine_Root", "GG_Wyrm", "GG_Atrium_Roof" };
+    internal static List<string> nobossscene = new List<string> {
+        "GG_Spa",
+        "GG_Engine",
+        "GG_Unn",
+        "GG_Engine_Root",
+         "GG_Wyrm",
+        "GG_Atrium_Roof",
+        "GG_End_Sequence"
+         };
 
     public string rouge_introduction = "rogue_introduction".Localize();
 
@@ -390,11 +398,11 @@ public class ItemManager : MonoBehaviour
         {
             shop_items.Add(GiftFactory.all_gifts[Giftname.custom_love_key]);
         }
-        if (GameInfo.spa_count == 6 && !GameInfo.Branch.modboss && GameInfo.gameMode == GameInfo.GameMode.MODE0)
+        if (GameInfo.spa_count == 6 && !GameInfo.Branch.modboss)
         {
             shop_items.Add(GiftFactory.all_gifts[Giftname.custom_city_crest]);
         }
-        if (GameInfo.spa_count == 7 && !GameInfo.Branch.radiance && GameInfo.gameMode == GameInfo.GameMode.MODE0)
+        if (GameInfo.spa_count == 7 && !GameInfo.Branch.radiance)
         {
             shop_items.Add(GiftFactory.all_gifts[Giftname.custom_mender_key]);
         }
@@ -456,6 +464,8 @@ public class ItemManager : MonoBehaviour
         switch (door)
         {
             case 0:
+                break;
+            case 1:
                 rewardsStack.Push(new OneReward
                 {
                     give_mode = OneReward.GiveMode.random,
@@ -463,8 +473,6 @@ public class ItemManager : MonoBehaviour
                     select = 1,
                     give = 3
                 });
-                break;
-            case 1:
                 rewardsStack.Push(new OneReward
                 {
                     give_mode = OneReward.GiveMode.fix,
@@ -963,6 +971,7 @@ public class ItemManager : MonoBehaviour
             shop_go.SetActive(true);
         }
         shop_go.SetActive(true);
+        shop_go.GetComponent<SpriteRenderer>().enabled = false;
 
     }
 }

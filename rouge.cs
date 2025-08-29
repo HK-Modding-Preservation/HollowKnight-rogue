@@ -26,7 +26,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
 
     public override string GetVersion()
     {
-        return "t.e.8.22";
+        return "2.0.0.0";
     }
     public class actions : PlayerActionSet
     {
@@ -85,9 +85,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
         PreloadManager.Init(preloadedObjects);
         RogueSceneManager.Init();
         ItemManager.Init();
-        Shaman.Init();
-        NailMaster.Init();
-        Moth.Init();
+        Helper.CharacterInit();
         RogueUIManager.Init();
         NPCManager.Init(preloadedObjects);
         BossSceneManager.Init();
@@ -147,7 +145,7 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
                 (boss_scene.sceneName).TestLog();
             }
             ReflectionHelper.SetField<BossSequence, BossScene[]>(sequence, "bossScenes", boss_scenes);
-            BossSceneManager.MoreBoss(sequence);
+            // BossSceneManager.MoreBoss(sequence);
 
         }
         orig(sequence, bindings, playerData);
@@ -237,12 +235,14 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
 
     public void Rogue_Reset()
     {
+        GiftHelper.RemoveAllCharms();
         GiftHelper.AdjustMaskTo(5);
         GiftHelper.AdjustVesselTo(0);
         GiftHelper.AdjustNailLevel(0);
-        GiftHelper.RemoveAllCharms();
+
         GiftHelper.RemoveAllSkills();
         GiftFactory.ResetWeight();
+        GiftHelper.HookReset();
 
         List<GameObject> childlist = new();
         GameObject itemlist = ItemManager.menu_go.FindGameObjectInChildren("Item List");
@@ -322,9 +322,12 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
             HeroController.instance.TakeGeo(PlayerData.instance.geo);
             HeroController.instance.geoCounter.gameObject.SetActive(false);
             HeroController.instance.geoCounter.gameObject.GetComponent<DeactivateIfPlayerdataTrue>().enabled = true;
+            while (HeroController.instance?.gameObject.GetComponent<Character>() != null)
+                HeroController.instance?.gameObject.RemoveComponent<Character>();
             PlayerData.instance.nailDamage = 21;
             PlayMakerFSM.BroadcastEvent("UPDATE NAIL DAMAGE");
             GiftHelper.AdjustMaskTo(9);
+            HeroController.instance.MaxHealth();
             GiftHelper.AdjustVesselTo(3);
             GiftHelper.GiveAllCharms();
             GiftHelper.GiveAllSkills();
@@ -342,8 +345,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
         var c = new Satchel.BetterMenus.KeyBind("rouge_end".Localize(), self_actions.over);
         var d = new Satchel.BetterMenus.KeyBind("rogue_begin".Localize(), self_actions.start);
         menu.AddElement(b);
-        menu.AddElement(d);
-        menu.AddElement(c);
+        // menu.AddElement(d);
+        // menu.AddElement(c);
 
         var text = new Satchel.BetterMenus.TextPanel("menu_intro".Localize(), width: 1500);
         Menu giftBase = new("menu_gift_base".Localize());
@@ -452,6 +455,8 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
         setting.AddElement(Blueprints.IntInputField("reroll_num".Localize(), (num) => { _set.reroll_num = num; }, () => _set.reroll_num, 3));
         setting.AddElement(new Satchel.BetterMenus.MenuButton("default", "turn all to default", (but) => { _set.item_font_size = 6.67f; _set.UI_alpha = 0.6f; _set.reroll_num = 3; setting.Update(); }));
         setting.AddElement(Blueprints.ToggleButton("details".Localize(), "", (value) => { _set.details = value; }, () => _set.details));
+        setting.AddElement(Blueprints.ToggleButton("modboss_in_workshop".Localize(), "", (value) => { _set.modboss_in_workshop = value; }, () => _set.modboss_in_workshop));
+        setting.AddElement(Blueprints.ToggleButton("testlog".Localize(), "", (value) => { _set.testlog = value; }, () => _set.testlog));
         var ss = setting.GetMenuScreen(setting.returnScreen);
         menu.AddElement(new MenuButton("Settings", "", (but) =>
         {

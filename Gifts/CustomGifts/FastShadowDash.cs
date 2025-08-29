@@ -4,9 +4,8 @@ namespace rogue;
 
 internal class FastShadowDash : CustomGift
 {
-    internal FastShadowDash() : base(Giftname.custom_fast_shadow_dash, 4, "abyss_tendril")
+    internal FastShadowDash() : base(Giftname.custom_fast_shadow_dash, 3, "abyss_tendril")
     {
-        weight = 0.5f;
         price = 200;
         name = "custom_fast_shadow_dash_name";
         desc = "custom_fast_shadow_dash_desc";

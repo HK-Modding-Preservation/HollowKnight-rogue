@@ -2,9 +2,8 @@ using rogue;
 
 internal class NailArtAfterDash : CustomGift
 {
-    public NailArtAfterDash() : base(Giftname.custom_nail_art_after_dash, 4, "witches_eye")
+    public NailArtAfterDash() : base(Giftname.custom_nail_art_after_dash, 0, "witches_eye")
     {
-        weight = 0.5f;
         price = 200;
         name = "custom_nail_art_after_dash_name";
         desc = "custom_nail_art_after_dash_desc";

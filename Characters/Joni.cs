@@ -23,6 +23,8 @@ internal class Joni : Character
         GiftHelper.GiveAllCharms();
         CharmHelper.SetCantUnequip(27);
         ModHooks.GetPlayerIntHook += LowCost;
+        HeroController.instance.CharmUpdate();
+        PlayMakerFSM.BroadcastEvent("UPDATE BLUE HEALTH");
         Rogue.Instance.ShowDreamConvo("joni_dream".Localize());
     }
 
@@ -82,6 +84,7 @@ internal class Joni : Character
 
     public override void EndCharacter()
     {
+        CharmHelper.SetCanEquip(27);
         ModHooks.GetPlayerIntHook -= LowCost;
 
     }

@@ -1,4 +1,5 @@
 namespace rogue;
+
 internal class Darkness : CustomGift
 {
     private readonly Dictionary<(string Name, string EventName), string> OriginalTransitions = new();
@@ -7,6 +8,7 @@ internal class Darkness : CustomGift
         name = "黑暗";
         desc = "万物皆虚，万事皆允";
         weight = 0f;
+        force_active = false;
     }
     private void Lighten()
     {

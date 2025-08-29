@@ -9,7 +9,7 @@ internal class MenderKey : CustomGift
     {
         giftname = Giftname.custom_mender_key;
         price = 200;
-        desc = "钥匙，似乎可以打开某种通路";
+        desc = "mender_key_desc";
         force_active = false;
     }
 
@@ -25,6 +25,6 @@ internal class MenderKey : CustomGift
 
     internal override string GetName()
     {
-        return "Mender_Key".Localize();
+        return "mender_key_name".Localize();
     }
 }

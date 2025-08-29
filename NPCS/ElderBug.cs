@@ -12,11 +12,20 @@ internal class ElderBug : NPC
         name_super = "test_super";
         idle_animation_name = "Idle";
         talk_animation_name = "Talk Right";
-        AddConversation("初次见面", "欢迎来到这个世界，旅行者。");
-        AddConversation("再见", "祝你旅途顺利。");
+        AddConversation("初次见面", "npc_elder_bug_conv_1".Localize());
+        AddConversation("再见", "npc_elder_bug_conv_2".Localize());
         OnConvoEnd("初次见面", TryGiveBirthRight);
     }
     internal static Vector3 spa_pos = new Vector3(103.3f, 15.2f, 0.1f);
+    internal override string GetName(string pos)
+    {
+        switch (pos)
+        {
+            case main: return Language.Language.Get("ELDERBUG_MAIN", "Titles");
+            default: return "";
+        }
+
+    }
     void TryGiveBirthRight()
     {
         var role = HeroController.instance.GetComponent<Character>();

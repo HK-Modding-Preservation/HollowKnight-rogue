@@ -2,6 +2,8 @@
 
 
 
+using System.Diagnostics;
+
 namespace rogue;
 
 internal class StatsData
@@ -34,6 +36,8 @@ internal class StatsData
     internal int num_attack = 0;
     internal int num_nail_arts = 0;
     internal int num_spells = 0;
+    bool cal_collector = false;
+    bool cal_lost_kin = false;
 
     internal float score = 0;
 
@@ -58,7 +62,78 @@ internal class StatsData
         {
             res = (float)(500d / (1 + 0.003d * deltatime + 0.0002d * Math.Pow(deltatime, 2) + 0.0000012d * Math.Pow(deltatime, 3)));
         }
+        if (EnemyWaveManager.IsCollectorBranch())
+        {
+            res += 300;
+            if (ProcessManager.scene_name == "GG_Collector_V")
+            {
+                if (cal_collector) res += 500;
+                else cal_collector = true;
+            }
+
+        }
+        if (EnemyWaveManager.IsLostKinBranch())
+        {
+            res += 400;
+            if (ProcessManager.scene_name == "GG_Lost_Kin")
+            {
+                if (cal_lost_kin) res += 400;
+                else cal_lost_kin = true;
+            }
+
+        }
+        if (EnemyWaveManager.DontReplacyScene(ProcessManager.scene_name))
+        {
+            res += 1200;
+        }
+        if (GameInfo.Branch.radiance && ProcessManager.scene_name == "GG_Radiance")
+        {
+            res += 2000;
+        }
         score += res;
+
+    }
+    internal void CalSoreEnd()
+    {
+        var pd = PlayerData.instance;
+        int count1 = 0;
+        if (pd.hasDash) count1++;
+        if (pd.hasShadowDash) count1++;
+        if (pd.hasDoubleJump) count1++;
+        if (pd.hasWalljump) count1++;
+        if (pd.hasAcidArmour) count1++;
+        if (pd.hasDashSlash) count1++;
+        if (pd.hasUpwardSlash) count1++;
+        if (pd.hasCyclone) count1++;
+        if (pd.hasDreamNail) count1++;
+        count1 += pd.fireballLevel;
+        count1 += pd.screamLevel;
+        count1 += pd.quakeLevel;
+        score += count1 * 200;
+        if (GameInfo.role != Characters.CharacterRole.joni)
+        {
+            int count2 = 0;
+            for (int i = 1; i <= 40; i++)
+            {
+                if (pd.GetBool("gotCharm_" + i))
+                {
+                    count2++;
+                }
+            }
+            score += count2 * 200;
+        }
+        if (GameInfo.role != Characters.CharacterRole.grey_prince)
+        {
+            score += GiftHelper.GetNailLevel() * 400;
+        }
+        score += 3 * pd.geo;
+        int count3 = 0;
+        count3 += pd.maxHealthBase - 5;
+        count3 += pd.MPReserveMax / 33;
+        score += count3 * 200;
+        score += 300 * Mathf.Exp(-0.3f * num_injured);
+        score += (float)(100 / (1 + 0.05 * (num_attack + 2 * num_nail_arts + 2 * num_spells) + 0.002f * Mathf.Pow((num_attack + 2 * num_nail_arts + 2 * num_spells), 2)));
+
 
     }
     internal void ResetSceneInjured()

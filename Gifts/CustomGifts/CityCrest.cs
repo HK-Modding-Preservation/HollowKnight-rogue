@@ -9,7 +9,7 @@ internal class CityCrest : CustomGift
     {
         giftname = Giftname.custom_city_crest;
         price = 200;
-        desc = "城市纹章，似乎可以打开某种通路";
+        desc = "city_crest_desc";
         force_active = false;
     }
 

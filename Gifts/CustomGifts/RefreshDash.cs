@@ -1,9 +1,8 @@
 using rogue;
 internal class RefreshDash : CustomGift
 {
-    public RefreshDash() : base(Giftname.custom_refresh_dash, 3, "b_alubab_aluba")
+    public RefreshDash() : base(Giftname.custom_refresh_dash, 3, "witches_eye")
     {
-        weight = 1f;
         price = 200;
         name = "custom_refresh_dash_name";
         desc = "custom_refresh_dash_desc";

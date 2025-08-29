@@ -13,6 +13,10 @@ internal class Leveler : NPC
 
 
     }
+    internal override string GetName(string pos)
+    {
+        return "";
+    }
     protected override void IdleAnimation()
     {
         return;
@@ -29,9 +33,9 @@ internal class Leveler : NPC
     {
         if (GameInfo.in_rogue)
         {
-            RogueUIManager.StartSelection(0.3f, "确认结束吗？", new List<RogueUIManager.SelectItem>
+            RogueUIManager.StartSelection(0.3f, "rogue_over_confirm_conv".Localize(), new List<RogueUIManager.SelectItem>
             {
-                new RogueUIManager.SelectItem("是"){
+                new RogueUIManager.SelectItem(Lang.YES){
                     select_action=(select)=>{
 
                         Rogue.Instance.Rogue_Over();
@@ -40,7 +44,7 @@ internal class Leveler : NPC
                         go.LocateMyFSM("Conversation Control").SendEvent("CONVO_FINISH");
                     }
                 },
-                new RogueUIManager.SelectItem("否"){
+                new RogueUIManager.SelectItem(Lang.NO){
                     select_action=(select)=>{
                         go.LocateMyFSM("Conversation Control").SendEvent("CONVO_FINISH");
                     }
@@ -49,9 +53,9 @@ internal class Leveler : NPC
         }
         else
         {
-            RogueUIManager.StartSelection(0.3f, "请选择要挑战的等级", new List<RogueUIManager.SelectItem>
+            RogueUIManager.StartSelection(0.3f, "rogue_level_select_conv".Localize(), new List<RogueUIManager.SelectItem>
         {
-            new RogueUIManager.SelectItem("基础难度" ){select_action = (select) => {
+            new RogueUIManager.SelectItem("level1_name".Localize()){select_action = (select) => {
                 GameInfo.gameMode=GameInfo.GameMode.MODE0;
                 // go.GetComponent<tk2dSpriteAnimator>().AnimationCompleted=(animator,clip)=>{animator.Play("Lever Activated");animator.AnimationCompleted=null;};
                 go.GetComponent<tk2dSpriteAnimator>().Play("Lever Hit");
@@ -59,7 +63,7 @@ internal class Leveler : NPC
                 ProcessManager.Instance.GameStart();
 
              } },
-            new RogueUIManager.SelectItem("进阶难度"){select_action=(select)=>{
+            new RogueUIManager.SelectItem("level2_name".Localize()){select_action=(select)=>{
                 GameInfo.gameMode=GameInfo.GameMode.MODE1;
                 go.GetComponent<tk2dSprite>().color=Color.red;
                 // go.GetComponent<tk2dSpriteAnimator>().AnimationCompleted=(animator,clip)=>{animator.Play("Lever Activated");animator.AnimationCompleted=null;};
@@ -69,7 +73,7 @@ internal class Leveler : NPC
                 ProcessManager.Instance.GameStart();
                 }
             },
-            new RogueUIManager.SelectItem("取消"){select_action=(select)=>{
+            new RogueUIManager.SelectItem(Lang.Cancel){select_action=(select)=>{
                 go.LocateMyFSM("Conversation Control").SendEvent("CONVO_FINISH");
             }},
         }, 3);

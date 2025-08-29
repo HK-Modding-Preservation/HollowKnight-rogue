@@ -1,4 +1,5 @@
 namespace rogue.NPCs;
+
 internal class CharmSlug : NPC
 {
     GameObject desk = null;
@@ -14,6 +15,10 @@ internal class CharmSlug : NPC
         this.desk.transform.localPosition = new Vector3(0, -0.8193f, -0.277f);
         this.desk.SetActive(true);
         this.go.GetComponent<BoxCollider2D>().enabled = false;
+    }
+    internal override string GetName(string pos)
+    {
+        return Language.Language.Get("CHARM_SLUG_" + pos.ToUpperInvariant(), "Titles");
     }
 
 }

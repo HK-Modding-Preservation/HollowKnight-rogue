@@ -5,11 +5,10 @@ namespace rogue;
 
 internal class AlwaysParry : CustomGift
 {
-    public AlwaysParry() : base(Giftname.custom_always_parry, 4, "blue_idle")
+    public AlwaysParry() : base(Giftname.custom_always_parry, 2, "witches_eye")
     {
         name = "custom_always_parry_name";
         desc = "custom_always_parry_desc";
-        weight = 0.5f;
         price = 200;
     }
     AudioClip parry;

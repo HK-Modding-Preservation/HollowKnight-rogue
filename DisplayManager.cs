@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using InControl;
@@ -30,13 +31,13 @@ internal class DisplayManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Tab)) { ShowScore(); }
         if (Input.GetKeyUp(KeyCode.Tab)) { HideScore(); }
-        if (Input.GetKeyUp(KeyCode.End))
-        {
-            BossSceneController.Instance?.EndBossScene();
-            ItemManager.Instance.StopCoroutine("EnemyWaves");
-        }
+        // if (Input.GetKeyUp(KeyCode.End))
+        // {
+        //     BossSceneController.Instance?.EndBossScene();
+        //     ItemManager.Instance.StopCoroutine("EnemyWaves");
+        // }
         // if (Input.GetKeyUp(KeyCode.Home)) { BossManager.bossleft = 0; }
-        if (GameInfo.in_rogue && BossSequenceController.IsInSequence && (ProcessManager.scene_name != "GG_Spa") && (ProcessManager.scene_name! != "GG_Atrium_Roof" || ProcessManager.scene_name != "GG_Engine"))
+        if (GameInfo.in_rogue && BossSequenceController.IsInSequence && (!ItemManager.nobossscene.Contains(ProcessManager.scene_name)))
         {
             if (!GameManager.instance.isPaused)
             {
@@ -424,10 +425,12 @@ internal class DisplayManager : MonoBehaviour
         else
         {
             render.sprite = (Sprite)Inv_Items.FindGameObjectInChildren("Nail").GetComponent<InvNailSprite>().level5;
-            text.text = ((int)((PlayerData.instance.nailDamage - 5) / 4)).ToString();
+            int nail_level = GiftHelper.GetNailLevel();
+            text.text = nail_level.ToString();
         }
         render.color = new Color(1, 1, 1, alpha);
         text.color = new Color(1, 1, 1, alpha);
+        if (GameInfo.max_nail_level == GiftHelper.GetNailLevel()) text.color = new Color(1, 0, 0, alpha);
         x += 1;
 
         GameObject egg = new GameObject("egg");
@@ -502,7 +505,18 @@ internal class DisplayManager : MonoBehaviour
         if (GameInfo.data == null) return;
         scorePanel.SetActive(true);
         scoreText.text = $"Score: {GameInfo.data.score:F2}";
-        if (Rogue.Instance._set.details)
+        if (ProcessManager.scene_name == "GG_End_Sequence" && FlowerManager.CheckFlowerEnd())
+        {
+            if (GameInfo.Branch.radiance)
+            {
+                scoreText.text += "\n125,225  270,315  135,270  0,225";
+            }
+            else
+            {
+                scoreText.text += "\n90,270  270,315  270,315  90,225";
+            }
+        }
+        if (Rogue.Instance._set.details && ProcessManager.scene_name != "GG_End_Sequence")
         {
             scoreText.text += $"\nTime: {GameInfo.data.timer:F2} ";
             scoreText.text += $"\nAttack: {GameInfo.data.num_attack}";

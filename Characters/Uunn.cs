@@ -27,6 +27,7 @@ internal class Uunn : Character
         free_charms.Add(28);
         free_charms.Add(34);
         ProcessManager.Instance.after_scene_add_geo_num += UunnReward;
+        Rogue.Instance.ShowDreamConvo("uunn_dream".Localize());
     }
 
     public override void GetBirthright(int num)
@@ -121,7 +122,7 @@ internal class Uunn : Character
                     Source = base.gameObject,
                     AttackType = AttackTypes.Generic,
                     CircleDirection = false,
-                    DamageDealt = 5 * PlayerData.instance.nailDamage,
+                    DamageDealt = 4 * PlayerData.instance.nailDamage,
                     Direction = HeroController.instance.transform.localScale.x < 0 ? 180f : 0,
                     IgnoreInvulnerable = false,
                     MagnitudeMultiplier = 0,

@@ -124,18 +124,17 @@ public abstract class Character : MonoBehaviour
         for (int i = 0; i < GetBirthrightNum(); i++)
         {
             RogueUIManager.SelectItem item = new(birthrights[i].name);
-            item.not_select_info = "已经选择过";
+            item.not_select_info = "had_selected_info".Localize();
             item.selectable = birthrights[i].got < birthrights[i].max_got;
             if (!GameInfo.can_get_birthright)
             {
                 item.selectable = false;
-                item.not_select_info = "你没资格啊";
             }
             item.select_action = ExecGetBirthright;
             items.Add(item);
         }
-        items.Add(new RogueUIManager.SelectItem("取消"));
-        RogueUIManager.StartSelection(0.3f, "选择一份礼物", items, items.Count);
+        items.Add(new RogueUIManager.SelectItem(Lang.Cancel));
+        RogueUIManager.StartSelection(0.3f, "select_one_gift_conv".Localize(), items, items.Count);
     }
     public int GetBirthrightNum()
     {

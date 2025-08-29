@@ -6,11 +6,12 @@ internal class WishPool : NPC
 {
     const int wish_rate = 25;
     bool get_birthright = false;
-    internal WishPool(Sprite down, Sprite up, GameObject well) : base(null, new(0, 0), KnightAction.LookUP, true)
+    internal WishPool(Sprite down, Sprite up, GameObject well) : base(null, new(0, 1), KnightAction.LookUP, true)
     {
         go.GetComponent<SpriteRenderer>().sprite = down;
         well.transform.SetParent(go.transform);
         well.transform.localPosition = new(-0.2f, 5.253f, 0);
+        well.SetActive(true);
         GameObject up_go = new("up");
         up_go.transform.SetParent(go.transform);
         up_go.transform.localPosition = new(0f, 7.953f, 0);
@@ -20,21 +21,28 @@ internal class WishPool : NPC
         name = "";
         name_sub = "";
         name_super = "";
-        AddConversation("初遇", "这是一个许愿池<page>你可以在这里许下愿望");
+        AddConversation("初遇", "npc_wishpool_conv_1".Localize());
         OnConvoEnd("初遇", () =>
         {
-            RogueUIManager.SelectItem yes = new("许愿");
+            RogueUIManager.SelectItem yes = new(Lang.YES);
             yes.select_action = (select) =>
             {
-                PlayerData.instance.TakeGeo(100);
+                HeroController.instance.TakeGeo(100);
                 int t = UnityEngine.Random.Range(0, 101);
                 if (t <= 30)
                 {
-                    Rogue.Instance.ShowDreamConvo("你获得了白王之愿");
+                    Rogue.Instance.ShowDreamConvo("npc_wishpool_res_1".Localize());
                     if (get_birthright)
                     {
-                        var gift = ItemManager.RandomList(GameInfo.act_gifts[GiftFactory.CustomVariety()], 1)[0];
-                        gift.GetGift();
+                        ItemManager.Instance.rewardsStack.Push(new()
+                        {
+                            give_mode = ItemManager.OneReward.GiveMode.random,
+                            gift_variety = GiftFactory.CustomVariety(),
+                            give = 1,
+                            select = 1,
+                            gifts = null
+                        });
+                        ItemManager.Instance.Next(force: false);
                     }
                     else
                     {
@@ -44,34 +52,39 @@ internal class WishPool : NPC
                 }
                 else if (t > 30 && t <= 45)
                 {
-                    Rogue.Instance.ShowDreamConvo("你获得了再生之力");
+                    Rogue.Instance.ShowDreamConvo("npc_wishpool_res_2".Localize());
                     GameInfo.revive_num += 1;
                 }
                 else if (t > 45 && t <= 60)
                 {
-                    Rogue.Instance.ShowDreamConvo("你获得了命运之骰");
+                    Rogue.Instance.ShowDreamConvo("npc_wishpool_res_3".Localize());
                     GameInfo.refresh_num += 1;
                 }
                 else if (t > 60 && t <= 90)
                 {
-                    Rogue.Instance.ShowDreamConvo("你获得了意外之财");
-                    PlayerData.instance.AddGeo(50);
+                    Rogue.Instance.ShowDreamConvo("npc_wishpool_res_4".Localize());
+                    HeroController.instance.AddGeo(50);
 
                 }
                 else
                 {
-                    Rogue.Instance.ShowDreamConvo("什么也没有发生");
+                    Rogue.Instance.ShowDreamConvo("nothing_happened".Localize());
                 }
-
+                DisplayManager.DisplayStates();
             };
             yes.selectable = PlayerData.instance.geo >= 100;
-            yes.not_select_info = "吉欧不足";
-            RogueUIManager.SelectItem no = new("不许愿");
-            no.select_action = (select) => ShowDialogue("不许愿");
+            yes.not_select_info = "geo_cant_select_info".Localize();
+            RogueUIManager.SelectItem no = new(Lang.NO);
+            no.select_action = null;
             List<RogueUIManager.SelectItem> selectItems = new() { yes, no };
 
-            RogueUIManager.StartSelection(0.3f, "投入100geo，让苍白之王解除你的负担", selectItems, 2);
+            RogueUIManager.StartSelection(0.3f, "npc_wishpool_select_conv".Localize(), selectItems, 2);
         });
+    }
+    internal static Vector3 spa_pos = new Vector3(104f, 14.0491f, 0.1f);
+    internal override string GetName(string pos)
+    {
+        return "";
     }
     internal override void BeginConvo()
     {

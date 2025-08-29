@@ -4,9 +4,8 @@ namespace rogue;
 internal class Gliding : CustomGift
 {
     GameObject butterfly;
-    internal Gliding() : base(Giftname.custom_gliding, 4, "health_butterfly")
+    internal Gliding() : base(Giftname.custom_gliding, 1, "health_butterfly")
     {
-        weight = 0.5f;
         price = 200;
         name = "custom_gliding_name";
         desc = "custom_gliding_desc";
@@ -41,6 +40,11 @@ internal class Gliding : CustomGift
                     flag = true;
                     rig.velocity = new Vector2(vel.x, self.WALLSLIDE_SPEED * 0.5f);
                     butterfly.SetActive(true);
+                    if (self.fallTimer > self.BIG_FALL_TIME)
+                    {
+                        ReflectionHelper.SetProperty<HeroController, float>(self, "fallTimer", 0f);
+                        self.cState.willHardLand = false;
+                    }
                 }
             }
         }

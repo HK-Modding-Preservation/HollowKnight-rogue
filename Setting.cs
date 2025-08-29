@@ -29,6 +29,8 @@ public class Setting
     public int reroll_num = 3;
 
     public bool details = false;
+    public bool modboss_in_workshop = false;
+    public bool testlog = false;
 
     internal static float SoundScale()
     {

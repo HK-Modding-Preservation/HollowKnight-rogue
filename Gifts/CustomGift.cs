@@ -16,6 +16,7 @@ internal abstract class CustomGift : Gift
         ModHooks.GetPlayerBoolHook += GetIsGot;
         getSprite = () => SpriteLoader.GetSprite(sprite_name);
         SFCore.ItemHelper.AddNormalItem(getSprite(), bool_convo, name_convo, desc_convo);
+        this.weight = 1.1f - (0.1f * level);
     }
 
     protected virtual bool GetIsGot(string name, bool orig)
@@ -34,7 +35,6 @@ internal abstract class CustomGift : Gift
     internal override void RemoveGift()
     {
         Got = false;
-        now_weight = weight;
     }
 
     protected virtual string GetNameAndDesc(string key, string sheetTitle, string orig)
@@ -61,7 +61,7 @@ internal abstract class CustomGift : Gift
             }
             else
             {
-                now_weight = weight;
+                now_weight = 0;
                 _GetGift();
             }
             got = value;
@@ -109,9 +109,9 @@ internal abstract class CustomOneOrTwoGift : Gift
 
     protected virtual string GetNameAndDesc(string key, string sheetTitle, string orig)
     {
-        if (key == name_convo_1) { return GetName1(); }
+        if (key == name_convo_1) { return GetName() + ":" + GetName1(); }
         if (key == desc_convo_1) { return GetDesc1(); }
-        if (key == name_convo_2) { return GetName2(); }
+        if (key == name_convo_2) { return GetName() + ":" + GetName2(); }
         if (key == desc_convo_2) { return GetDesc2(); }
         return orig;
     }
@@ -129,6 +129,45 @@ internal abstract class CustomOneOrTwoGift : Gift
         Second
     }
     private GotWhichItem got_which_item = CustomOneOrTwoGift.GotWhichItem.None;
+    internal override void GetGift()
+    {
+        // RogueUIManager.SelectItem item1 = new(GetName1())
+        // {
+        //     select_action = (index) =>
+        //     {
+        //         Got_Which_Item = GotWhichItem.First;
+        //     }
+        // };
+        // RogueUIManager.SelectItem item2 = new(GetName2())
+        // {
+        //     select_action = (index) =>
+        //     {
+        //         Got_Which_Item = GotWhichItem.Second;
+        //     }
+        // };
+        // RogueUIManager.SelectItem cancel = new(Lang.Cancel)
+        // {
+        // };
+        // RogueUIManager.StartSelection(0.3f, "custom_two_choice_gift_conv".Localize(), new List<RogueUIManager.SelectItem>
+        // {
+        //     item1,item2,cancel
+        // }, 3);
+        if (UnityEngine.Random.Range(0, 2) == 0)
+        {
+            Got_Which_Item = GotWhichItem.First;
+            Rogue.Instance.ShowConvo(GetName1());
+        }
+        else
+        {
+            Got_Which_Item = GotWhichItem.Second;
+            Rogue.Instance.ShowConvo(GetName2());
+        }
+    }
+    internal override void RemoveGift()
+    {
+        Got_Which_Item = GotWhichItem.None;
+        base.RemoveGift();
+    }
     public GotWhichItem Got_Which_Item
     {
         get { return got_which_item; }
@@ -180,6 +219,20 @@ internal abstract class CustomCountedGift : Gift
     {
         if (name == int_convo) return count;
         return orig;
+    }
+    internal override void GetGift()
+    {
+        now_weight = 0;
+        if (count == 0)
+        {
+
+        }
+        SetCount(count + 1);
+    }
+    internal override void RemoveGift()
+    {
+        now_weight = weight;
+        SetCount(0);
     }
 
     string name_convo;

@@ -4,11 +4,10 @@ namespace rogue;
 
 internal class EquipCharmEveryWhere : CustomGift
 {
-    public EquipCharmEveryWhere() : base(Giftname.custom_equip_charm_everywhere, 4, "throne")
+    public EquipCharmEveryWhere() : base(Giftname.custom_equip_charm_everywhere, 1, "witches_eye")
     {
         name = "custom_equip_charm_everywhere_name";
         desc = "custom_equip_charm_everywhere_desc";
-        weight = 0.5f;
     }
     protected override void _GetGift()
     {

@@ -4,7 +4,7 @@ using rogue;
 internal class Trinket1 : CustomCountedGift
 {
     System.Random random = new System.Random();
-    public Trinket1() : base(Giftname.custom_counted_trinket1, 3, "trinket1")
+    public Trinket1() : base(Giftname.custom_counted_trinket1, 4, "trinket1")
     {
         weight = 0f;
         price = 200;
@@ -15,19 +15,28 @@ internal class Trinket1 : CustomCountedGift
         if (ori > 0 && t == 0)
         {
             ProcessManager.Instance.after_scene_add_geo_num -= GetAnotherDiary;
+            On.HealthManager.TakeDamage -= DiaryDamage;
         }
         else if (ori == 0 && t > 0)
         {
             ProcessManager.Instance.after_scene_add_geo_num += GetAnotherDiary;
+            On.HealthManager.TakeDamage += DiaryDamage;
         }
     }
+
+    private void DiaryDamage(On.HealthManager.orig_TakeDamage orig, HealthManager self, HitInstance hitInstance)
+    {
+        hitInstance.Multiplier *= (1f + (0.03f * count));
+        orig(self, hitInstance);
+    }
+
     internal override string GetName()
     {
         return Language.Language.Get("INV_NAME_TRINKET1", "UI");
     }
     internal override string GetDesc()
     {
-        return Language.Language.Get("INV_DESC_TRINKET1", "UI");
+        return "custom_trinket1_desc".Localize();
     }
 
     private int GetAnotherDiary(int geo, int damage_num)
@@ -49,9 +58,8 @@ internal class Trinket1 : CustomCountedGift
 }
 internal class Trinket2 : CustomGift
 {
-    internal Trinket2() : base(Giftname.custom_counted_trinket2, 4, "trinket2")
+    internal Trinket2() : base(Giftname.custom_counted_trinket2, 1, "trinket2")
     {
-        weight = 0.5f;
         price = 200;
     }
 
@@ -79,15 +87,14 @@ internal class Trinket2 : CustomGift
     }
     internal override string GetDesc()
     {
-        return Language.Language.Get("INV_DESC_TRINKET2", "UI");
+        return "custom_trinket2_desc".Localize();
     }
 }
 
 internal class Trinket3 : CustomGift
 {
-    internal Trinket3() : base(Giftname.custom_counted_trinket3, 4, "trinket3")
+    internal Trinket3() : base(Giftname.custom_counted_trinket3, 2, "trinket3")
     {
-        weight = 0.5f;
         price = 200;
     }
 
@@ -107,16 +114,15 @@ internal class Trinket3 : CustomGift
     }
     internal override string GetDesc()
     {
-        return Language.Language.Get("INV_DESC_TRINKET3", "UI");
+        return "custom_trinket3_desc".Localize();
     }
 }
 
 
 internal class Trinket4 : CustomGift
 {
-    internal Trinket4() : base(Giftname.custom_counted_trinket4, 4, "trinket4")
+    internal Trinket4() : base(Giftname.custom_counted_trinket4, 0, "trinket4")
     {
-        weight = 0.5f;
         price = 200;
     }
     int count = 0;
@@ -150,17 +156,15 @@ internal class Trinket4 : CustomGift
 
     private void GiveRandomGift()
     {
-        var gifts = ItemManager.RandomList(GameInfo.act_gifts[GiftVariety.item], 1);
-        if (gifts.Count == 0)
+        ItemManager.Instance.rewardsStack.Push(new ItemManager.OneReward()
         {
-            Rogue.Instance.ShowConvo("nothing_happened".Localize());
-        }
-        else
-        {
-            var gift = gifts[0];
-            gift.GetGift();
-            Rogue.Instance.ShowConvo(gift.GetShowString());
-        }
+            give_mode = ItemManager.OneReward.GiveMode.random,
+            gift_variety = GiftVariety.custom,
+            give = 4,
+            select = 2,
+            gifts = null
+        });
+        Rogue.Instance.ShowDreamConvo("something_change".Localize());
     }
 
     protected override void _RemoveGift()
@@ -174,6 +178,6 @@ internal class Trinket4 : CustomGift
     }
     internal override string GetDesc()
     {
-        return Language.Language.Get("INV_DESC_TRINKET4", "UI") + "\n\n" + count + "/" + max;
+        return "custom_trinket4_desc".Localize() + "\n\n" + count + "/" + max;
     }
 }

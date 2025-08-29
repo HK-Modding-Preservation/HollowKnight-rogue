@@ -484,13 +484,21 @@ internal static class EnemyWaveManager
                 break;
         }
     }
+    internal static bool IsCollectorBranch()
+    {
+        return GameInfo.Branch.collector && collector_collections.ContainsKey(ProcessManager.scene_name);
+    }
+    internal static bool IsLostKinBranch()
+    {
+        return GameInfo.Branch.lost_kin && lost_kin_collections.ContainsKey(ProcessManager.scene_name);
+    }
     internal static EnemyWaveCollection GetCollection(string scene_name)
     {
         if (GameInfo.Branch.lost_kin && lost_kin_collections.ContainsKey(scene_name))
         {
             return lost_kin_collections[scene_name];
         }
-        if (GameInfo.Branch.collector && collector_collections.ContainsKey(scene_name))
+        if (IsCollectorBranch())
         {
             return collector_collections[scene_name];
         }

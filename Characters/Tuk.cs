@@ -1,6 +1,7 @@
 
 
 
+
 namespace rogue.Characters;
 
 internal class Tuk : Character
@@ -13,6 +14,13 @@ internal class Tuk : Character
         AddBirthRight("tuk_birthright_2_name".Localize());
     }
     System.Random random = new System.Random();
+    internal const string bomb_scene = "Fungus2_08";
+    internal const string bomb_name = "Mushroom Turret";
+    static GameObject bomb;
+    internal static void Init()
+    {
+        bomb = (GameObject)Resources.InstanceIDToObject(30308);
+    }
 
     public override void BeginCharacter()
     {
@@ -21,7 +29,25 @@ internal class Tuk : Character
         HeroController.instance.AddGeo(500);
         GameInfo.revive_num = 5;
         Rogue.Instance.ShowDreamConvo("tuk_dream".Localize());
+        ModHooks.AfterTakeDamageHook += OnAfterTakeDamage;
     }
+
+    private int OnAfterTakeDamage(int hazardType, int damageAmount)
+    {
+        if (damageAmount > 0)
+        {
+            GameObject b = GameObject.Instantiate(bomb);
+            b.GetComponent<DamageHero>().enabled = false;
+            b.SetActive(true);
+            damageAmount.TestLog();
+            int damage = (int)((GiftHelper.GetNailLevel() * 3 + 10) * damageAmount * (1 + (0.2 * GameInfo.revive_num)));
+            damage.TestLog();
+            b.LocateMyFSM("damages_enemy").FsmVariables.FindFsmInt("damageDealt").Value = damage;
+            b.transform.position = HeroController.instance.transform.position;
+        }
+        return damageAmount;
+    }
+
     protected override void AfterRevive()
     {
         if (random.Next(0, 2) == 0)
@@ -48,10 +74,10 @@ internal class Tuk : Character
                 On.HealthManager.TakeDamage += MoreEnemyDamage;
                 break;
             case 1:
-                GameInfo.revive_num += 2;
+                UnityEngine.SceneManagement.SceneManager.activeSceneChanged += GetEgg;
                 break;
             case 2:
-                UnityEngine.SceneManagement.SceneManager.activeSceneChanged += GetEgg;
+
                 break;
 
         }
@@ -75,8 +101,10 @@ internal class Tuk : Character
                 On.HealthManager.TakeDamage -= MoreEnemyDamage;
                 break;
             case 1:
-            case 2:
                 UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= GetEgg;
+                break;
+            case 2:
+
                 break;
         }
     }
@@ -98,5 +126,6 @@ internal class Tuk : Character
 
     public override void EndCharacter()
     {
+        ModHooks.AfterTakeDamageHook -= OnAfterTakeDamage;
     }
 }

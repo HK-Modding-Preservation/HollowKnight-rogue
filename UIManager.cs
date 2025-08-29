@@ -138,7 +138,7 @@ internal static class RogueUIManager
         {
             can_select = selection;
             not_select = selection;
-            not_select_info = "你没资格啊";
+            not_select_info = "default_cant_select_info".Localize();
             selectable = true;
 
         }
@@ -147,6 +147,7 @@ internal static class RogueUIManager
         public string not_select;
         public string not_select_info;
         public Action<int> select_action = null;
+
 
     }
     internal static void StartSelection(float delay, string conversation, List<SelectItem> items, int cancel_num)
@@ -215,7 +216,6 @@ internal static class RogueUIManager
     }
     static void DoAfterSelection(int item_num)
     {
-        Rogue.Instance.ShowDreamConvo("select " + item_num);
         now_select_items[item_num - 1].select_action?.Invoke(item_num - 1);
         GetDialogueManager().LocateMyFSM("Box Open YN").SendEvent("BOX DOWN YN");
         HeroController.instance.RegainControl();

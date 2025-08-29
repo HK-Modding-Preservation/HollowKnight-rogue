@@ -4,32 +4,33 @@ namespace rogue;
 
 internal class DashDoubleRefresh : CustomOneOrTwoGift
 {
-    internal DashDoubleRefresh() : base(Giftname.custom_one_two_dash_doublejump_refresh, 4, "keeper_key", "easy_key")
+    internal DashDoubleRefresh() : base(Giftname.custom_one_two_dash_doublejump_refresh, 2, "keeper_key", "easy_key")
     {
         name = "custom_one_two_dash_doublejump_refresh_name";
         desc = "custom_one_two_dash_doublejump_refresh_desc";
+        weight = 0.5f;
     }
 
     internal override string GetDesc1()
     {
-        return "冲刺可刷新二段跳";
+        return "custom_one_two_dash_doublejump_refresh_desc_1".Localize();
     }
 
     internal override string GetDesc2()
     {
-        return "二段跳可刷新冲刺";
+        return "custom_one_two_dash_doublejump_refresh_desc_2".Localize();
     }
 
 
 
     internal override string GetName1()
     {
-        return "虎符咒：阳";
+        return "顺";
     }
 
     internal override string GetName2()
     {
-        return "虎符咒：阴";
+        return "逆";
     }
 
     internal override void GetGift2()

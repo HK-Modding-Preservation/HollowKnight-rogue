@@ -11,9 +11,8 @@ internal class DoubleScream : CustomGift
             Destroy(gameObject);
         }
     }
-    internal DoubleScream() : base(Giftname.custom_double_scream, 4, "witches_eye")
+    internal DoubleScream() : base(Giftname.custom_double_scream, 3, "witches_eye")
     {
-        weight = 0.5f;
         price = 200;
         name = "custom_double_scream_name";
         desc = "custom_double_scream_desc";

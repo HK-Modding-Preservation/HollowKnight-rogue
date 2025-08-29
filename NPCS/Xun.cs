@@ -11,22 +11,26 @@ internal class Xun : NPC
         name_super = "";
         idle_animation_name = "Idle";
         talk_animation_name = "Talk";
-        AddConversation("遇见", "送你一朵小白花");
-        AddConversation("拿花", "谢谢你");
-        AddConversation("不拿花", "我不该有这些奢望");
+        AddConversation("遇见", "npc_xun_conv_1".Localize());
+        AddConversation("拿花", "npc_xun_conv_2".Localize());
+        AddConversation("不拿花", "npc_xun_conv_3".Localize());
         OnConvoEnd("遇见", TryGiveFlower);
-        AddConversation("已经有花", "一路小心");
+        AddConversation("已经有花", "npc_xun_conv_4".Localize());
+    }
+    internal override string GetName(string pos)
+    {
+        return Language.Language.Get("XUN_" + pos.ToUpperInvariant(), "Titles");
     }
     void TryGiveFlower()
     {
         List<RogueUIManager.SelectItem> selectItems = new();
-        RogueUIManager.SelectItem yes = new("是");
+        RogueUIManager.SelectItem yes = new(Lang.YES);
         yes.select_action = (select) => { ShowDialogue("拿花"); PlayerData.instance.hasXunFlower = true; PlayerData.instance.xunFlowerBroken = false; };
         selectItems.Add(yes);
-        RogueUIManager.SelectItem no = new("否");
+        RogueUIManager.SelectItem no = new(Lang.NO);
         no.select_action = (select) => { ShowDialogue("不拿花"); };
         selectItems.Add(no);
-        RogueUIManager.StartSelection(0.3f, "接受这朵花?", selectItems, 2);
+        RogueUIManager.StartSelection(0.3f, "npc_xun_select_conv".Localize(), selectItems, 2);
     }
     internal override void BeginConvo()
     {

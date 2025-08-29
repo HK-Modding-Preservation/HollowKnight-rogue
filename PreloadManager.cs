@@ -54,7 +54,11 @@ internal static class PreloadManager
             (NailMaster.hk_scene,NailMaster.hk_name),
             (BossSceneManager.boss_scene_controler_scene,BossSceneManager.boss_scene_controler_name),
             (BossSceneManager.thk_scene,BossSceneManager.thk_name),
-            (Moth.dream_sword_scene,Moth.markoth_name)
+            (Moth.dream_sword_scene,Moth.markoth_name),
+            (ChronosDesideria.broken_vessel_scene,ChronosDesideria.broken_vessel_boss),
+            (GreyKingZote.grey_king_scene,GreyKingZote.turret_name),
+            (GreyKingZote.grey_king_scene,GreyKingZote.fat_name),
+            (Check.music_scene,Check.music_object),
         };
     }
 
@@ -64,6 +68,8 @@ internal static class PreloadManager
         BossManager.Init(ReservedGO);
         Uradiance.Init(ReservedGO);
         BattleChampions.Init(ReservedGO);
+        ChronosDesideria.Init();
+        GreyKingZote.Init();
     }
     internal static GameObject getGO(string scene, string name)
     {

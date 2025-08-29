@@ -122,29 +122,47 @@ internal static class RogueSceneManager
 
         switch (scenename)
         {
+            case "GG_Blue_Room":
+                if (FlowerManager.open)
+                {
+                    NPCManager.npcs[typeof(Emilitia).Name].SetPosition(Emilitia.blue_house_pos);
+                }
+                break;
             case "GG_Engine":
                 ItemManager.Instance.SetNoShop();
                 if (GameInfo.in_rogue)
                 {
                     ProcessManager.Instance.StartCoroutine(DelayShowDreamConvo(0.5f, "godseeker".Localize()));
-                    ItemManager.Instance.GiveReward(GameInfo.spa_count);
                 }
                 fly_go.SetActive(false);
+                break;
+            case "GG_Workshop":
+                if (FlowerManager.open)
+                {
+                    GameObject check = new("check");
+                    check.AddComponent<Check>();
+                }
                 break;
             case "GG_Atrium_Roof":
                 GameObject stair = GameObject.Instantiate(GameObject.Find("gg_plat_float_small"));
                 stair.transform.SetPosition2D(new Vector2(118, 64));
                 stair.SetActive(true);
+                for (int i = 0; i < 4; i++)
+                {
+                    GameObject plat = GameObject.Instantiate(GameObject.Find("gg_plat_float_small"));
+                    plat.transform.SetPosition2D(new Vector2(142.2207f, 43.5f + i * 5));
+                    plat.SetActive(true);
+                }
                 SetLeveler();
                 SetBench();
-                if (GameInfo.in_rogue)
-                {
-                    ItemManager.Instance.StartShopItem();
-                    ItemManager.Instance.SetShop(false);
-                    ResetAll();
-                    SetBench();
-                    SetGou();
-                }
+                // if (GameInfo.in_rogue)
+                // {
+                //     ItemManager.Instance.StartShopItem();
+                //     ItemManager.Instance.SetShop(false);
+                //     ResetAll();
+                //     SetBench();
+                //     SetGou();
+                // }
                 break;
             case "GG_Spa":
                 if (GameInfo.in_rogue)
@@ -162,24 +180,39 @@ internal static class RogueSceneManager
                             NPCManager.npcs[typeof(CharmSlug).Name].SetPosition(new Vector3(78, 16, 0.1f));
                             ItemManager.Instance.CharmShopItem();
                             ItemManager.Instance.SetShop(true);
+                            if (GameInfo.gameMode == GameInfo.GameMode.MODE1)
+                                NPCManager.npcs[typeof(Nailsmith).Name].SetPosition(Nailsmith.spa_pos);
                             break;
                         case 1:
+                            ItemManager.Instance.NormalShopItem();
+                            ItemManager.Instance.SetShop(true);
+                            SetBanker();
+                            break;
                         case 3:
                             ItemManager.Instance.NormalShopItem();
                             ItemManager.Instance.SetShop(true);
                             SetBanker();
+                            if (GameInfo.data.num_injured <= 10)
+                            {
+                                NPCManager.npcs[typeof(QuirrelNail).Name].SetPosition(QuirrelNail.spa_pos);
+                            }
                             break;
                         case 2:
                             NPCManager.npcs[typeof(Xun).Name].SetPosition(Xun.spa_pos);
                             break;
                         case 4:
-                            if (UnityEngine.Random.Range(0, 2) == 0)
+                            int t = UnityEngine.Random.Range(0, 3);
+                            if (t == 0)
                             {
                                 NPCManager.npcs[typeof(ElderBug).Name].SetPosition(ElderBug.spa_pos);
                             }
-                            else
+                            else if (t == 1)
                             {
                                 NPCManager.npcs[typeof(Jiji).Name].SetPosition(Jiji.spa_pos);
+                            }
+                            else
+                            {
+                                NPCManager.npcs[typeof(WishPool).Name].SetPosition(WishPool.spa_pos);
                             }
                             break;
                         case 6:

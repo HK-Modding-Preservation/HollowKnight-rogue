@@ -40,7 +40,8 @@ internal class NailMaster : Character
     {
         GameInfo.role = CharacterRole.nail_master;
         GiftHelper.AddNailDamage();
-        GiftHelper.max_nail_damage += HigherNailLevel;
+        GameInfo.max_nail_level += 1;
+        // GiftHelper.max_nail_damage += HigherNailLevel;
         PlayerData.instance.hasCyclone = true;
         PlayerData.instance.hasDashSlash = true;
         PlayerData.instance.hasUpwardSlash = true;
@@ -74,6 +75,9 @@ internal class NailMaster : Character
     GameObject accu_nail_art_effect = null;
     GameObject great_slash1;
     GameObject great_slash2;
+    GameObject great_slash3;
+    GameObject great_slash4;
+
     int shot_count = 0;
 
 
@@ -82,7 +86,7 @@ internal class NailMaster : Character
 
     public override void EndCharacter()
     {
-        GiftHelper.max_nail_damage -= HigherNailLevel;
+        // GiftHelper.max_nail_damage -= HigherNailLevel;
     }
     public override void GetBirthright(int num)
     {
@@ -121,6 +125,13 @@ internal class NailMaster : Character
                 great_slash2.name = "great_slash2";
                 great_slash1.transform.SetParent(accu_nail_art_effect.transform, false);
                 great_slash2.transform.SetParent(accu_nail_art_effect.transform, false);
+
+                great_slash3 = Instantiate(great_slash1);
+                great_slash3.name = "great_slash3";
+                great_slash4 = Instantiate(great_slash1);
+                great_slash4.name = "great_slash4";
+                great_slash3.transform.SetParent(accu_nail_art_effect.transform, false);
+                great_slash4.transform.SetParent(accu_nail_art_effect.transform, false);
                 nail_charge_ready = HeroController.instance.nailArtChargeComplete;
                 On.HeroController.Update += CheckNailLevel;
                 On.HeroController.FixedUpdate += CycloneEffect;
@@ -177,7 +188,7 @@ internal class NailMaster : Character
         var shot = Instantiate(hk_shot);
         shot.transform.position = base.transform.position + new Vector3(3, 0, 0);
         shot.GetComponent<Rigidbody2D>().gravityScale = 0;
-        shot.GetComponent<DamageEnemies>().damageDealt = (int)mul * PlayerData.instance.nailDamage;
+        shot.GetComponent<DamageEnemies>().damageDealt = (int)(mul * PlayerData.instance.nailDamage);
         if (level == 3) shot.GetComponent<tk2dSprite>().color = Color.black;
         shot.SetActive(true);
         shot.GetComponent<Rigidbody2D>().velocity = new Vector2(30 * Mathf.Cos(angle * Mathf.PI / 180), 30 * Mathf.Sin(angle * Mathf.PI / 180));
@@ -185,7 +196,7 @@ internal class NailMaster : Character
         shot2.transform.position = base.transform.position + new Vector3(-3, 0, 0);
         shot2.GetComponent<Rigidbody2D>().gravityScale = 0;
         shot2.transform.SetRotation2D(90f);
-        shot2.GetComponent<DamageEnemies>().damageDealt = (int)mul * PlayerData.instance.nailDamage;
+        shot2.GetComponent<DamageEnemies>().damageDealt = (int)(mul * PlayerData.instance.nailDamage);
         if (level == 3) shot2.GetComponent<tk2dSprite>().color = Color.black;
         shot2.SetActive(true);
         shot2.GetComponent<Rigidbody2D>().velocity = new Vector2(-30 * Mathf.Cos(angle * Mathf.PI / 180), -30 * Mathf.Sin(angle * Mathf.PI / 180));
@@ -219,7 +230,7 @@ internal class NailMaster : Character
         {
             if (self.gameObject.name == "Great Slash")
             {
-                ItemManager.Instance.StartCoroutine(DelayGreatSlash(nail_charge_level));
+                ItemManager.Instance.StartCoroutine(DelayGreatSlash2(nail_charge_level));
             }
             else if (self.gameObject.name == "Dash Slash")
             {
@@ -290,6 +301,69 @@ internal class NailMaster : Character
             count--;
 
         }
+
+    }
+    IEnumerator DelayGreatSlash2(int level)
+    {
+        accu_nail_art_effect.transform.SetParent(HeroController.instance.gameObject.FindGameObjectInChildren("Attacks")?.transform, false);
+        accu_nail_art_effect.transform.localPosition = new(-5, 0, 0);
+        if (level < 2) yield break;
+        accu_nail_art_effect.transform.SetParent(null, true);
+        accu_nail_art_effect.transform.SetScaleX(HeroController.instance.transform.localScale.x);
+        DontDestroyOnLoad(accu_nail_art_effect);
+
+        var gs = HeroController.instance.gameObject.FindGameObjectInChildren("Attacks").FindGameObjectInChildren("Great Slash");
+        Color col = gs.GetComponent<tk2dSprite>().color;
+        bool fury = gs.LocateMyFSM("nailart_damage").FsmVariables.FindFsmBool("Fury").Value;
+        if (level >= 2)
+        {
+            yield return new WaitForSeconds(0.2f);
+            great_slash1.GetComponent<tk2dSprite>().color = col;
+            great_slash1.LocateMyFSM("nailart_damage").FsmVariables.FindFsmBool("Fury").Value = fury;
+            great_slash1.LocateMyFSM("Control Collider").GetAction<SetScale>("Init", 2).y = -2.0f;
+            great_slash1.LocateMyFSM("Control Collider").GetAction<SetScale>("Deactivate", 3).y = -2.0f;
+            great_slash1.LocateMyFSM("Control Collider").GetAction<SetScale>("Init", 2).x = 2.0f;
+            great_slash1.LocateMyFSM("Control Collider").GetAction<SetScale>("Deactivate", 3).x = 2.0f;
+            great_slash1.LocateMyFSM("nailart_damage").FsmVariables.FindFsmFloat("Multiplier").Value = 1.5f;
+            great_slash1.SetActive(true);
+            great_slash1.transform.SetRotation2D(UnityEngine.Random.Range(0, 360));
+            yield return new WaitForSeconds(0.2f);
+            great_slash2.GetComponent<tk2dSprite>().color = col;
+            great_slash2.LocateMyFSM("nailart_damage").FsmVariables.FindFsmBool("Fury").Value = fury;
+            great_slash2.LocateMyFSM("Control Collider").GetAction<SetScale>("Init", 2).y = -2.0f;
+            great_slash2.LocateMyFSM("Control Collider").GetAction<SetScale>("Deactivate", 3).y = -2.0f;
+            great_slash2.LocateMyFSM("Control Collider").GetAction<SetScale>("Init", 2).x = -2.0f;
+            great_slash2.LocateMyFSM("Control Collider").GetAction<SetScale>("Deactivate", 3).x = -2.0f;
+            great_slash2.LocateMyFSM("nailart_damage").FsmVariables.FindFsmFloat("Multiplier").Value = 1.5f;
+            great_slash2.SetActive(true);
+            great_slash2.transform.SetRotation2D(UnityEngine.Random.Range(0, 360));
+        }
+        if (level >= 3)
+        {
+            yield return new WaitForSeconds(0.2f);
+            great_slash3.GetComponent<tk2dSprite>().color = col;
+            great_slash3.LocateMyFSM("nailart_damage").FsmVariables.FindFsmBool("Fury").Value = fury;
+            great_slash3.LocateMyFSM("Control Collider").GetAction<SetScale>("Init", 2).y = 2.0f;
+            great_slash3.LocateMyFSM("Control Collider").GetAction<SetScale>("Deactivate", 3).y = 2.0f;
+            great_slash3.LocateMyFSM("Control Collider").GetAction<SetScale>("Init", 2).x = -2.0f;
+            great_slash3.LocateMyFSM("Control Collider").GetAction<SetScale>("Deactivate", 3).x = -2.0f;
+            great_slash3.LocateMyFSM("nailart_damage").FsmVariables.FindFsmFloat("Multiplier").Value = 1.5f;
+            great_slash3.SetActive(true);
+            great_slash3.transform.SetRotation2D(UnityEngine.Random.Range(0, 360));
+            yield return new WaitForSeconds(0.2f);
+            great_slash4.GetComponent<tk2dSprite>().color = col;
+            great_slash4.LocateMyFSM("nailart_damage").FsmVariables.FindFsmBool("Fury").Value = fury;
+            great_slash4.LocateMyFSM("Control Collider").GetAction<SetScale>("Init", 2).y = 2.0f;
+            great_slash4.LocateMyFSM("Control Collider").GetAction<SetScale>("Deactivate", 3).y = 2.0f;
+            great_slash4.LocateMyFSM("Control Collider").GetAction<SetScale>("Init", 2).x = 2.0f;
+            great_slash4.LocateMyFSM("Control Collider").GetAction<SetScale>("Deactivate", 3).x = 2.0f;
+            great_slash4.LocateMyFSM("nailart_damage").FsmVariables.FindFsmFloat("Multiplier").Value = 1.5f;
+            great_slash4.SetActive(true);
+            great_slash4.transform.SetRotation2D(UnityEngine.Random.Range(0, 360));
+        }
+        yield return new WaitForSeconds(1f);
+
+
 
     }
     IEnumerator DelayGreatSlash(int level)

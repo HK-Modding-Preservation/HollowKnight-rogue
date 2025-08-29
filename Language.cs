@@ -30,7 +30,7 @@ public static class Lang
             if (!file.Contains("lang")) continue;
             var bytes = Assembly.GetExecutingAssembly().GetBytesFromResources(file);
             var temp = JsonConvert.DeserializeObject<Dictionary<string, string>>(System.Text.Encoding.UTF8.GetString(bytes));
-            texts.Add(Path.GetFileNameWithoutExtension(file).Split('.').Last().ToLower(), temp);
+            texts.Add(Path.GetFileNameWithoutExtension(file).Split('.').Last().ToLowerInvariant(), temp);
         }
 
 
@@ -39,7 +39,7 @@ public static class Lang
     }
     public static string Localize(this string name)
     {
-        string now_lan = Language.Language.CurrentLanguage().ToString().ToLower();
+        string now_lan = Language.Language.CurrentLanguage().ToString().ToLowerInvariant();
         foreach (var item in texts)
         {
             if (now_lan.Contains(item.Key))
@@ -67,5 +67,10 @@ public static class Lang
         }
         return no_that_key;
     }
+    internal static string YES => Language.Language.Get("NAV_YES", "MainMenu");
+
+    internal static string NO => Language.Language.Get("NAV_NO", "MainMenu");
+    internal static string Cancel => Language.Language.Get("CTRL_CANCEL", "UI");
+
 
 }

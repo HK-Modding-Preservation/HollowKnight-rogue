@@ -1,12 +1,12 @@
 
 namespace rogue;
+
 internal class ChaosBoss : CustomGift
 {
-    public ChaosBoss() : base(Giftname.custom_chaos_boss, 4, "witches_eye")
+    public ChaosBoss() : base(Giftname.custom_chaos_boss, 0, "witches_eye")
     {
         name = "custom_chaos_boss_name";
         desc = "custom_chaos_boss_desc";
-        weight = 0.5f;
     }
 
     protected override void _GetGift()
@@ -17,13 +17,14 @@ internal class ChaosBoss : CustomGift
 
     private void OnSceneChanged(Scene arg0, Scene arg1)
     {
-        if (arg1.name == "GG_Spa")
-            ItemManager.Instance.StartCoroutine(ChangeBoss());
+        if (arg1.name == "GG_Spa" || arg1.name == "GG_Engine")
+            if (BossSequenceController.BossIndex <= 45)
+                ItemManager.Instance.StartCoroutine(ChangeBoss());
     }
     IEnumerator ChangeBoss()
     {
         yield return new WaitForSeconds(0.2f);
-        Rogue.Instance.boss_scenes.ShuffleArray(BossSequenceController.BossIndex + 1, BossSequenceController.BossIndex + 6);
+        Rogue.Instance.boss_scenes.ShuffleArray(BossSequenceController.BossIndex + 1, BossSequenceController.BossIndex + 5);
 
     }
     void TestShuffle()

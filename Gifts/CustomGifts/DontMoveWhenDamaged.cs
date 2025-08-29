@@ -1,12 +1,12 @@
 namespace rogue;
+
 internal class DontMoveWhenDamaged : CustomGift
 {
     internal DontMoveWhenDamaged() : base(Giftname.custom_dont_move_when_damaged, 4, "witches_eye")
     {
         price = 200;
-        weight = 0.5f;
-        name = "custom_dont_move_when_damaged_desc";
-        desc = "受伤时不会再产生强制移动";
+        name = "custom_dont_move_when_damaged_name";
+        desc = "custom_dont_move_when_damaged_desc";
     }
     float ori_vel;
     protected override void _GetGift()
