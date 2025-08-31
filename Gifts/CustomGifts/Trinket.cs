@@ -6,7 +6,7 @@ internal class Trinket1 : CustomCountedGift
     System.Random random = new System.Random();
     public Trinket1() : base(Giftname.custom_counted_trinket1, 4, "trinket1")
     {
-        weight = 0f;
+        weight = 0.5f;
         price = 200;
     }
 

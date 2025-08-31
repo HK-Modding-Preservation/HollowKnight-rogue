@@ -138,7 +138,7 @@ public class ItemManager : MonoBehaviour
     }
     static void AdjustMenuGO(GameObject menu_go)
     {
-
+        
         menu_go.LocateMyFSM("shop_control").ChangeTransition("Stock?", "FINISHED", "Open Window");
         // menu_go.LocateMyFSM("shop_control").ChangeTransition("Stock?", "NO STOCK", "Open Window");
         menu_go.LocateMyFSM("shop_control").FsmVariables.FindFsmString("No Stock Event").Value = "ISELDA";
@@ -368,7 +368,9 @@ public class ItemManager : MonoBehaviour
         var master_menu_stock = menu_go.GetComponent<ShopMenuStock>();
 
         master_menu_stock.stock = shop_items.ToArray();
+        master_menu_stock.stockAlt = master_menu_stock.stock;
         menustock.stock = shop_items.ToArray();
+        menustock.stockAlt = menustock.stock;
         Rogue.Instance.shop_items.Clear();
         foreach (var shop_item in shop_items)
         {
