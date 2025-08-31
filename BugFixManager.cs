@@ -29,7 +29,10 @@ internal static class BugFixManager
         orig(self);
         if (self.name == "Absolute Radiance" && self.FsmName == "Control")
         {
-            self.GetAction<SetStaticVariable>("Ending Scene", 1).setValue.boolValue = false;//Modify this action to leave p5 as other doors
+            if (GameInfo.in_rogue)
+            {
+                self.GetAction<SetStaticVariable>("Ending Scene", 1).setValue.boolValue = false;//Modify this action to leave p5 as other doors
+            }
         }
     }
 
