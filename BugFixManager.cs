@@ -2,6 +2,7 @@
 
 
 
+
 namespace rogue;
 
 internal static class BugFixManager
@@ -20,6 +21,16 @@ internal static class BugFixManager
         On.ObjectPool.DestroyPooled_GameObject_int += OnDestroyPooled;
         On.tk2dSpriteAnimator.OnEnable += OnSpriteAnimatorEnable;
         On.PlayMakerFSM.Awake += ChangeHealth;
+        On.PlayMakerFSM.OnEnable += ChangeEnding;
+    }
+
+    private static void ChangeEnding(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
+    {
+        orig(self);
+        if (self.name == "Absolute Radiance" && self.FsmName == "Control")
+        {
+            self.GetAction<SetStaticVariable>("Ending Scene", 1).setValue.boolValue = false;//Modify this action to leave p5 as other doors
+        }
     }
 
     private static void ChangeHealth(On.PlayMakerFSM.orig_Awake orig, PlayMakerFSM self)
@@ -106,11 +117,7 @@ internal static class BugFixManager
         }
     }
 
-    private static void ChangeHealth(On.PlayMakerFSM.orig_OnEnable orig, PlayMakerFSM self)
-    {
 
-        orig(self);
-    }
 
     private static void OnSpriteAnimatorEnable(On.tk2dSpriteAnimator.orig_OnEnable orig, tk2dSpriteAnimator self)
     {
