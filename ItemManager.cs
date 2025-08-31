@@ -871,7 +871,9 @@ public class ItemManager : MonoBehaviour
                     temp = temp.FindGameObjectInChildren(s);
                     if (temp == null) { ("null is " + s).TestLog(); return; }
                 }
+                temp.GetComponent<SetTextMeshProGameText>().enabled = false;
                 temp.GetComponent<TMPro.TextMeshPro>().text = name;
+
                 temp.GetComponent<TMPro.TextMeshPro>().fontSize = Rogue.Instance._set.item_font_size;
             }, 2);
 
