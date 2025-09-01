@@ -16,6 +16,7 @@ internal class BattleChampions : MonoBehaviour
     int head_damage = 0;
     int head_hp;
     bool is_head = false;
+    bool waiting = false;
     List<HealthManager> wholes = new();
     List<HealthManager> heads = new();
     bool only_fk = true;
@@ -93,6 +94,19 @@ internal class BattleChampions : MonoBehaviour
 
     void Update()
     {
+        if (waiting)
+        {
+            var state1 = fk1.LocateMyFSM("FalseyControl").ActiveStateName;
+            var state2 = fk2.LocateMyFSM("FalseyControl").ActiveStateName;
+            var state3 = only_fk ? fk3.LocateMyFSM("FalseyControl").ActiveStateName : base.gameObject.LocateMyFSM("FalseyControl").ActiveStateName;
+            if ((state1 == "Opened" || state1 == "Opened 2") &&
+            (state2 == "Opened" || state2 == "Opened 2") &&
+            (state3 == "Opened" || state3 == "Opened 2"))
+            {
+                waiting = false;
+            }
+            else return;
+        }
         if (is_head)
         {
             head_damage = head_hp - heads.Sum((h) => h.hp);
@@ -110,6 +124,7 @@ internal class BattleChampions : MonoBehaviour
                     base.gameObject.FindGameObjectInChildren("Head").LocateMyFSM("Health Check").SendEvent("STUN");
                 }
                 is_head = !is_head;
+
             }
         }
         if (!is_head)
@@ -129,6 +144,7 @@ internal class BattleChampions : MonoBehaviour
                     base.gameObject.LocateMyFSM("Check Health").SendEvent("STUN");
                 }
                 is_head = !is_head;
+                waiting = true;
             }
         }
     }
