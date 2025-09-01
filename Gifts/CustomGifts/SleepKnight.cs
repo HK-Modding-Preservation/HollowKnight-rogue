@@ -5,6 +5,7 @@ internal class SleepKnight : CustomGift
     internal SleepKnight() : base(Giftname.custom_sleep_knight, 0, "witches_eye")
     {
         price = 100;
+        weight = 0f;
         name = "custom_sleep_knight_name";
         desc = "custom_sleep_knight_desc";
     }
