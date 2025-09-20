@@ -848,6 +848,7 @@ internal static class GiftFactory
         all_gifts.Add(Giftname.custom_city_crest, new CityCrest());
         all_gifts.Add(Giftname.custom_mender_key, new MenderKey());
         all_gifts.Add(Giftname.custom_one_two_another_collider, new AnotherCollider());
+        all_gifts.Add(Giftname.custom_dont_move_when_damaged, new DontMoveWhenDamaged());
         // all_gifts.Add(Giftname.custom_darkness, new Darkness());摸黑好难
     }
     private static void ItemInit()

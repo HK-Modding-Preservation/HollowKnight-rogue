@@ -509,7 +509,7 @@ internal class DisplayManager : MonoBehaviour
         {
             if (GameInfo.Branch.radiance)
             {
-                scoreText.text += "\n125,225  270,315  135,270  0,225";
+                scoreText.text += "\n135,225  270,315  135,270  0,225";
             }
             else
             {
