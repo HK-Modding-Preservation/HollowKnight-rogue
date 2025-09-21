@@ -210,6 +210,20 @@ static class GiftHelper
         PlayMakerFSM.BroadcastEvent("CHARM INDICATOR CHECK");
         PlayMakerFSM.BroadcastEvent("CHARM EQUIP CHECK");
     }
+    internal static void AdjustGrimmLevel(int level)
+    {
+        if (level < 0 || level > 5) return;
+        PlayerData.instance.grimmChildLevel = level;
+        UnityEngine.Object.Destroy(GameObject.FindWithTag("Grimmchild"));
+        UpdateCharmsEffects();
+        GameManager.instance.StartCoroutine(SpawnGrimmChild());
+        IEnumerator SpawnGrimmChild()
+        {
+            for (int i = 0; i < 2; i++) yield return null;
+            HeroController.instance.transform.Find("Charm Effects").gameObject.LocateMyFSM("Spawn Grimmchild").SendEvent("CHARM EQUIP CHECK");
+        }
+        PlayerData.instance.destroyedNightmareLantern = level == 5;
+    }
 
     public static void GiveAllCharms()
     {
@@ -226,7 +240,8 @@ static class GiftHelper
         PlayerData.instance.fragileGreed_unbreakable = true;
         PlayerData.instance.fragileStrength_unbreakable = true;
         PlayerData.instance.fragileHealth_unbreakable = true;
-        PlayerData.instance.grimmChildLevel = 5;
+        AdjustGrimmLevel(5);
+
         PlayerData.instance.charmCost_40 = 3;
         PlayerData.instance.charmSlots = 11;
 
@@ -247,7 +262,7 @@ static class GiftHelper
         PlayerData.instance.fragileGreed_unbreakable = true;
         PlayerData.instance.fragileStrength_unbreakable = true;
         PlayerData.instance.fragileHealth_unbreakable = true;
-        PlayerData.instance.grimmChildLevel = 5;
+        AdjustGrimmLevel(5);
         PlayerData.instance.charmCost_40 = 3;
         PlayerData.instance.charmSlots = 3;
         PlayerData.instance.equippedCharms.Clear();

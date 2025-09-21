@@ -48,7 +48,7 @@ internal class Collector : Character
     {
         GameInfo.role = CharacterRole.collector;
         PlayerData.instance.gotCharm_40 = true;
-        PlayerData.instance.grimmChildLevel = 4;
+        GiftHelper.AdjustGrimmLevel(4);
         PlayerData.instance.charmCost_40 = 2;
         PlayerData.instance.gotCharm_38 = true;
         PlayerData.instance.equippedCharm_38 = true;
