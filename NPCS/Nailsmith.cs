@@ -43,7 +43,7 @@ internal class Nailsmith : NPC
         yes.not_select_info = "geo_cant_select_info".Localize();
         selectItems.Add(yes);
         RogueUIManager.SelectItem no = new(Lang.NO);
-        no.select_action = (select) => { ShowDialogue(" 拒绝"); };
+        no.select_action = (select) => { ShowDialogue("拒绝"); };
         selectItems.Add(no);
         RogueUIManager.StartSelection(0.3f, "npc_smith_update_conv_1".Localize() + (mode == 1 ? 600 : 1000) + "geo" + "npc_smith_update_conv_2".Localize(), selectItems, 2);
     }

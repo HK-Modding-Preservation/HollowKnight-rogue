@@ -107,7 +107,11 @@ internal abstract class NPC
     {
         RogueUIManager.DialogueUI.customDialogueManager.OnEndConversation((convo_name) =>
         {
-            if (convo_name == GetSpecialName(name)) action();
+            if (convo_name == GetSpecialName(name))
+            {
+                action();
+                RogueUIManager.DialogueUI.customDialogueManager.currentDialog = "";
+            }
         });
     }
     internal virtual void ShowDialogue(string name)
@@ -144,6 +148,7 @@ internal abstract class NPC
         if (!keep)
         {
             go.SetActive(false);
+            RogueUIManager.DialogueUI.customDialogueManager.currentDialog = "";
             UnityEngine.SceneManagement.SceneManager.activeSceneChanged -= DeactivateSelf;
         }
 

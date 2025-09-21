@@ -80,6 +80,10 @@ internal static class RogueUIManager
         DialogueUI.customDialogueManager = new(PreloadManager.getGO(card_scene, card_name));
         DialogueUI.customDialogueManager.DialogManager.GetComponent<SpriteRenderer>().enabled = false;
         DialogueUI.customDialogueManager.DialogManager.FindGameObjectInChildren("Shiny").SetActive(false);
+        DialogueUI.customDialogueManager.OnEndConversation((name) =>
+        {
+            ("Conversation name is " + name).TestLog();
+        });
         DialogueUI.initialized = true;
         conversation = "132";
     }
