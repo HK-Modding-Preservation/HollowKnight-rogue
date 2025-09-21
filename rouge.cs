@@ -462,10 +462,34 @@ public class Rogue : Mod, ICustomMenuMod, IGlobalSettings<Setting>
         {
             Utils.GoToMenuScreen(ss);
         }));
+
+
+        Menu cheat_buttons = new("Cheat Button");
+        cheat_buttons.AddElement(new Satchel.BetterMenus.MenuButton("give_all_skill".Localize(),
+         "give_all_skill_desc".Localize(),
+         (but) =>
+        {
+            GiftHelper.GiveAllSkills();
+            DisplayManager.DisplayStates();
+        }));
+        cheat_buttons.AddElement(new Satchel.BetterMenus.MenuButton("end_scene".Localize(),
+        "end_scene_desc".Localize(),
+        (but) =>
+        {
+            BossSceneController.Instance?.EndBossScene();
+        }
+        )
+        );
+        var cs = cheat_buttons.GetMenuScreen(cheat_buttons.returnScreen);
+        menu.AddElement(new MenuButton("cheat_button".Localize(), "cheat_button_desc".Localize(), (but) =>
+        {
+            Utils.GoToMenuScreen(cs);
+        }));
         menu.AddElement(text);
         var ms = menu.GetMenuScreen(modListMenu);
         giftBase.returnScreen = ms;
         setting.returnScreen = ms;
+        cheat_buttons.returnScreen = ms;
         return ms;
 
     }

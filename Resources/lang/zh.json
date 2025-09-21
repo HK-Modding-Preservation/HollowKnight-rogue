@@ -259,5 +259,11 @@
     "flower_spa_4_2": "这样的小家伙居然如此善良，让我的心悸动不已",
     "details": "统计详情",
     "modboss_in_workshop": "手办屋挑战支线BOSS",
-    "testlog": "测试日志"
+    "testlog": "测试日志",
+    "give_all_skill": "给予全能力",
+    "give_all_skill_desc": "请仅在能力不足以到达五门时使用",
+    "end_scene": "直接过场",
+    "end_scene_desc": "请在确认卡住无法通关时使用",
+    "cheat_button": "作弊按钮",
+    "cheat_button_desc": "请仅在mod出现问题时使用"
 }
