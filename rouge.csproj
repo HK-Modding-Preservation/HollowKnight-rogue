@@ -25,6 +25,8 @@
     <LangVersion>latest</LangVersion>
      <!-- <DebugType>embedded</DebugType> -->
      <DebugType>portable</DebugType>
+     <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
 <Target Name="CopyMod" AfterTargets="PostBuildEvent">
